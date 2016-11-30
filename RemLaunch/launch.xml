@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="build_all" name="Launch RemGem Project">
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="${dir.buildfile}/.."/>
+    <property name="dir.jarfile" value="${dir.buildfile}/jars"/>
+    <property name="dir.launch" value= "C:\Users\Geoffrey\workspace\War for the Skies\RemLaunch"/>
+    <target name="create_gem_jar">
+    	<jar destfile="./jars/engine.jar" basedir="../RemGem/bin" />
+  	</target>
+  	<target name="create_core_wfs_jar">
+    	<jar destfile="./jars/wfs_core.jar" basedir="../RemwfsCore/bin" />
+  	</target>
+  	<target name="create_wfs_pc_runnable_jar">
+        <jar destfile="./jars/wfs_runnable.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="com.rem.wfs.pc.Main"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${dir.workspace}/RemwfsPc/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/wfs_core.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/volumeAdjustEnabled_JLayer.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/RemwfsPc/lwjgl-2.9.0/jar/lwjgl.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/RemwfsPc/lwjgl-2.9.0/jar/lwjgl_util.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/engine.jar"/>
+        </jar>
+    </target>
+  	<target name="create_wfs_server_jar">
+        <jar destfile="./jars/wfs_server.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="com.rem.core.server.Server"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${dir.workspace}/RemWfSServer/bin"/>
+        </jar>
+    </target>
+    
+    <target name="wrap_wfs_main_to_exe">
+        <exec executable="C:\Program Files (x86)\Launch4j\launch4j.exe">
+             <arg value="${dir.launch}/launch4j/main.xml"/>
+        </exec>
+    </target>
+    <target name="publish_to_installer">
+        <exec executable="C:\Program Files (x86)\BitRock InstallBuilder for Windows 16.10.0\bin\builder.exe">
+             <arg value="build"/>
+      		 <arg value="${dir.launch}/install_builder.xml"/>
+        </exec>
+          
+        <delete dir="./output" failonerror="true"/> 
+        <copy todir="./output" overwrite="true">
+            <fileset dir="C:\Users\Geoffrey\Documents\InstallBuilder\output"/>
+        </copy>
+        
+    </target>
+    <target name="wfs_copy_resources">        
+        <delete dir="./wfs/data" failonerror="true"/>  
+        <delete dir="./wfs/res" failonerror="true"/>  
+        <delete dir="./wfs/jars" failonerror="true"/>
+        <copy todir="./wfs/data">  
+             <fileset dir="./data" includes="**"/>
+        </copy>
+        <copy todir="./wfs/res">  
+             <fileset dir="./res" includes="**"/>
+        </copy>        
+        <copy todir="./wfs/jars">  
+             <fileset dir="./jars"/>
+        </copy>
+    </target>
+    <target name="build_wfs">
+       <antcall target="create_gem_jar"/>
+       <antcall target="create_core_wfs_jar"/>
+       <antcall target="create_wfs_pc_runnable_jar"/>
+       <antcall target="create_wfs_server_jar"/>
+       <antcall target="wrap_wfs_main_to_exe"/>
+       <antcall target="wfs_copy_resources"/>
+       <antcall target="publish_to_installer"/>
+    </target>
+</project>
