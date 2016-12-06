@@ -1,4 +1,4 @@
-package com.rem.otl.pc;
+package com.rem.wfs.pc;
 
 import com.rem.core.gui.graphics.GraphicView;
 import com.rem.core.Hub;

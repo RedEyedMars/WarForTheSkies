@@ -1,17 +1,58 @@
 package com.rem.wfs.environment.resource.personel;
 
-import com.rem.core.storage.Storable;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.rem.core.gui.graphics.GraphicElement;
 import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
+import com.rem.core.storage.handler.StorableListStorageHandler;
+import com.rem.wfs.Creatable;
+import com.rem.wfs.graphics.R;
 
-public class Personel implements Storable {
+public class Personel implements Creatable {
 
 	private static final PersonelStockType PERSONEL = new PersonelStockType();
+	private static final int numberOfTraitsPerPerson = 3;
 
-	public static final int ID_POPULATION = PERSONEL.getId();	
+	public static final int ID_POPULATION = PERSONEL.getId();
+
+	private PortraitDescription description;
+	private PersonelName name;
+	private List<PersonelTrait> traits = new ArrayList<PersonelTrait>(numberOfTraitsPerPerson);
+	public Personel(){
+		this.description = new PortraitDescription();
+		this.name = new PersonelName();
+	}
+	public void onCreate(){
+		this.description.onCreate();
+		this.name.onCreate();
+		for(int i=0;i<numberOfTraitsPerPerson;++i){
+			PersonelTrait trait = new PersonelTrait();
+			trait.onCreate();
+			this.traits.add(trait);
+		}
+	}
 	@Override
 	public StorageHandler getStorageHandler() {
-		return new HandlerListStorageHandler();
+		return new HandlerListStorageHandler(
+				description,
+				name,
+				new StorableListStorageHandler<PersonelTrait>(traits,numberOfTraitsPerPerson){
+
+					@Override
+					public PersonelTrait createPlaceHolder() {
+						return new PersonelTrait();
+					}
+				});
+	}
+	public PortraitIcon getPortaitIcon(int id) {
+		return new PortraitIcon(this,
+				new GraphicElement(R.faces_traits),
+				description,name.getFullName(),id);
+	}
+	public PersonelName getName() {
+		return name;
 	}
 
 }

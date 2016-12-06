@@ -1,16 +1,16 @@
 package com.rem.wfs.environment.resource;
 
-import com.rem.core.storage.Storable;
+import com.rem.wfs.Creatable;
 
-public abstract class StockType<T extends Storable> extends ResourceType{
+public abstract class StockType<T extends Creatable> extends ResourceType<StockList<T>>{
 
 	public StockType(String name, String description,
-			String iconTexture, int iconFrame, 
-			String iconBackgroundTexture, int iconBackgroundFrame) {
+			int iconTexture, int iconFrame, 
+			int iconBackgroundTexture, int iconBackgroundFrame) {
 		super(name, description, iconTexture, iconFrame, iconBackgroundTexture, iconBackgroundFrame);
 	}
 	@Override
-	public SpaceResource createPlaceHolder(ResourceContainer container) {
+	public StockList<T> createPlaceHolder(ResourceContainer container) {
 		return new StockList<T>(container, this);
 	}
 	public abstract T createObjectPlaceHolder();

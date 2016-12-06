@@ -2,6 +2,7 @@ package com.rem.wfs.environment.resource;
 
 import com.rem.core.storage.handler.StorableListStorageHandler;
 
+@SuppressWarnings("rawtypes")
 public class ResourceListStorageHandler extends StorableListStorageHandler<SpaceResource>{
 	private ResourceContainer container;
 

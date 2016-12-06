@@ -102,11 +102,11 @@ public class GraphicEntity extends GraphicView {
 		element.rotate((float) (r*360/2f/Math.PI));
 	}
 
-	public void setTextureName(String string) {
-		this.element.setTextureName(string);
+	public void setTextureName(int id) {
+		this.element.setTexture(id);
 	}
-	public String getTextureName() {
-		return element.getTextureName();
+	public int getTexture() {
+		return element.getTexture();
 	}
 	public GraphicElement getGraphicElement() {
 		return element;

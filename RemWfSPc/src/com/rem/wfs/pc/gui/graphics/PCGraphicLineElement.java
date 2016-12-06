@@ -1,4 +1,4 @@
-package com.rem.otl.pc.gui.graphics;
+package com.rem.wfs.pc.gui.graphics;
 
 import org.lwjgl.opengl.GL11;
 

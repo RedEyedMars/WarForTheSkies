@@ -10,6 +10,7 @@ import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
 import com.rem.wfs.environment.Identifiable;
 import com.rem.wfs.environment.IdentityStorageHandler;
+import com.rem.wfs.graphics.R;
 
 public class SpaceSystem extends GraphicEntity implements Storable, Identifiable{
 
@@ -51,7 +52,7 @@ public class SpaceSystem extends GraphicEntity implements Storable, Identifiable
 	};
 
 	public SpaceSystem() {
-		super(new GraphicElement("space_objects"));
+		super(new GraphicElement(R.space_objects));
 	}
 
 	@Override

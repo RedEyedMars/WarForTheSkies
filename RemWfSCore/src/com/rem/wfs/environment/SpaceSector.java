@@ -53,7 +53,7 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 
 	public SpaceSector() {
 		super();
-		new Material(new SpaceHexagon(),0);
+		new Material(new SpaceHexagon(),null);
 		new Personel();
 		new SpaceShip();
 	}

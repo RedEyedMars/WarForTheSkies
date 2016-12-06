@@ -10,8 +10,9 @@ import com.rem.core.storage.Storable;
 import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
 import com.rem.core.storage.handler.StorableListStorageHandler;
+import com.rem.wfs.Creatable;
 
-public class StockList<Type extends Storable> extends SpaceResource implements Storable, List<Type>{
+public class StockList<Type extends Creatable> extends SpaceResource<StockList<Type>> implements Storable, List<Type>{
 
 	private List<Type> list = new ArrayList<Type>();
 	private StockType<Type> stockType;
@@ -21,9 +22,20 @@ public class StockList<Type extends Storable> extends SpaceResource implements S
 	}
 
 	@Override
+	public void onCreate(){
+		super.onCreate();
+		int size = (int)(float)getValue();
+		setValue(getValue()-size);
+		for(int i=0;i<size;++i){
+			Type element = stockType.createObjectPlaceHolder();
+			element.onCreate();
+			add(element);
+		}
+	}
+	@Override
 	public StorageHandler getStorageHandler() {
 		return new HandlerListStorageHandler(
-				new ResourceStorageHandler(this),
+				new ResourceStorageHandler<StockList<Type>>(this),
 				new StorableListStorageHandler<Type>(list,(int)(float)getValue()){
 					@Override
 					public Type createPlaceHolder() {

@@ -1,4 +1,4 @@
-package com.rem.otl.pc;
+package com.rem.wfs.pc;
 
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -9,13 +9,14 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
 
-import com.rem.otl.pc.gui.gl.Log;
-import com.rem.otl.pc.gui.gl.PCGui;
-import com.rem.otl.pc.gui.graphics.PCGraphicRenderer;
-import com.rem.otl.pc.gui.music.Track;
 import com.rem.wfs.environment.SpaceSector;
+import com.rem.wfs.pc.gui.gl.Log;
+import com.rem.wfs.pc.gui.gl.PCGui;
+import com.rem.wfs.pc.gui.graphics.PCGraphicRenderer;
+import com.rem.wfs.pc.gui.music.Track;
 import com.rem.core.gui.IGui;
 import com.rem.core.gui.graphics.GraphicRenderer;
+import com.rem.core.gui.graphics.R;
 import com.rem.core.gui.music.ITrack;
 import com.rem.core.gui.music.MusicPlayer;
 import com.rem.core.ICreator;
@@ -37,6 +38,11 @@ public class Creator implements ICreator{
 		GraphicRenderer renderer = new PCGraphicRenderer();
 		renderer.loadImages();
 		return renderer;
+	}
+	
+	@Override
+	public R createResourceHandler(){
+		return new com.rem.wfs.graphics.R();
 	}
 
 	public ITrack createTrack(String a, String b, String c, String d){

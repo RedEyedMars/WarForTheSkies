@@ -10,6 +10,7 @@ import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
 import com.rem.wfs.environment.Identifiable;
 import com.rem.wfs.environment.IdentityStorageHandler;
+import com.rem.wfs.graphics.R;
 
 public class Planet extends GraphicEntity implements Storable, Identifiable {
 	private static final int ASTEROID = 0;
@@ -39,7 +40,7 @@ public class Planet extends GraphicEntity implements Storable, Identifiable {
 	private double angleToCenter = Math.random()*Math.PI/2.0;
 
 	public Planet(SpaceSystem parentSystem){
-		super(new GraphicElement("space_objects"));
+		super(new GraphicElement(R.space_objects));
 		this.system = parentSystem;
 	}
 

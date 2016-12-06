@@ -37,21 +37,21 @@ public class GraphicText extends GraphicEntity {
 	protected int charIndex=0;
 	protected int lineIndex = 0;
 	private GraphicText self = this;
-	private String font;
+	private int font;
 	private int layer;
 	private boolean isVisible = true;
 	
 	private int justified = LEFT_JUSTIFIED;
 	protected GraphicEntity blinker;
-	public GraphicText(String font, String text, int layer) {
+	public GraphicText(int font, String text, int layer) {
 		super(new GraphicElement());
-		Hub.renderer.loadFont(font);
+		//Hub.renderer.loadFont(font);
 		this.font = font;
 		this.text = text;
 		this.layer = layer;
 		this.blinker = new GraphicEntity(
 					new GraphicElement(
-							"solid_colour",GraphicElement.COLOUR_YELLOW,
+							R.solid_colour,GraphicElement.COLOUR_YELLOW,
 							0f,0.975f,0.005f,0.025f,Hub.TOP_LAYER)){
 				private double since;
 				@Override
@@ -283,7 +283,7 @@ public class GraphicText extends GraphicEntity {
 		private float value;
 
 		public GraphicChar(char c) {
-			super(new GraphicElement("$"+font,c,layer));
+			super(new GraphicElement(font,c,layer));
 			setValue(c);
 			setVisible(isVisible);
 		}

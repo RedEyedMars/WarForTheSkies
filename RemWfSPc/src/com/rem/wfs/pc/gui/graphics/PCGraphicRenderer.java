@@ -1,4 +1,4 @@
-package com.rem.otl.pc.gui.graphics;
+package com.rem.wfs.pc.gui.graphics;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -11,12 +11,11 @@ import java.awt.image.BufferedImage;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
-import com.rem.otl.pc.gui.gl.GLApp;
-import com.rem.otl.pc.gui.gl.GLImage;
-
 import com.rem.core.gui.graphics.GraphicElement;
 import com.rem.core.gui.graphics.GraphicRenderer;
 import com.rem.core.gui.graphics.VisualBundle;
+import com.rem.wfs.pc.gui.gl.GLApp;
+import com.rem.wfs.pc.gui.gl.GLImage;
 
 public class PCGraphicRenderer extends GraphicRenderer{
 	private float[] cameraPos = new float[]{0f, 0f, 1f};
@@ -60,26 +59,25 @@ public class PCGraphicRenderer extends GraphicRenderer{
 
 	@Override
 	public void bindTexture(GraphicElement d){
-		if(previousTexture != texMap.get(d.getTextureName())){
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texMap.get(d.getTextureName()));
-			previousTexture = texMap.get(d.getTextureName());
+		if(previousTexture != texMap[d.getTexture()]){
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texMap[d.getTexture()]);
+			previousTexture = texMap[d.getTexture()];
 		}
 		if(d.isShape(GraphicElement.SHAPE_HEXAGON)){
-			GL11.glTexCoordPointer(2, 0, hexagonTextureBuffers.get(sizMap.get(d.getTextureName()))[d.getFrame()]);
+			GL11.glTexCoordPointer(2, 0, hexagonTextureBuffers.get(sizMap[d.getTexture()])[d.getFrame()]);
 		}
 		else {
-			GL11.glTexCoordPointer(2, 0, squareTextureBuffers.get(sizMap.get(d.getTextureName()))[d.getFrame()]);
+			GL11.glTexCoordPointer(2, 0, squareTextureBuffers.get(sizMap[d.getTexture()])[d.getFrame()]);
 		}
 	}
 
 	@Override
-	protected void createFont(String texName, String fontName, int fontStyle, int size, float[] foreground, float[] background) {
+	protected void createFont(int texId, String texName, String fontName, int fontStyle, int size, float[] foreground, float[] background) {
 		GLImage image = new GLImage(createCharImage(
-				texName, 
+				texId, 
 				new Font(fontName, fontStyle, size),size, foreground, background));
 		int tex = GLApp.makeTexture(image);
-		texMap.put("$"+texName, tex);
-		sizMap.put("$"+texName, 16+"x"+16);
+		addTexture(texName,tex,16+"x"+16);
 	}
 
 
@@ -93,7 +91,7 @@ public class PCGraphicRenderer extends GraphicRenderer{
 	 * @param bgColor  background color as rgb or rgba values in range 0-1 (set alpha to 0 to make transparent)
 	 * @return
 	 */
-	public BufferedImage createCharImage(String fontName, Font font, int size, float[] fgColor, float[] bgColor) {
+	public BufferedImage createCharImage(int fontName, Font font, int size, float[] fgColor, float[] bgColor) {
 		Color bg = bgColor==null? new Color(0,0,0,0) : (bgColor.length==3? new Color(bgColor[0],bgColor[1],bgColor[2],1) : new Color(bgColor[0],bgColor[1],bgColor[2],bgColor[3]));
 		Color fg = fgColor==null? new Color(1,1,1,1) : (fgColor.length==3? new Color(fgColor[0],fgColor[1],fgColor[2],1) : new Color(fgColor[0],fgColor[1],fgColor[2],fgColor[3]));
 		boolean isAntiAliased = true;

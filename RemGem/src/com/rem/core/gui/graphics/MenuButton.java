@@ -14,7 +14,7 @@ public class MenuButton extends GraphicEntity {
 	public MenuButton(String name) {
 		super(new GraphicElement());
 		left = new GraphicEntity(
-				new GraphicElement("speech_bubble",0,
+				new GraphicElement(R.speech_bubble,0,
 						0.2f,0f,
 						0.1f,0.15f,Hub.MID_LAYER)){
 			@Override
@@ -25,7 +25,7 @@ public class MenuButton extends GraphicEntity {
 		addChild(left);
 		mid = new GraphicEntity(
 				new GraphicElement(
-						"speech_bubble",1,
+						R.speech_bubble,1,
 						0.3f,0f,
 						0.4f,0.15f,Hub.MID_LAYER)){
 			@Override
@@ -35,7 +35,7 @@ public class MenuButton extends GraphicEntity {
 		};
 		addChild(mid);
 		right = new GraphicEntity(
-				new GraphicElement("speech_bubble",2,
+				new GraphicElement(R.speech_bubble,2,
 						0.7f,0f,
 						0.1f,0.15f,Hub.MID_LAYER)){
 			@Override
@@ -44,7 +44,7 @@ public class MenuButton extends GraphicEntity {
 			}
 		};
 		addChild(right);
-		text = new GraphicText("impact",name,Hub.MID_LAYER){
+		text = new GraphicText(R.impact,name,Hub.MID_LAYER){
 			@Override
 			public void reposition(float x, float y){
 				super.reposition(x, y);

@@ -1,4 +1,4 @@
-package com.rem.otl.pc.gui.gl;
+package com.rem.wfs.pc.gui.gl;
 
 
 import java.io.ByteArrayInputStream;

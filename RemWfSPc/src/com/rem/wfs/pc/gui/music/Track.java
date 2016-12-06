@@ -1,4 +1,4 @@
-package com.rem.otl.pc.gui.music;
+package com.rem.wfs.pc.gui.music;
 import java.io.File;
 import java.io.IOException;
 

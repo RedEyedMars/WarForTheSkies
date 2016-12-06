@@ -108,7 +108,8 @@ public class EventHandler extends Thread {
 	}
 
 	public void removeOnClick(MouseListener listener) {
-		while(!mouseListener.isEmpty()&&mouseListener.pop()!=listener){		
+		while(!mouseListener.isEmpty()&&
+				mouseListener.pop()!=listener){		
 		}
 		//System.out.println("pop"+mouseListener.size()+mouseListener.peek().getClass());
 	}

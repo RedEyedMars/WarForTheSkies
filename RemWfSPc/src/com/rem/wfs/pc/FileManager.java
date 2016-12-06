@@ -1,4 +1,4 @@
-package com.rem.otl.pc;
+package com.rem.wfs.pc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,13 +7,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import com.rem.core.Hub;
 import com.rem.core.IFileManager;
 import com.rem.core.storage.FileResource;
 import com.rem.core.storage.Storage;
+import com.rem.wfs.pc.gui.graphics.R;
 import com.rem.core.Action;
-import com.rem.otl.pc.gui.graphics.R;
 
 public class FileManager implements IFileManager{
 	@SuppressWarnings("rawtypes")
@@ -46,7 +52,6 @@ public class FileManager implements IFileManager{
 							} catch (FileNotFoundException e) {
 								File file = new File(resource.getPath());
 								try {
-									System.out.println(resource.getPath());
 									if(	file.createNewFile() ){
 										resource.set(new FileInputStream(resource.getPath()));
 										resource.setExists(false);
@@ -117,7 +122,53 @@ public class FileManager implements IFileManager{
 		else if(pathType==IFileManager.ABSOLUTE){
 			return new File(path);
 		}
+		else if(pathType==IFileManager.FROM_IMAGE_RESOURCE){
+			return R.getFile(path);
+		}
 		else return null;
 	}
 
+	@Override
+	public Iterator<String> getFileNames(String path, int pathType) {
+		File file = getDirectory(path,pathType);
+		if(!file.exists()){
+			try {
+				file = new File(R.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+				JarFile jarFile = new JarFile(file);
+				Enumeration<JarEntry> files = jarFile.entries();
+				List<String> fileNames = new ArrayList<String>();
+				path = "com/rem/wfs/pc/gui/graphics/"+path.replace(File.separator, "/")+"/";
+				while(files.hasMoreElements()){
+					String name = files.nextElement().getName();
+					if(name.startsWith(path)&&!name.endsWith("/")){
+						fileNames.add(name.replace(path, ""));
+					}
+				}
+				return fileNames.iterator();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+		else {
+			file = getDirectory(path,pathType);
+			List<String> fileNames = new ArrayList<String>();
+			for(File dir:file.listFiles()){
+				addFileNames("",dir,fileNames);
+			}
+			return fileNames.iterator();
+		}
+	}
+
+	private void addFileNames(String path, File currentDirectory, List<String> fileNames){
+		if(currentDirectory.isDirectory()){
+			path = path + currentDirectory.getName() + "/";
+			for(File file:currentDirectory.listFiles()){
+				addFileNames(path,file,fileNames);
+			}
+		}
+		else if(currentDirectory.isFile()){
+			fileNames.add(path+currentDirectory.getName());
+		}
+	}
 }

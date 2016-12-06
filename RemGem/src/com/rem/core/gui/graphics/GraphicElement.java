@@ -44,12 +44,13 @@ public class GraphicElement {
 	protected float y = 0f;
 	protected float width = 1f;
 	protected float height = 1f;
+	
 	protected float angle = 0.0f;
 	
 	protected int vertexNumber = 4;
 	protected FloatBuffer vertexBuffer;
 
-	protected String texName;
+	protected int textureId;
 	protected int frame = 0;
 	protected int layer = 0;
 
@@ -60,8 +61,8 @@ public class GraphicElement {
 	private int shapeId;
 	private boolean isBlank = false;
 
-	public GraphicElement(String textureName, int initialFrame, float x, float y, float w, float h, int layer, int shape){
-		setTextureName(textureName);
+	public GraphicElement(int textureId, int initialFrame, float x, float y, float w, float h, int layer, int shape){
+		setTexture(textureId);
 		setFrame(initialFrame);
 		setWidth(w);
 		setHeight(h);
@@ -70,32 +71,32 @@ public class GraphicElement {
 		setShape(shape);
 		setLayer(layer);
 	}
-	public GraphicElement(String textureName, int initialFrame, float x, float y, float w, float h, int layer){
-		this(textureName, initialFrame, x,y,w,h, layer, SHAPE_SQUARE);
+	public GraphicElement(int textureId, int initialFrame, float x, float y, float w, float h, int layer){
+		this(textureId, initialFrame, x,y,w,h, layer, SHAPE_SQUARE);
 	}
-	public GraphicElement(String textureName, int initialFrame, float x, float y, int layer){
-		this(textureName, initialFrame, x,y,1f,1f, layer, SHAPE_SQUARE);
+	public GraphicElement(int textureId, int initialFrame, float x, float y, int layer){
+		this(textureId, initialFrame, x,y,1f,1f, layer, SHAPE_SQUARE);
 	}
-	public GraphicElement(String textureName, float x, float y, int layer){
-		this(textureName, 0, x,y,1f,1f, layer, SHAPE_SQUARE);
+	public GraphicElement(int textureId, float x, float y, int layer){
+		this(textureId, 0, x,y,1f,1f, layer, SHAPE_SQUARE);
 	}
-	public GraphicElement(String textureName, int initialFrame, int layer){
-		this(textureName, initialFrame, 0f,0f,1f,1f, layer, SHAPE_SQUARE);
+	public GraphicElement(int textureId, int initialFrame, int layer){
+		this(textureId, initialFrame, 0f,0f,1f,1f, layer, SHAPE_SQUARE);
 	}
-	public GraphicElement(String textureName, int initialFrame, float x, float y, float w, float h){
-		this(textureName, initialFrame, x,y,w,h, Hub.BOT_LAYER, SHAPE_SQUARE);
+	public GraphicElement(int textureId, int initialFrame, float x, float y, float w, float h){
+		this(textureId, initialFrame, x,y,w,h, Hub.BOT_LAYER, SHAPE_SQUARE);
 	}
-	public GraphicElement(String textureName, float x, float y, float w, float h){
-		this(textureName, 0, x,y,w,h, Hub.BOT_LAYER, SHAPE_SQUARE);
+	public GraphicElement(int textureId, float x, float y, float w, float h){
+		this(textureId, 0, x,y,w,h, Hub.BOT_LAYER, SHAPE_SQUARE);
 	}
-	public GraphicElement(String textureName, float x, float y){
-		this(textureName, 0, x,y,1f,1f, Hub.BOT_LAYER, SHAPE_SQUARE);
+	public GraphicElement(int textureId, float x, float y){
+		this(textureId, 0, x,y,1f,1f, Hub.BOT_LAYER, SHAPE_SQUARE);
 	}
-	public GraphicElement(String textureName, int initialFrame){
-		this(textureName, initialFrame, 0f,0f,1f,1f, Hub.BOT_LAYER, SHAPE_SQUARE);
+	public GraphicElement(int textureId, int initialFrame){
+		this(textureId, initialFrame, 0f,0f,1f,1f, Hub.BOT_LAYER, SHAPE_SQUARE);
 	}
-	public GraphicElement(String textureName) {
-		this(textureName,0, 0f,0f,1f,1f, Hub.BOT_LAYER, SHAPE_SQUARE);
+	public GraphicElement(int textureId) {
+		this(textureId,0, 0f,0f,1f,1f, Hub.BOT_LAYER, SHAPE_SQUARE);
 	}
 	public GraphicElement(){
 		this.isBlank  = true;
@@ -221,12 +222,12 @@ public class GraphicElement {
 		hexagonBuffer.put(vertices);
 		hexagonBuffer.position(0);
 	}
-	public void setTextureName(String n){
-		texName = n;
+	public void setTexture(int id){
+		textureId = id;
 	}
 
-	public String getTextureName() {
-		return texName;
+	public int getTexture() {
+		return textureId;
 	}
 
 	public void draw(){

@@ -2,16 +2,18 @@ package com.rem.wfs.environment.resource.ship;
 
 import com.rem.core.gui.graphics.GraphicElement;
 import com.rem.core.gui.graphics.GraphicEntity;
-import com.rem.core.storage.Storable;
 import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
+import com.rem.wfs.Creatable;
 import com.rem.wfs.environment.Identifiable;
 import com.rem.wfs.environment.IdentityStorageHandler;
 import com.rem.wfs.environment.resource.ResourceContainer;
 import com.rem.wfs.environment.resource.ResourceType;
+import com.rem.wfs.environment.resource.StockList;
 import com.rem.wfs.environment.resource.StockType;
+import com.rem.wfs.graphics.R;
 
-public class SpaceShip extends GraphicEntity implements Storable, Identifiable{
+public class SpaceShip extends GraphicEntity implements Creatable, Identifiable{
 
 	private static final int HARBINGER_FRAME = 16;
 	private static final int HARBINGER_BACKGROUND_FRAME = 31;
@@ -23,8 +25,8 @@ public class SpaceShip extends GraphicEntity implements Storable, Identifiable{
 	private static final int MINER_BACKGROUND_FRAME = 30;
 	private static final SpaceShipStock HARBINGER = new SpaceShipStock(
 			"Flag Ship", "Used in defending large areas and is the only unit able of capturing other hexagons.",
-			"space_objects",HARBINGER_FRAME,
-			"space_objects",HARBINGER_BACKGROUND_FRAME
+			R.space_objects,HARBINGER_FRAME,
+			R.space_objects,HARBINGER_BACKGROUND_FRAME
 			){
 		@Override
 		public int generateInitialLimit(ResourceContainer container)
@@ -32,8 +34,8 @@ public class SpaceShip extends GraphicEntity implements Storable, Identifiable{
 	};
 	private static final SpaceShipStock LANCER = new SpaceShipStock(
 			"Lancer", "Long ranged bulky ship that can defend flag ships well.",
-			"space_objects",LANCER_FRAME,
-			"space_objects",LANCER_BACKGROUND_FRAME
+			R.space_objects,LANCER_FRAME,
+			R.space_objects,LANCER_BACKGROUND_FRAME
 			){
 		@Override
 		public int generateInitialLimit(ResourceContainer container)
@@ -41,8 +43,8 @@ public class SpaceShip extends GraphicEntity implements Storable, Identifiable{
 	};
 	private static final SpaceShipStock FIGHTER = new SpaceShipStock(
 			"Fighter", "Quick sleek ship, designed for quick manuevers.",
-			"space_objects",FIGHTER_FRAME,
-			"space_objects",FIGHTER_BACKGROUND_FRAME
+			R.space_objects,FIGHTER_FRAME,
+			R.space_objects,FIGHTER_BACKGROUND_FRAME
 			){
 		@Override
 		public int generateInitialLimit(ResourceContainer container)
@@ -50,8 +52,8 @@ public class SpaceShip extends GraphicEntity implements Storable, Identifiable{
 	};
 	private static final SpaceShipStock MINER = new SpaceShipStock(
 			"Miner", "Ship that cannot fight but does contibute to resource collection.",
-			"space_objects",MINER_FRAME,
-			"space_objects",MINER_BACKGROUND_FRAME
+			R.space_objects,MINER_FRAME,
+			R.space_objects,MINER_BACKGROUND_FRAME
 			){
 		@Override
 		public int generateInitialLimit(ResourceContainer container)
@@ -67,7 +69,7 @@ public class SpaceShip extends GraphicEntity implements Storable, Identifiable{
 	private StockType<SpaceShip> resource;
 
 	public SpaceShip() {
-		super(new GraphicElement("space_objects"));
+		super(new GraphicElement(R.space_objects));
 	}
 
 	@Override
@@ -87,9 +89,11 @@ public class SpaceShip extends GraphicEntity implements Storable, Identifiable{
 		this.resource = SpaceShipStock.types.get(id);
 	}
 
-	public ResourceType getResource() {
+	public ResourceType<StockList<SpaceShip>> getResource() {
 		return resource;
 	}
 
-
+	@Override
+	public void onCreate() {		
+	}
 }

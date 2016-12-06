@@ -4,11 +4,12 @@ import com.rem.core.Hub;
 import com.rem.core.gui.graphics.GraphicEntity;
 import com.rem.core.gui.graphics.GraphicText;
 import com.rem.core.gui.inputs.HoverEvent;
-import com.rem.wfs.Icon;
 import com.rem.wfs.environment.resource.ResourceType;
 import com.rem.wfs.environment.resource.SpaceResource;
+import com.rem.wfs.graphics.Icon;
+import com.rem.wfs.graphics.R;
 
-public class ResourceIcon extends Icon {
+public class ResourceIcon <T extends SpaceResource<T>>extends Icon {
 
 	private static final int SHOW_VALUE_STATE = 0;
 	private static final int SHOW_VALUE_AND_LIMIT_STATE = 1;
@@ -23,7 +24,7 @@ public class ResourceIcon extends Icon {
 	private GraphicEntity icon;
 	private GraphicText text;
 	private int state = SHOW_VALUE_STATE;
-	private SpaceResource resource;
+	private T resource;
 	private int justified;
 	private float iconSizeFactor = REGULAR_SIZE;
 
@@ -31,12 +32,12 @@ public class ResourceIcon extends Icon {
 	private static final int HIDE_STATE = 1;
 	private static int overallState = FREE_STATE;
 
-	public ResourceIcon(SpaceResource resource, ResourceType type, int justified) {
+	public ResourceIcon(T resource, ResourceType<T> type, int justified) {
 		super(type.getIconBackgroundElement(), type.getDescription(), type.getId());
 		this.resource = resource;
 		this.justified = justified;
 		icon = new GraphicEntity(type.getIconElement());
-		text = new GraphicText("arial",
+		text = new GraphicText(R.arial,
 				getStateText(),Hub.MID_LAYER);
 		text.setFontSize(GraphicText.FONT_SIZE_SMALL);
 		addChild(icon);

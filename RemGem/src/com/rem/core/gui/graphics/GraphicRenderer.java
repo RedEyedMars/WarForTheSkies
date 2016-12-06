@@ -1,13 +1,12 @@
 package com.rem.core.gui.graphics;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ import java.util.Map;
 import com.rem.core.Action;
 import com.rem.core.Hub;
 import com.rem.core.IFileManager;
-import com.rem.core.gui.inputs.ClickEvent;
 import com.rem.core.storage.FileResource;
 
 
@@ -33,9 +31,29 @@ public abstract class GraphicRenderer {
 	protected List<GraphicElement> drawMidLayer = new ArrayList<GraphicElement>();
 	protected List<GraphicElement> drawTopLayer = new ArrayList<GraphicElement>();
 
-	protected Map<String,Action<ClickEvent>> loadImageFromTextureName = new HashMap<String,Action<ClickEvent>>();
-	protected Map<String,Integer> texMap = new HashMap<String,Integer>();
-	protected Map<String,String> sizMap = new HashMap<String,String>();
+	protected List<Action<Integer>> loadImage = new ArrayList<Action<Integer>>();
+	protected Map<String, Integer> nameMap = new HashMap<String,Integer>(); 
+	protected int[] texMap = new int[]{
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+
+
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1,
+			-1,-1,-1,-1,-1,-1,-1,-1
+	};
+	protected String[] sizMap = new String[128];
 	protected Map<String,FloatBuffer[]> squareTextureBuffers = new HashMap<String,FloatBuffer[]>();
 	protected Map<String,FloatBuffer[]> hexagonTextureBuffers = new HashMap<String,FloatBuffer[]>();
 
@@ -74,7 +92,7 @@ public abstract class GraphicRenderer {
 				squareTextureBuffer[y*xMax+x] = byteBuffer.asFloatBuffer();
 				squareTextureBuffer[y*xMax+x].put(textures);
 				squareTextureBuffer[y*xMax+x].position(0);
-				
+
 				textures= new float[]{
 						// Mapping coordinates for the vertices
 						x/length, (y+0.5f)/height,		// top left		(V2)
@@ -108,7 +126,7 @@ public abstract class GraphicRenderer {
 		}
 
 		setupRenderCycle();
-		
+
 		for(int i=0;i<drawBotLayer.size();++i){
 			drawBotLayer.get(i).draw();
 		}
@@ -118,22 +136,18 @@ public abstract class GraphicRenderer {
 		for(int i=0;i<drawTopLayer.size();++i){
 			drawTopLayer.get(i).draw();
 		}
-		
+
 		cleanupRenderCycle();				
 	}
 
 	protected abstract void setupRenderCycle();
 	protected abstract void cleanupRenderCycle();
 	protected abstract void bindTexture(GraphicElement d);
-	protected abstract void createFont(String texName, String fontName, int fontStyle,int size, float[] foreGroundColour, float[] backgroundColour);
-	
+	protected abstract void createFont(int texId, String texName, String fontName, int fontStyle,int size, float[] foreGroundColour, float[] backgroundColour);
+
 	public abstract void drawGraphicElement(VisualBundle visualBundle);
 
 	public void drawTexture(GraphicElement d){
-
-		if(!texMap.containsKey(d.getTextureName())){
-			System.err.println(d.getTextureName()+" not a recognized texture name");
-		}
 		bindTexture(d);
 	}
 
@@ -165,94 +179,94 @@ public abstract class GraphicRenderer {
 	}
 	public void loadImages(){
 		if(!loaded ){
-			InputStream url = (Hub.manager.createInputStream("images"+File.separator+"image.list",IFileManager.FROM_IMAGE_RESOURCE)).get();
-			//Hub.log.debug("loadImages",url);
-			StringBuilder fileBuilder = new StringBuilder();
 			try {
-				int c = url.read();
-				while(c!=-1){
-					fileBuilder.append((char)c);
-					c = url.read();
-				}
-				url.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			int currentSizeX = 1;
-			int currentSizeY = 1;
-			for(final String line:fileBuilder.toString().split("\n")){
-				if(line.matches("\\s*"))continue;
+				loadImage.add(new Action<Integer>(){
+					@Override
+					public void act(Integer event) {
+					}				
+				});loadImage.add(new Action<Integer>(){
+					@Override
+					public void act(Integer event) {
+					}				
+				});
+				loadText("arial","Arial Black", Hub.creator.getPlainFontStyle(),16, new float[]{0f,0f,0f,1}, new float[]{0,0,0,0f});
+				loadText("impact","Cooper Black", Hub.creator.getPlainFontStyle(), 32,new float[]{0f,0f,0f,1}, new float[]{0,0,0,0f});
 
-				StringBuilder lineBuilder = new StringBuilder();
-				for(char c:line.toCharArray()){
-					if(c>31){
-						lineBuilder.append(c);
+				Iterator<String> fileNames = Hub.manager.getFileNames("images",IFileManager.FROM_IMAGE_RESOURCE);
+				int currentSizeX = 0;
+				int currentSizeY = 0;
+				while(fileNames.hasNext()){
+					final String fileName = fileNames.next();
+					if(fileName.matches("\\d+/.*")){
+						currentSizeX = Integer.parseInt(fileName.substring(0,fileName.indexOf('/')));
+						currentSizeY = 1;
 					}
-				}
-				final String filename = lineBuilder.toString();
-				if(filename.matches("\\d+:")){
-					currentSizeX = Integer.parseInt(filename.substring(0,filename.length()-1));
-					currentSizeY = 1;
-				}
-				else if(filename.matches("\\d+x\\d+:")){
-					currentSizeX = Integer.parseInt(filename.substring(0,filename.indexOf('x')));
-					currentSizeY = Integer.parseInt(filename.substring(filename.indexOf('x')+1,filename.length()-1));
-				}
-				else {
-					final String imageName = filename.substring(0,filename.lastIndexOf('.'));
+					else if(fileName.matches("\\d+x\\d+/.*")){
+						currentSizeX = Integer.parseInt(fileName.substring(0,fileName.indexOf('x')));
+						currentSizeY = Integer.parseInt(fileName.substring(fileName.indexOf('x')+1,fileName.indexOf('/')));
+					}
+					final String imageName = fileName.substring(fileName.indexOf('/')+1,fileName.lastIndexOf('.'));
 					final Integer sizeX = currentSizeX;
 					final Integer sizeY = currentSizeY;
-					final String imageFilename = currentSizeY==1?("images/"+sizeX+"/"+imageName+".png"):("images/"+sizeX+"x"+sizeY+"/"+imageName+".png");
+					final String imageFilename = ("images/"+fileName);
 
-					loadImageFromTextureName.put(imageName,new Action<ClickEvent>(){
+					setupTexture(imageName);
+
+					loadImage.add(new Action<Integer>(){
 						@Override
-						public void act(ClickEvent event) {
+						public void act(Integer event) {
 							loadImageFromPath(imageName,imageFilename,sizeX,sizeY);
 						}				
 					});
+
 				}
+				//loadText("impactWhite","Cooper Black", Hub.creator.getPlainFontStyle(), 32,new float[]{1f,1f,1f,1}, new float[]{0,0,0,0f});
+
+				loaded = true;
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				e.printStackTrace();
 			}
-			loadImageFromTextureName.put("timesnewroman",new Action<ClickEvent>(){
-				@Override
-				public void act(ClickEvent event) {					
-					loadText("timesnewroman","Times New Roman", Hub.creator.getPlainFontStyle(),16,new float[]{0f,0.75f,0.75f,1}, new float[]{0,0,0,0f});
-				}});
-			loadText("arial","Arial Black", Hub.creator.getPlainFontStyle(),16, new float[]{0f,0f,0f,1}, new float[]{0,0,0,0f});
-			loadText("impact","Cooper Black", Hub.creator.getPlainFontStyle(), 32,new float[]{0f,0f,0f,1}, new float[]{0,0,0,0f});
-			//loadText("impactWhite","Cooper Black", Hub.creator.getPlainFontStyle(), 32,new float[]{1f,1f,1f,1}, new float[]{0,0,0,0f});
-
-
-			loaded = true;
 		}
 	}
 
-	public void prepareCustomLoader(final String imageName, String dimension) {
+	private Integer setupTexture(String textureName) throws IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchFieldException{
+		int currentId = nameMap.size();
+		Hub.r.getClass().getField(textureName).set(Hub.r.getClass(), currentId);
+		nameMap.put(textureName, currentId);
+		return currentId;
+	}
 
-		if(!contains(imageName)&&!loadImageFromTextureName.containsKey(imageName)){
+	/*public void prepareCustomLoader(final String imageName, String dimension) {
+
+		if(!loadImage.contains(imageName)){
 			final int sizeX = Integer.parseInt(dimension.substring(0,dimension.indexOf('x')));
 			final int sizeY = Integer.parseInt(dimension.substring(dimension.indexOf('x')+1,dimension.length()));
 
 			final String imageFilename = "res/images/"+imageName+".png";
 
-			loadImageFromTextureName.put(imageName,new Action<ClickEvent>(){
+			loadImage.put(imageName,new Action<ClickEvent>(){
 				@Override
 				public void act(ClickEvent event) {
 					loadImageFromExternalPath(imageFilename,sizeX,sizeY,imageName);
 				}
 			});
 		}
-	}
-	public boolean contains(String key) {
-		return texMap.containsKey(key);
-	}
+	}*/
 
-	public Map<String,List<Float>> letterWidths= new HashMap<String,List<Float>>();
-	private void loadText(String texName, String fontName, int fontStyle, int size, float[] foregroundColour, float[] backgroundColour){
+	public Map<Integer,List<Float>> letterWidths= new HashMap<Integer,List<Float>>();
+	private void loadText(String texName, String fontName, int fontStyle, int size, float[] foregroundColour, float[] backgroundColour) throws IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchFieldException{
 		if(!buffersInclude(16,16)){
 			setupTextureBuffer(16,16);			
 		}
-		letterWidths.put(texName, new ArrayList<Float>());
-		createFont(texName, fontName, fontStyle, size, foregroundColour, backgroundColour);
+		int id = setupTexture(texName);
+		letterWidths.put(id, new ArrayList<Float>());
+		createFont(id,texName, fontName, fontStyle, size, foregroundColour, backgroundColour);
 	}
 
 	public void loadImageFromPath(String imageName, String path, int sizeX, Integer sizeY){
@@ -260,16 +274,15 @@ public abstract class GraphicRenderer {
 			setupTextureBuffer(sizeX,sizeY);			
 		}
 		int tex = Hub.gui.createTexture(Hub.manager.createImageResource(imageName, path));
-		texMap.put(imageName, tex);
-		sizMap.put(imageName, sizeX+"x"+sizeY);
+
+		addTexture(imageName, tex, sizeX+"x"+sizeY);
 	}
 	public void loadImageFromExternalPath(String path, int sizeX, Integer sizeY, String name){
 		if(!buffersInclude(sizeX,sizeY)){			
 			setupTextureBuffer(sizeX,sizeY);			
 		}
 		int tex = Hub.gui.createTexture(new FileResource<File>(name,path,new File(path)));
-		texMap.put(name, tex);
-		sizMap.put(name, sizeX+"x"+sizeY);
+		addTexture(name,tex, sizeX+"x"+sizeY);
 	}
 	public void translate(float x, float y, float z){
 		viewX+=x;
@@ -288,14 +301,14 @@ public abstract class GraphicRenderer {
 		return viewY;
 	}
 
-	public void loadFont(String font) {
-		if(loadImageFromTextureName.containsKey(font)){
-			loadImageFromTextureName.remove(font).act(null);
-		}
+	public int getFrameLimit(int textureId) {
+		return sizMap[textureId].length();
 	}
 
-	public int getFrameLimit(String textureName) {
-		return sizMap.get(textureName).length();
+	protected void addTexture(String name, int texture, String size){
+
+		texMap[nameMap.get(name)] = texture;
+		sizMap[nameMap.get(name)] = size;
 	}
 
 	private interface GraphicElementArrayChangeEvent {
@@ -319,8 +332,8 @@ public abstract class GraphicRenderer {
 			else if(element.getLayer()==Hub.BOT_LAYER){
 				drawBotLayer.add(element);
 			}
-			if(loadImageFromTextureName.containsKey(element.getTextureName())){
-				loadImageFromTextureName.remove(element.getTextureName()).act(null);
+			if(texMap[element.getTexture()]==-1){
+				loadImage.get(element.getTexture()).act(null);
 			}
 		}
 	}

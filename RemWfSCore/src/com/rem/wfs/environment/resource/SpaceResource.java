@@ -1,32 +1,31 @@
 package com.rem.wfs.environment.resource;
 
-import com.rem.core.storage.Storable;
 import com.rem.core.storage.StorageHandler;
-import com.rem.wfs.Icon;
+import com.rem.wfs.Creatable;
+import com.rem.wfs.graphics.Icon;
 
-public class SpaceResource implements Storable{
-
-
+public class SpaceResource<T extends SpaceResource<T>> implements Creatable{
 	private float value;
 	private int limit;
 	private float growth;
 	private Icon icon;
-	protected ResourceType resourceType;
+	protected ResourceType<T> resourceType;
+	private ResourceContainer container;
 
-	public SpaceResource(ResourceContainer container, int id){
-		this(container,ResourceType.types.get(id));
-	}
-	public SpaceResource(ResourceContainer container, ResourceType type){
+	public SpaceResource(ResourceContainer container, ResourceType<T> type){
 		this(
-				type,
-				type.generateInitialValue(container),
-				type.generateInitialLimit(container),
-				type.generateInitialGrowth(container)
+				container,
+				type!=null?type:null,
+				type!=null?type.generateInitialValue(container):0,
+				type!=null?type.generateInitialLimit(container):0,
+				type!=null?type.generateInitialGrowth(container):0
 				);
 	}
 
+	@SuppressWarnings("unchecked")
 	public SpaceResource(
-			ResourceType type,
+			ResourceContainer container,
+			ResourceType<T> type,
 			float initialValue,
 			int initialLimit,
 			float initialGrowth){
@@ -35,9 +34,17 @@ public class SpaceResource implements Storable{
 		this.limit = initialLimit;
 		this.growth = initialGrowth;
 
-		this.icon = type.createIcon(this);
+		this.container = container;
+		if(type!=null){
+			this.icon = type.createIcon((T) this);
+		}
 	}
-	
+
+	public void onCreate() {
+		this.value = resourceType.generateInitialValue(container);
+		this.limit = resourceType.generateInitialLimit(container);
+		this.growth= resourceType.generateInitialGrowth(container);
+	}	
 
 	public Icon getIcon(){
 		return icon;
@@ -65,12 +72,16 @@ public class SpaceResource implements Storable{
 
 	@Override
 	public StorageHandler getStorageHandler() {
-		return new ResourceStorageHandler(this);
+		return new ResourceStorageHandler<T>(this);
 	}
 	
-	public ResourceType getResourceType(){
+	public ResourceType<T> getResourceType(){
 		return resourceType;
 	}
+	public ResourceContainer getContainer() {
+		return this.container;
+	}
+
 
 
 }

@@ -3,6 +3,7 @@ package com.rem.core;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Iterator;
 
 import com.rem.core.storage.FileResource;
 
@@ -19,4 +20,5 @@ public interface IFileManager {
 	public boolean deleteFile(String string);
 	public void createDirectory(String string);
 	public File getDirectory(String path, int pathType);
+	public Iterator<String> getFileNames(String string, int pathType);
 }

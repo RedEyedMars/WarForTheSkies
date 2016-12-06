@@ -238,7 +238,6 @@ public class DataPresenter  {
 			arrayIndex   +=currentLimit;
 			byte current = file[startAt++];
 			for(int factor=(int) Math.pow(2, currentLimit);;--arrayIndex,factor=factor/2){
-				System.out.println("factor:"+factor+" current:"+current+" currentLimit:"+currentLimit+" arrayIndex:"+arrayIndex);
 				boolData[arrayIndex] = current>=factor||current<0;
 				if(boolData[arrayIndex]){
 					current-=factor;

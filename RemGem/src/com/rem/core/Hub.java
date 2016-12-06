@@ -10,6 +10,7 @@ import com.rem.core.environment.Environment;
 import com.rem.core.gui.IGui;
 import com.rem.core.gui.graphics.GraphicRenderer;
 import com.rem.core.gui.graphics.GraphicView;
+import com.rem.core.gui.graphics.R;
 import com.rem.core.gui.inputs.ClickEvent;
 import com.rem.core.gui.inputs.EventHandler;
 import com.rem.core.gui.inputs.HoverEvent;
@@ -97,6 +98,11 @@ public class Hub {
 	 * Map object that controls the environmental elements on the stage, i.e. the squares.
 	 */
 	public static Environment map;
+	
+	/**
+	 * Resource object, holds the ids for the textures;
+	 */
+	public static R r;
 	
 	/**
 	 * The first mapfile that is defaultly chosen when trying to select a stage in host mode.
@@ -203,6 +209,8 @@ public class Hub {
 			handler.giveOnClick(Hub.genericMouseListener);
 			//A generic keyBoardListener is added to the handler in case any stray events are tried to process before a view is set.
 			handler.giveOnType(Hub.genericKeyBoardListener);
+			//Creates the image resource handler.
+			r = creator.createResourceHandler();
 			//Creates and sets the renderer with the main object as argument.
 			renderer = creator.createGraphicRenderer(main);
 			//If the music player should be created, this local variable should be true.

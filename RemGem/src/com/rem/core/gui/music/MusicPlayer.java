@@ -4,6 +4,7 @@ import java.util.Collections;
 
 import com.rem.core.Hub;
 import com.rem.core.gui.graphics.MenuButton;
+import com.rem.core.gui.graphics.R;
 import com.rem.core.gui.graphics.GraphicElement;
 import com.rem.core.gui.graphics.GraphicEntity;
 import com.rem.core.gui.graphics.GraphicText;
@@ -46,7 +47,7 @@ public class MusicPlayer extends MenuButton {
 			index = Library.tracks.indexOf(track);
 		}
 		text.setFontSize(GraphicText.FONT_SIZE_REGULAR);
-		playPauseButton = new GraphicEntity(new GraphicElement("music_player_icons",2,Hub.MID_LAYER)){
+		playPauseButton = new GraphicEntity(new GraphicElement(R.music_player_icons,2,Hub.MID_LAYER)){
 			@Override
 			public void performOnRelease(ClickEvent e){
 				togglePlayPause();
@@ -54,7 +55,7 @@ public class MusicPlayer extends MenuButton {
 		};
 		addChild(playPauseButton);
 
-		skipButton = new GraphicEntity(new GraphicElement("music_player_icons",3,Hub.MID_LAYER)){
+		skipButton = new GraphicEntity(new GraphicElement(R.music_player_icons,3,Hub.MID_LAYER)){
 			@Override
 			public void performOnRelease(ClickEvent e){
 				next();
@@ -63,14 +64,14 @@ public class MusicPlayer extends MenuButton {
 		skipButton.setFrame(3);
 		addChild(skipButton);
 
-		minimizeButton = new GraphicEntity(new GraphicElement("music_player_icons",0,Hub.MID_LAYER));
+		minimizeButton = new GraphicEntity(new GraphicElement(R.music_player_icons,0,Hub.MID_LAYER));
 		addChild(minimizeButton);
 
 		volumeAdjuster = 
 				new GraphicEntity(
-						new GraphicElement("solid_colour",GraphicElement.COLOUR_BLACK,Hub.MID_LAYER)){
+						new GraphicElement(R.solid_colour,GraphicElement.COLOUR_BLACK,Hub.MID_LAYER)){
 			private GraphicEntity indicator = new GraphicEntity(
-					new GraphicElement("squares",GraphicElement.COLOUR_YELLOW,Hub.MID_LAYER));
+					new GraphicElement(R.solid_colour,GraphicElement.COLOUR_YELLOW,Hub.MID_LAYER));
 			{
 				indicator.setShape(GraphicElement.SHAPE_BOTTOM_RIGHT_TRIANGLE);
 				addChild(indicator);

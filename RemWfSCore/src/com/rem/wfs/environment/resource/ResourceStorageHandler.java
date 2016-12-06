@@ -4,10 +4,10 @@ import com.rem.core.storage.DataCollector;
 import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
 
-public class ResourceStorageHandler implements StorageHandler{
-	private SpaceResource resource;
+public class ResourceStorageHandler<T extends SpaceResource<T>> implements StorageHandler{
+	private SpaceResource<T> resource;
 
-	public ResourceStorageHandler(SpaceResource resource){
+	public ResourceStorageHandler(SpaceResource<T> resource){
 		this.resource = resource;
 	}
 

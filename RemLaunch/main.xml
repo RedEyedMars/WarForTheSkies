@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="build_all" name="Create Runnable Jar for Project OTLPc">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="${dir.buildfile}/../.."/>
+    <property name="dir.jarfile" value="${dir.buildfile}/jars"/>
+    <target name="create_core_jar">
+    	<jar destfile="../../core.jar" basedir="../../OTLCore/bin" />
+  	</target>
+    <target name="create_main_jar">
+        <jar destfile="${dir.jarfile}/otl_windows.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="com.rem.otl.pc.Main"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${dir.workspace}/OTLPc/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/OTLPc/lwjgl-2.9.0/jar/lwjgl.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/OTLPc/lwjgl-2.9.0/jar/lwjgl_util.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/core.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/volumeAdjustEnabled_JLayer.jar"/>
+        </jar>
+    </target>
+    <target name="create_editor_jar">
+        <jar destfile="${dir.jarfile}/otl_editor_windows.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="com.rem.otl.pc.EditorMain"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${dir.workspace}/OTLPc/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/OTLPc/lwjgl-2.9.0/jar/lwjgl.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/OTLPc/lwjgl-2.9.0/jar/lwjgl_util.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/core.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.workspace}/volumeAdjustEnabled_JLayer.jar"/>
+        </jar>
+    </target>
+    <target name="wrap_main_to_exe">
+        <exec executable="C:\Program Files (x86)\Launch4j\launch4j.exe">
+             <arg value="C:\Users\Geoffrey\workspace\OnlyTwoLeft\OTLPc\launch\launch4j\main.xml"/>
+        </exec>
+    </target>
+    <target name="wrap_editor_to_exe">
+        <exec executable="C:\Program Files (x86)\Launch4j\launch4j.exe">
+             <arg value="C:\Users\Geoffrey\workspace\OnlyTwoLeft\OTLPc\launch\launch4j\editor.xml"/>
+        </exec>
+    </target>
+    <target name="copy_resources">        
+        <delete dir="./OTL/data" failonerror="true"/>  
+        <delete dir="./OTL/res" failonerror="true"/>  
+        <delete dir="./OTL/jars" failonerror="true"/>
+        <copy todir="./OTL/data">  
+             <fileset dir="../data" includes="**"/>
+        </copy>
+        <copy todir="./OTL/res">
+             <fileset dir="../res" includes="**"/>
+        </copy>        
+        <copy todir="./OTL/jars">  
+             <fileset dir="./jars"/>
+        </copy>        
+        <copy todir="./OTL" overwrite="true">
+            <fileset file="C:\Users\Geoffrey\workspace\OnlyTwoLeft\server.jar"/>
+        </copy>
+    </target>
+    <target name="publish_to_installer">
+        <exec executable="C:\Program Files (x86)\BitRock InstallBuilder for Windows 16.10.0\bin\builder.exe">
+             <arg value="build"/>
+             <arg value="C:\Users\Geoffrey\workspace\OnlyTwoLeft\OTLPc\launch\install_builder.xml"/>
+        </exec>
+                      
+        <delete dir="./output" failonerror="true"/> 
+        <copy todir="./output" overwrite="true">
+            <fileset dir="C:\Users\Geoffrey\Documents\InstallBuilder\output"/>
+        </copy>
+        
+    </target>
+    <target name="build_all">
+       <antcall target="create_core_jar"/>
+       <antcall target="create_main_jar"/>
+       <antcall target="wrap_main_to_exe"/>
+       <antcall target="create_editor_jar"/>
+       <antcall target="wrap_editor_to_exe"/>
+       <antcall target="copy_resources"/>
+       <antcall target="publish_to_installer"/>
+    </target>
+</project>

@@ -3,6 +3,7 @@ package com.rem.core;
 import com.rem.core.environment.Environment;
 import com.rem.core.gui.IGui;
 import com.rem.core.gui.graphics.GraphicRenderer;
+import com.rem.core.gui.graphics.R;
 import com.rem.core.gui.music.ITrack;
 import com.rem.core.gui.music.MusicPlayer;
 
@@ -10,6 +11,7 @@ public interface ICreator {
 
 	public IGui createGui(Setupable setupable);
 	public GraphicRenderer createGraphicRenderer(Setupable main);
+	public R createResourceHandler();
 	public ILog createLog();
 	public MusicPlayer createMusic();
 
