@@ -1,6 +1,7 @@
 package com.rem.core.gui.graphics;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -11,28 +12,37 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+
 import com.rem.core.Action;
 import com.rem.core.Hub;
 import com.rem.core.IFileManager;
+import com.rem.core.gui.graphics.elements.GraphicElement;
+import com.rem.core.gui.graphics.elements.dimension.DimensionHandler;
 import com.rem.core.storage.FileResource;
 
 
 
 public abstract class GraphicRenderer {
 
+	public static boolean debug_load = false;
+
+	private static int textureSetupIndex = 0;
+
 	protected float viewX;
-
 	protected float viewY;
-
 	protected float viewZ=0f;
 
+	protected int currentDrawMode = R.DRAW_MODE_VERTICES;
+
 	protected LinkedList<GraphicElementArrayChangeEvent> changeEvents = new LinkedList<GraphicElementArrayChangeEvent>();
-	protected List<GraphicElement> drawBotLayer = new ArrayList<GraphicElement>();
-	protected List<GraphicElement> drawMidLayer = new ArrayList<GraphicElement>();
-	protected List<GraphicElement> drawTopLayer = new ArrayList<GraphicElement>();
+	protected List<GraphicElement> botLayer = new ArrayList<GraphicElement>();
+	protected List<GraphicElement> midLayer = new ArrayList<GraphicElement>();
+	protected List<GraphicElement> topLayer = new ArrayList<GraphicElement>();
 
 	protected List<Action<Integer>> loadImage = new ArrayList<Action<Integer>>();
-	protected Map<String, Integer> nameMap = new HashMap<String,Integer>(); 
 	protected int[] texMap = new int[]{
 			-1,-1,-1,-1,-1,-1,-1,-1,
 			-1,-1,-1,-1,-1,-1,-1,-1,
@@ -53,9 +63,7 @@ public abstract class GraphicRenderer {
 			-1,-1,-1,-1,-1,-1,-1,-1,
 			-1,-1,-1,-1,-1,-1,-1,-1
 	};
-	protected String[] sizMap = new String[128];
-	protected Map<String,FloatBuffer[]> squareTextureBuffers = new HashMap<String,FloatBuffer[]>();
-	protected Map<String,FloatBuffer[]> hexagonTextureBuffers = new HashMap<String,FloatBuffer[]>();
+	protected int[] sizMap = new int[128];
 
 	protected List<String> toLoadtext = new ArrayList<String>();
 
@@ -109,8 +117,8 @@ public abstract class GraphicRenderer {
 				hexagonTextureBuffer[y*xMax+x].position(0);
 			}
 		}
-		squareTextureBuffers.put(xMax+"x"+yMax, squareTextureBuffer);
-		hexagonTextureBuffers.put(xMax+"x"+yMax, hexagonTextureBuffer);
+		ShapeHandler.square.addTextureBuffer(xMax+yMax*1000, squareTextureBuffer);
+		ShapeHandler.hexagon.addTextureBuffer(xMax+yMax*1000, hexagonTextureBuffer);
 
 		//Hub.log.debug("graphicRenderer:"+xMax+"x"+yMax, builder.toString());
 	}
@@ -127,32 +135,57 @@ public abstract class GraphicRenderer {
 
 		setupRenderCycle();
 
-		for(int i=0;i<drawBotLayer.size();++i){
-			drawBotLayer.get(i).draw();
+		if(animate){
+			drawLayerWithAnimate(botLayer);
+			drawLayerWithAnimate(midLayer);
+			drawLayerWithAnimate(topLayer);
 		}
-		for(int i=0;i<drawMidLayer.size();++i){
-			drawMidLayer.get(i).draw();
-		}
-		for(int i=0;i<drawTopLayer.size();++i){
-			drawTopLayer.get(i).draw();
+		else {
+			drawLayer(botLayer);
+			drawLayer(midLayer);
+			drawLayer(topLayer);
 		}
 
 		cleanupRenderCycle();				
+	}
+	private void drawLayer(List<GraphicElement> layer){
+		VisualBundle bundle = new VisualBundle();
+		for(int i=0;i<layer.size();++i){
+			if(layer.get(i).draw(bundle)){
+				drawTexture(layer.get(i));
+				drawVisual(bundle);
+			}
+		}
+	}
+	private void drawLayerWithAnimate(List<GraphicElement> layer){
+		VisualBundle bundle = new VisualBundle();
+		for(int i=0;i<layer.size();++i){
+			if(layer.get(i).draw(bundle)){
+				if(currentDrawMode!=layer.get(i).getDrawMode()){
+					changeDrawMode(currentDrawMode,layer.get(i).getDrawMode());
+					currentDrawMode = layer.get(i).getDrawMode();
+				}
+				drawTexture(layer.get(i));
+				drawVisual(bundle);
+			}
+			layer.get(i).animate();
+		}
 	}
 
 	protected abstract void setupRenderCycle();
 	protected abstract void cleanupRenderCycle();
 	protected abstract void bindTexture(GraphicElement d);
-	protected abstract void createFont(int texId, String texName, String fontName, int fontStyle,int size, float[] foreGroundColour, float[] backgroundColour);
+	protected abstract void createFont(int texId, String fontName, int fontStyle,int size, float[] foreGroundColour, float[] backgroundColour);
 
-	public abstract void drawGraphicElement(VisualBundle visualBundle);
+	public abstract void drawVisual(VisualBundle visualBundle);
+	public abstract void changeDrawMode(int oldMode, int newMode);
 
 	public void drawTexture(GraphicElement d){
 		bindTexture(d);
 	}
 
 	public boolean buffersInclude(int sizeX, Integer sizeY) {
-		return squareTextureBuffers.containsKey(sizeX+"x"+sizeY);
+		return ShapeHandler.square.containsTextureBuffer(sizeX+sizeY*1000);
 	}
 
 	public void addElement(GraphicElement e){
@@ -205,17 +238,21 @@ public abstract class GraphicRenderer {
 						currentSizeX = Integer.parseInt(fileName.substring(0,fileName.indexOf('x')));
 						currentSizeY = Integer.parseInt(fileName.substring(fileName.indexOf('x')+1,fileName.indexOf('/')));
 					}
-					final String imageName = fileName.substring(fileName.indexOf('/')+1,fileName.lastIndexOf('.'));
+
 					final Integer sizeX = currentSizeX;
 					final Integer sizeY = currentSizeY;
 					final String imageFilename = ("images/"+fileName);
 
-					setupTexture(imageName);
+					String imageName = fileName.substring(fileName.indexOf('/')+1,fileName.lastIndexOf('.'));
+
+					int[] pixelDimensions = getPixelDimensions(imageFilename);
+					if(GraphicRenderer.debug_load)Hub.log.debug("GraphicRenderer.loadImages", imageFilename+":"+pixelDimensions[0]+"x"+pixelDimensions[1]);
+					final int textureId = setupTexture(imageName,pixelDimensions[0]/sizeX,pixelDimensions[1]/sizeY);
 
 					loadImage.add(new Action<Integer>(){
 						@Override
 						public void act(Integer event) {
-							loadImageFromPath(imageName,imageFilename,sizeX,sizeY);
+							loadImageFromPath(imageFilename,textureId,sizeX,sizeY);
 						}				
 					});
 
@@ -231,14 +268,31 @@ public abstract class GraphicRenderer {
 				e.printStackTrace();
 			} catch (NoSuchFieldException e) {
 				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 	}
 
-	private Integer setupTexture(String textureName) throws IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchFieldException{
-		int currentId = nameMap.size();
+	private int[] getPixelDimensions(String imageFilename) throws IOException {
+		ImageInputStream in = ImageIO.createImageInputStream(
+				Hub.manager.createImageResource(-1, imageFilename).get());
+		final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
+		if (readers.hasNext()) {
+			ImageReader reader = readers.next();
+			try {
+				reader.setInput(in);
+				return new int[]{reader.getWidth(0), reader.getHeight(0)};
+			} finally {
+				reader.dispose();
+			}
+		}
+		throw new RuntimeException("Could not find the Dimensions of file:"+ imageFilename);
+	}
+	private Integer setupTexture(String textureName, int pixelWidth, int pixelHeight) throws IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchFieldException{
+		int currentId = textureSetupIndex++;
 		Hub.r.getClass().getField(textureName).set(Hub.r.getClass(), currentId);
-		nameMap.put(textureName, currentId);
+		DimensionHandler.addTexture(currentId, pixelWidth, pixelHeight);
 		return currentId;
 	}
 
@@ -264,25 +318,25 @@ public abstract class GraphicRenderer {
 		if(!buffersInclude(16,16)){
 			setupTextureBuffer(16,16);			
 		}
-		int id = setupTexture(texName);
+		int id = setupTexture(texName,size,size);
 		letterWidths.put(id, new ArrayList<Float>());
-		createFont(id,texName, fontName, fontStyle, size, foregroundColour, backgroundColour);
+		createFont(id, fontName, fontStyle, size, foregroundColour, backgroundColour);
 	}
 
-	public void loadImageFromPath(String imageName, String path, int sizeX, Integer sizeY){
+	public void loadImageFromPath(String path, int textureId, int sizeX, Integer sizeY){
 		if(!buffersInclude(sizeX,sizeY)){
 			setupTextureBuffer(sizeX,sizeY);			
 		}
-		int tex = Hub.gui.createTexture(Hub.manager.createImageResource(imageName, path));
+		int tex = Hub.gui.createTexture(Hub.manager.createImageResource(textureId,path));
 
-		addTexture(imageName, tex, sizeX+"x"+sizeY);
+		addTexture(textureId, tex, sizeX, sizeY);
 	}
-	public void loadImageFromExternalPath(String path, int sizeX, Integer sizeY, String name){
+	public void loadImageFromExternalPath(String path,int textureId, int sizeX, int sizeY){
 		if(!buffersInclude(sizeX,sizeY)){			
 			setupTextureBuffer(sizeX,sizeY);			
 		}
-		int tex = Hub.gui.createTexture(new FileResource<File>(name,path,new File(path)));
-		addTexture(name,tex, sizeX+"x"+sizeY);
+		int tex = Hub.gui.createTexture(new FileResource<File>(textureId,path,new File(path)));
+		addTexture(textureId,tex, sizeX,sizeY);
 	}
 	public void translate(float x, float y, float z){
 		viewX+=x;
@@ -302,13 +356,13 @@ public abstract class GraphicRenderer {
 	}
 
 	public int getFrameLimit(int textureId) {
-		return sizMap[textureId].length();
+		return ShapeHandler.square.getTextureBuffer(sizMap[textureId]).length;
 	}
 
-	protected void addTexture(String name, int texture, String size){
+	protected void addTexture(int textureId, int texture, int xMax, int yMax){
 
-		texMap[nameMap.get(name)] = texture;
-		sizMap[nameMap.get(name)] = size;
+		texMap[textureId] = texture;
+		sizMap[textureId] = xMax+1000*yMax;
 	}
 
 	private interface GraphicElementArrayChangeEvent {
@@ -323,16 +377,16 @@ public abstract class GraphicRenderer {
 
 		@Override
 		public void act() {
-			if(element.getLayer()==Hub.TOP_LAYER){
-				drawTopLayer.add(element);
+			if(element.getLayer()==R.TOP_LAYER){
+				topLayer.add(element);
 			}
-			else if(element.getLayer()==Hub.MID_LAYER){
-				drawMidLayer.add(element);
+			else if(element.getLayer()==R.MID_LAYER){
+				midLayer.add(element);
 			}
-			else if(element.getLayer()==Hub.BOT_LAYER){
-				drawBotLayer.add(element);
+			else if(element.getLayer()==R.BOT_LAYER){
+				botLayer.add(element);
 			}
-			if(texMap[element.getTexture()]==-1){
+			if(element.getTexture()!=-1&&texMap[element.getTexture()]==-1){
 				loadImage.get(element.getTexture()).act(null);
 			}
 		}
@@ -347,14 +401,14 @@ public abstract class GraphicRenderer {
 		@Override
 		public void act() {
 			if(element==null)return;
-			if(element.getLayer()==Hub.TOP_LAYER){
-				drawTopLayer.remove(element);
+			if(element.getLayer()==R.TOP_LAYER){
+				topLayer.remove(element);
 			}
-			else if(element.getLayer()==Hub.MID_LAYER){
-				drawMidLayer.remove(element);
+			else if(element.getLayer()==R.MID_LAYER){
+				midLayer.remove(element);
 			}
-			else if(element.getLayer()==Hub.BOT_LAYER){
-				drawBotLayer.remove(element);
+			else if(element.getLayer()==R.BOT_LAYER){
+				botLayer.remove(element);
 			}
 		}
 	}

@@ -9,8 +9,8 @@ import java.util.Random;
 import com.rem.core.environment.Environment;
 import com.rem.core.gui.IGui;
 import com.rem.core.gui.graphics.GraphicRenderer;
-import com.rem.core.gui.graphics.GraphicView;
 import com.rem.core.gui.graphics.R;
+import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.inputs.ClickEvent;
 import com.rem.core.gui.inputs.EventHandler;
 import com.rem.core.gui.inputs.HoverEvent;
@@ -43,19 +43,6 @@ public class Hub {
 	 * The string sent to the map holder to tell them to send the map file back. Basically a request to restart the map to the other client.
 	 */
 	public static final String RESTART_STRING = "\n";
-	
-	/**
-	 * The id of the top draw layer, no other layer will cover this layer of {@link com.rem.core.gui.graphics.GraphicElement}'s.
-	 */
-	public static final int TOP_LAYER = 2;
-	/**
-	 * The id of the middle draw layer, any {@link com.rem.core.gui.graphics.GraphicElement} in the top layer will cover elements in this layer, additionally any elements in this layer will cover any elements in the bototm layer.
-	 */
-	public static final int MID_LAYER = 1;
-	/**
-	 * The id of the bottom draw layer, any {@link com.rem.core.gui.graphics.GraphicElement} in the above layers will cover the elements in this layer.
-	 */
-	public static final int BOT_LAYER = 0;
 
 
 	/**
@@ -75,9 +62,9 @@ public class Hub {
 	 */
 	public static IFileManager manager;
 	/**
-	 * {@link com.rem.core.gui.graphics.GraphicView} is the parent of all {@link com.rem.core.gui.graphics.GraphicEntity}'s, meaning this is the launch point for all the {@link com.rem.core.gui.graphics.GraphicElement}'s as well as the update method, which controls the frame to frame of the game flow.
+	 * {@link com.rem.core.gui.graphics.GraphicView} is the parent of all {@link com.rem.core.gui.graphics.GraphicEntity}'s, meaning this is the launch point for all the {@link com.rem.core.gui.graphics.elements.GraphicElement}'s as well as the update method, which controls the frame to frame of the game flow.
 	 */
-	public static GraphicView view;
+	public static GraphicElement view;
 	/**
 	 * While the {@link com.rem.otl.core.gui.graphics.inputs.EventHandler} handles {@link com.rem.core.gui.inputs.InputEvent} after they are created, the gui is the creator of these input events. It also controls the game flow by calling the update method of the view.
 	 */
@@ -87,7 +74,7 @@ public class Hub {
 	 */
 	public static ILog log;
 	/**
-	 * This variable controls the interface between the {@link com.rem.core.gui.graphics.GraphicElement} and the display medium.
+	 * This variable controls the interface between the {@link com.rem.core.gui.graphics.elements.GraphicElement} and the display medium.
 	 */
 	public static GraphicRenderer renderer;
 	/**
@@ -250,7 +237,6 @@ public class Hub {
 		delayer.end();
 		handler.end();
 		saveDefaults();
-		view.end();
 		gui.end();
 		Client.endConnectionToTheServer();
 	}

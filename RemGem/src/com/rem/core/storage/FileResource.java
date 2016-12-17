@@ -16,15 +16,15 @@ public class FileResource <Type> {
 	
 	
 	private String path;
-	private String name;
+	private int id;
 	private int typeId;
 	private Type res;
 	private boolean exists = true;
 	private Action<FileResource<Type>> getMethod;
 
 
-	public FileResource(String name, String path,final Type res){
-		this(name,path,
+	public FileResource(int textureId, String path,final Type res){
+		this(textureId,path,
 				(res instanceof InputStream)?INPUT_STREAM:
 				(res instanceof OutputStream)?OUTPUT_STREAM:
 				(res instanceof File)?FILE:
@@ -38,10 +38,10 @@ public class FileResource <Type> {
 				subject.res = res;
 			}});
 	}
-	public FileResource(String name, String path,int type, Action<FileResource<Type>> getMethod){
+	public FileResource(int id, String path,int type, Action<FileResource<Type>> getMethod){
 		this.typeId = type;
 		this.path = path;
-		this.name = name;
+		this.id = id;
 		this.getMethod = getMethod;
 	}
 	
@@ -55,8 +55,8 @@ public class FileResource <Type> {
 	public String getPath(){
 		return path;
 	}
-	public String getName(){
-		return name;
+	public int getId(){
+		return id;
 	}
 	
 	public void setExists(boolean exists){

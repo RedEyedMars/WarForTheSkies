@@ -1,6 +1,8 @@
 package com.rem.core.environment;
 
-public class Range {
+import java.util.Iterator;
+
+public class Range implements Iterable<Integer>{
 	protected int first;
 	protected int last;
 	protected int size;
@@ -49,5 +51,25 @@ public class Range {
 			}
 			return ranges[i].get(index);
 		}
+	}
+
+	@Override
+	public Iterator<Integer> iterator() {
+		return new Iterator<Integer>(){
+			private int i=0;
+			@Override
+			public boolean hasNext() {
+				return i<size;
+			}
+
+			@Override
+			public Integer next() {
+				return get(i++);
+			}
+
+			@Override
+			public void remove() {
+				
+			}};
 	}
 }

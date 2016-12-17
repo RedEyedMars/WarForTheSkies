@@ -11,31 +11,47 @@ import com.rem.wfs.environment.SpaceSector;
 public class MainMenu extends Menu{
 
 	@Override
-	protected void displayButtons() {
+	protected void displayButtons() {		
+
 		MenuButton generateNewSectorButton = new MenuButton("Generate New"){
 			@Override
-			public void performOnRelease(ClickEvent event){
-				Hub.map = new SpaceSector();
-				Hub.map.onCreate();
-				Storage.saveMap(Hub.manager.createOutputStream("scratch.sector", IFileManager.RELATIVE), Hub.map);
-				Hub.gui.setView(new Game());
-			}
+			public boolean onClick(ClickEvent event){
+
+				if(dim.isWithin(event.getX(), event.getY())){
+					if(event.getAction()==ClickEvent.ACTION_UP){
+						Hub.map = new SpaceSector();
+						Hub.map.onCreate();
+						Storage.saveMap(Hub.manager.createOutputStream("scratch.sector", IFileManager.RELATIVE), Hub.map);
+						Hub.gui.setView(new Game());
+					}
+					return super.onClick(event);
+				}
+				else return false;
+			}		
 		};
-		generateNewSectorButton.reposition(0.2f, 0.5f-generateNewSectorButton.getHeight()/2f);
-		addChild(generateNewSectorButton);
-		
+		generateNewSectorButton.reposition(0.2f, 0.5f-generateNewSectorButton.dim.getHeight()/2f);
+		tree.addChild(generateNewSectorButton);
+
 		if(Hub.manager.getDirectory("scratch.sector",IFileManager.RELATIVE).exists()){
-			generateNewSectorButton.reposition(0.2f, 0.666f-generateNewSectorButton.getHeight()/2f);
+			generateNewSectorButton.reposition(
+					0.2f, 0.666f-generateNewSectorButton.dim.getHeight()/2f);
 			MenuButton continueSectorButton = new MenuButton("Continue"){
 				@Override
-				public void performOnRelease(ClickEvent event){
-					Hub.map = new SpaceSector();
-					Hub.loadMapFromFileName("scratch.sector");
-					Hub.gui.setView(new Game());
+				public boolean onClick(ClickEvent event){
+
+					if(dim.isWithin(event.getX(), event.getY())){
+						if(event.getAction()==ClickEvent.ACTION_UP){
+							Hub.map = new SpaceSector();
+							Hub.loadMapFromFileName("scratch.sector");
+							Hub.gui.setView(new Game());
+						}
+						return super.onClick(event);
+					}
+					else return false;
 				}
 			};
-			continueSectorButton.reposition(0.2f, 0.333f-continueSectorButton.getHeight()/2f);
-			addChild(continueSectorButton);
+			continueSectorButton.reposition(0.2f, 0.333f-continueSectorButton.dim.getHeight()/2f);
+			tree.addChild(continueSectorButton);
 		}
 	}
 

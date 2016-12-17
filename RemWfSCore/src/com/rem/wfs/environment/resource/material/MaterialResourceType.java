@@ -3,7 +3,7 @@ package com.rem.wfs.environment.resource.material;
 import com.rem.wfs.environment.resource.ResourceContainer;
 import com.rem.wfs.environment.resource.ResourceIcon;
 import com.rem.wfs.environment.resource.ResourceType;
-import com.rem.wfs.graphics.Icon;
+import com.rem.wfs.graphics.Iconic;
 
 public abstract class MaterialResourceType extends ResourceType<Material> {
 
@@ -13,7 +13,7 @@ public abstract class MaterialResourceType extends ResourceType<Material> {
 	}
 
 	@Override
-	public Icon createIcon(final Material resource){
+	public Iconic createIcon(final Material resource){
 		return new ResourceIcon<Material>(resource,this,ResourceIcon.LEFT_JUSTIFIED);
 	}
 

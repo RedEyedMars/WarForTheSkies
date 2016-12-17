@@ -16,6 +16,7 @@ import com.rem.wfs.environment.hexagon.SpaceHexagonListStorageHandler;
 import com.rem.wfs.environment.location.Locatable;
 import com.rem.wfs.environment.location.Location;
 import com.rem.wfs.environment.location.LocationStorageHandler;
+import com.rem.wfs.environment.resource.cluster.ResourceCluster;
 import com.rem.wfs.environment.resource.material.Material;
 import com.rem.wfs.environment.resource.personel.Personel;
 import com.rem.wfs.environment.resource.ship.SpaceShip;
@@ -40,22 +41,24 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 			else if(!hexMap.get(arg.getLocation().getY()).containsKey(arg.getLocation().getX())){
 				return addHexagon(arg);
 			}
-			else return false;
+			else {
+				return false;
+			}
 		}
 		private boolean addHexagon(SpaceHexagon arg){
 			hexMap.get(arg.getLocation().getY()).put(arg.getLocation().getX(), arg);
-
-			resize(0.16f, 0.18f);
-			addChild(arg);
+			arg.resize(0.16f, 0.18f);
+			tree.addChild(arg);
 			return super.add(arg);
 		}
 	};
 
 	public SpaceSector() {
 		super();
-		new Material(new SpaceHexagon(),null);
+		new Material(null,null);
 		new Personel();
-		new SpaceShip();
+		new SpaceShip(null);
+		ResourceCluster.setup();
 	}
 
 	@Override
@@ -68,7 +71,7 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 					@Override
 					public void load(DataPresenter data) {	
 						lastUpdatedTime = data.nextLong();					
-						reposition(getX()-0.3f,getY()-0.4f);
+						reposition(dim.getX()-0.3f,dim.getY()-0.4f);
 					}
 
 					@Override
@@ -100,7 +103,7 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 				createHexagon(x+2-(14-y)/2,y);
 			}
 		}
-		reposition(getX()-0.3f,getY()-0.4f);
+		reposition(dim.getX()-0.3f,dim.getY()-0.4f);
 		
 		getHexagon(4,6).setId(SpaceHexagon.createId(SpaceHexagon.HOST_PLAYER_ID));
 		getHexagon(5,6).setId(SpaceHexagon.createId(SpaceHexagon.HOST_PLAYER_ID));

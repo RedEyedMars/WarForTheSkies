@@ -1,94 +1,104 @@
 package com.rem.core.gui.graphics;
 
-import com.rem.core.Hub;
-import com.rem.core.gui.graphics.GraphicEntity;
 import com.rem.core.gui.graphics.GraphicText;
-import com.rem.core.gui.inputs.ClickEvent;
+import com.rem.core.gui.graphics.elements.StretchableGraphicElement;
+import com.rem.core.gui.graphics.elements.BlankGraphicElement;
+import com.rem.core.gui.graphics.elements.GraphicElement;
+import com.rem.core.gui.graphics.elements.OffsetHandler;
 
-public class MenuButton extends GraphicEntity {
-	private MenuButton self = this;
+public class MenuButton extends BlankGraphicElement {
 	protected GraphicText text;
-	protected GraphicEntity left;
-	protected GraphicEntity mid;
-	protected GraphicEntity right;
+	protected StretchableGraphicElement left;
+	protected StretchableGraphicElement mid;
+	protected StretchableGraphicElement right;
 	public MenuButton(String name) {
-		super(new GraphicElement());
-		left = new GraphicEntity(
-				new GraphicElement(R.speech_bubble,0,
+		super();
+		left = new StretchableGraphicElement(
+				R.speech_bubble,0,R.MID_LAYER,
 						0.2f,0f,
-						0.1f,0.15f,Hub.MID_LAYER)){
-			@Override
-			public void performOnClick(ClickEvent e){
-				self.performOnClick(e);
-			}
-		};
-		addChild(left);
-		mid = new GraphicEntity(
-				new GraphicElement(
-						R.speech_bubble,1,
+						0.1f,0.15f);
+		mid = new StretchableGraphicElement(
+						R.speech_bubble,1,R.MID_LAYER,
 						0.3f,0f,
-						0.4f,0.15f,Hub.MID_LAYER)){
-			@Override
-			public void performOnClick(ClickEvent e){
-				self.performOnClick(e);
-			}
-		};
-		addChild(mid);
-		right = new GraphicEntity(
-				new GraphicElement(R.speech_bubble,2,
+						0.4f,0.15f);
+		right = new StretchableGraphicElement(
+				R.speech_bubble,2,R.MID_LAYER,
 						0.7f,0f,
-						0.1f,0.15f,Hub.MID_LAYER)){
-			@Override
-			public void performOnClick(ClickEvent e){
-				self.performOnClick(e);
-			}
-		};
-		addChild(right);
-		text = new GraphicText(R.impact,name,Hub.MID_LAYER){
-			@Override
-			public void reposition(float x, float y){
-				super.reposition(x, y);
-			}
-		};
+						0.1f,0.15f);
+		text = new GraphicText(R.impact,name,R.MID_LAYER);
 		text.setJustified(GraphicText.MIDDLE_JUSTIFIED);
 		text.setFontSize(GraphicText.FONT_SIZE_LARGE);
-		addChild(text);
+
+		tree.addChild(left);
+		tree.addChild(mid);
+		tree.addChild(right);
+		tree.addChild(text);
 		resize(0.6f,0.15f);
 	}
-	public float offsetY(int index){
-		return index==3?0.02f:0f;
-	}
-	public float offsetX(int index){
-		if(getChild(index) instanceof GraphicText){
-			GraphicText t = (GraphicText)getChild(index);
-			if(t.isJustified(GraphicText.MIDDLE_JUSTIFIED)){
-				return 0.0f;
-			}
-			else if(t.isJustified(GraphicText.LEFT_JUSTIFIED)){
-				return 0.05f;
-			}
-			else if(t.isJustified(GraphicText.RIGHT_JUSTIFIED)){
-				return -0.05f;
-			}
-		}
-		return index==2?getChild(0).getWidth()+getChild(1).getWidth():
-			   index==1?getChild(0).getWidth():0f;
-	}
 	@Override
-	public void resize(float x, float y){
-		super.resize(x, y);
-		left.resize(x*0.1f/0.6f, y);
-		mid.resize(x*0.4f/0.6f, y);
-		right.resize(x*0.1f/0.6f, y);
-		text.resize(x, y);
+	public OffsetHandler createOffsetHandler(final GraphicElement element){
+		if(element==left){
+			return new OffsetHandler(){
+				@Override
+				public float getWidth(float w){
+					return w*0.1f/0.6f;
+				}
+			};
+		}
+		else if(element==mid){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					return left.dim.getWidth();
+				}
+				@Override
+				public float getWidth(float w){
+					return w*0.4f/0.6f;
+				}
+			};
+		}
+		else if(element==right){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					return left.dim.getWidth()+mid.dim.getWidth();
+				}
+				@Override
+				public float getWidth(float w){
+					return w*0.1f/0.6f;
+				}
+			};
+		}
+		else if(element==text){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					if(text.isJustified(GraphicText.MIDDLE_JUSTIFIED)){
+						return 0.0f;
+					}
+					else if(text.isJustified(GraphicText.LEFT_JUSTIFIED)){
+						return 0.05f;
+					}
+					else if(text.isJustified(GraphicText.RIGHT_JUSTIFIED)){
+						return -0.05f;
+					}
+					else return super.getX(index);
+				}
+				@Override
+				public float getY(int index){
+					return 0.02f;
+				}
+			};
+		}
+		else return super.createOffsetHandler(element);
 	}
 	public String getText() {
 		return text.getText();
 	}
 	public void changeText(String name) {
 		text.change(name);
-		resize(getWidth(),getHeight());
-		reposition(getX(),getY());
+		resize(dim.getWidth(),dim.getHeight());
+		reposition(dim.getX(),dim.getY());
 	}
 }
 

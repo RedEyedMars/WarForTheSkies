@@ -2,11 +2,10 @@ package com.rem.core.gui.music;
 
 import java.util.Collections;
 
-import com.rem.core.Hub;
 import com.rem.core.gui.graphics.MenuButton;
 import com.rem.core.gui.graphics.R;
-import com.rem.core.gui.graphics.GraphicElement;
-import com.rem.core.gui.graphics.GraphicEntity;
+import com.rem.core.gui.graphics.elements.GraphicElement;
+import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.graphics.GraphicText;
 import com.rem.core.gui.inputs.ClickEvent;
 import com.rem.core.gui.inputs.HoverEvent;
@@ -24,11 +23,11 @@ public class MusicPlayer extends MenuButton {
 	private boolean playing = true;	
 	private boolean minimized = true;
 
-	private GraphicEntity minimizeButton;
-	private GraphicEntity playPauseButton;
-	private GraphicEntity skipButton;
+	private GraphicElement minimizeButton;
+	private GraphicElement playPauseButton;
+	private GraphicElement skipButton;
 
-	private GraphicEntity volumeAdjuster;
+	private GraphicElement volumeAdjuster;
 	private float volume = 0.8f;
 
 	public MusicPlayer(){
@@ -47,41 +46,61 @@ public class MusicPlayer extends MenuButton {
 			index = Library.tracks.indexOf(track);
 		}
 		text.setFontSize(GraphicText.FONT_SIZE_REGULAR);
-		playPauseButton = new GraphicEntity(new GraphicElement(R.music_player_icons,2,Hub.MID_LAYER)){
+		playPauseButton = new GraphicElement(R.music_player_icons,2,R.MID_LAYER){
 			@Override
-			public void performOnRelease(ClickEvent e){
-				togglePlayPause();
+			public boolean onClick(ClickEvent event){
+				if(super.onClick(event)){
+					if(event.getAction()==ClickEvent.ACTION_UP){
+						togglePlayPause();
+					}
+				return true;
+				}
+				else return false;
 			}
 		};
-		addChild(playPauseButton);
+		tree.addChild(playPauseButton);
 
-		skipButton = new GraphicEntity(new GraphicElement(R.music_player_icons,3,Hub.MID_LAYER)){
+		skipButton = new GraphicElement(R.music_player_icons,3,R.MID_LAYER){
 			@Override
-			public void performOnRelease(ClickEvent e){
-				next();
+			public boolean onClick(ClickEvent event){
+				if(super.onClick(event)){
+					if(event.getAction()==ClickEvent.ACTION_UP){
+						next();
+					}
+					return true;
+				}
+				else return false;
 			}
 		};
 		skipButton.setFrame(3);
-		addChild(skipButton);
+		tree.addChild(skipButton);
 
-		minimizeButton = new GraphicEntity(new GraphicElement(R.music_player_icons,0,Hub.MID_LAYER));
-		addChild(minimizeButton);
+		minimizeButton = new GraphicElement(R.music_player_icons,0,R.MID_LAYER);
+		tree.addChild(minimizeButton);
 
 		volumeAdjuster = 
-				new GraphicEntity(
-						new GraphicElement(R.solid_colour,GraphicElement.COLOUR_BLACK,Hub.MID_LAYER)){
-			private GraphicEntity indicator = new GraphicEntity(
-					new GraphicElement(R.solid_colour,GraphicElement.COLOUR_YELLOW,Hub.MID_LAYER));
+				new GraphicElement(R.solid_colour,R.COLOUR_BLACK,R.MID_LAYER){
+			private GraphicElement indicator = new GraphicElement(
+					R.solid_colour,R.COLOUR_YELLOW,R.MID_LAYER);
 			{
 				indicator.setShape(GraphicElement.SHAPE_BOTTOM_RIGHT_TRIANGLE);
-				addChild(indicator);
+				tree.addChild(indicator);
 			}
+
+
 			@Override
-			public void performOnClick(ClickEvent e){
-				volume = (e.getX()-getX())*0.8f/getWidth();
-				currentTrack.adjustVolume(volume);
-				resize(getWidth(),getHeight());
+			public boolean onClick(ClickEvent event){
+				if(super.onClick(event)){
+					if(event.getAction()==ClickEvent.ACTION_UP){
+						volume = (event.getX()-dim.getX())*0.8f/dim.getWidth();
+						currentTrack.adjustVolume(volume);
+						resize(dim.getWidth(),dim.getHeight());
+					}
+					return true;
+				}
+				else return false;
 			}
+
 			@Override
 			public void resize(float x, float y){
 				super.resize(x, y);
@@ -91,7 +110,7 @@ public class MusicPlayer extends MenuButton {
 			}
 		};
 		volumeAdjuster.setShape(GraphicElement.SHAPE_BOTTOM_RIGHT_TRIANGLE);
-		addChild(volumeAdjuster);
+		tree.addChild(volumeAdjuster);
 
 		minmax(MINIMIZE);
 		currentTrack.play(volume);
@@ -100,49 +119,93 @@ public class MusicPlayer extends MenuButton {
 		resize(MINIMIZED_WIDTH,MINIMIZED_WIDTH);
 		reposition(0.03f,0.88f);
 
-		for(GraphicEntity child:children){
-			child.setLayer(Hub.TOP_LAYER);
+		for(GraphicElement child:tree){
+			child.setLayer(R.TOP_LAYER);
 		}
 	}
 
 	@Override
-	public float offsetX(int index){
-		if(getChild(index) == playPauseButton){
-			return getChild(index).getWidth()*0f+0.01f;
+	public OffsetHandler createOffsetHandler(final GraphicElement element){
+		if(element == playPauseButton){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					return element.dim.getWidth()*0f+0.01f;
+				}
+				@Override
+				public float getY(int index){
+					return 0.005f;
+				}
+			};
 		}
-		else if(getChild(index) == skipButton){
-			return getChild(index).getWidth()*1f+0.01f;
+		else if(element == skipButton){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					return element.dim.getWidth()*1f+0.01f;
+				}
+				@Override
+				public float getY(int index){
+					return 0.005f;
+				}
+			};
 		}
-		else if(getChild(index) == volumeAdjuster){
-			return playPauseButton.getWidth()*2f+0.015f;
+		else if(element == volumeAdjuster){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					return element.dim.getWidth()*2f+0.015f;
+				}
+				@Override
+				public float getY(int index){
+					return 0.015f;
+				}
+			};
 		}
-		else if(getChild(index) == minimizeButton){
-			return getWidth()-getChild(index).getWidth();
+		else if(element == minimizeButton){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					return dim.getWidth()-element.dim.getWidth();
+				}
+				@Override
+				public float getY(int index){
+					return 0.005f;
+				}
+			};
 		}
-		else if(getChild(index) == text){
-			return 0.01f;
+		else if(element == text){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					return 0.01f;
+				}
+				@Override
+				public float getY(int index){
+					return 0.015f+(MAXIMIZED_HEIGHT-MINIMIZED_HEIGHT);
+				}
+			};
 		}
-		return super.offsetX(index);
+		else return super.createOffsetHandler(element);
 	}
+	
 	@Override
-	public float offsetY(int index){
-		if(getChild(index) == playPauseButton){
-			return 0.005f;
-		}
-		else if(getChild(index) == skipButton){
-			return 0.005f;
-		}
-		else if(getChild(index) == minimizeButton){
-			return 0.005f;
-		}
-		else if(getChild(index) == volumeAdjuster){
-			return 0.015f;
-		}
-		else if(getChild(index) == text){
-			return 0.015f+(MAXIMIZED_HEIGHT-MINIMIZED_HEIGHT);
-		}
-		return super.offsetY(index);
+	public void resize(float x, float y){
+		super.resize(x, y);
+		tree.getChild(0).resize(0.045f, y);
+		tree.getChild(2).resize(0.045f, y);
+		tree.getChild(1).resize(x-MINIMIZED_WIDTH, y);
+
+		if(playPauseButton!=null)
+			playPauseButton.resize(0.05f, 0.07f);
+		if(minimizeButton!=null)
+			minimizeButton.resize(0.07f, 0.07f);
+		if(skipButton!=null)
+			skipButton.resize(0.05f, 0.07f);
+		if(volumeAdjuster!=null)
+			volumeAdjuster.resize(0.07f, 0.05f);
 	}
+
 
 	public void next(){
 		if(playing&&!currentTrack.isFinished()){
@@ -163,7 +226,7 @@ public class MusicPlayer extends MenuButton {
 		}
 		currentTrack = Library.tracks.get(index);
 		currentTrack.play(volume);
-		
+
 		scroller = 0;
 		playing = true;
 		playPauseButton.setFrame(2);//pause
@@ -188,7 +251,7 @@ public class MusicPlayer extends MenuButton {
 		if(!playing){
 			currentTrack.play(volume);
 			playPauseButton.setFrame(2);//pause
-			
+
 			playing = true;
 		}
 	}
@@ -210,29 +273,13 @@ public class MusicPlayer extends MenuButton {
 		text.setVisible(!minimize);
 		if(minimize){
 			resize(MINIMIZED_WIDTH,MINIMIZED_HEIGHT);
-			reposition(getX(),getY()+(MAXIMIZED_HEIGHT-MINIMIZED_HEIGHT)/2f);
+			reposition(dim.getX(),dim.getY()+(MAXIMIZED_HEIGHT-MINIMIZED_HEIGHT)/2f);
 		}
 		else {
 			resize(MAXIMIZED_WIDTH,MAXIMIZED_HEIGHT);
-			reposition(getX(),getY()-(MAXIMIZED_HEIGHT-MINIMIZED_HEIGHT)/2f);
+			reposition(dim.getX(),dim.getY()-(MAXIMIZED_HEIGHT-MINIMIZED_HEIGHT)/2f);
 		}
-		reposition(getX(),getY());
-	}
-
-	@Override
-	public void resize(float x, float y){
-		super.resize(x, y);
-		getChild(0).resize(0.045f, y);
-		getChild(2).resize(0.045f, y);
-		getChild(1).resize(x-MINIMIZED_WIDTH, y);
-		if(playPauseButton!=null)
-			playPauseButton.resize(0.05f, 0.07f);
-		if(minimizeButton!=null)
-			minimizeButton.resize(0.07f, 0.07f);
-		if(skipButton!=null)
-			skipButton.resize(0.05f, 0.07f);
-		if(volumeAdjuster!=null)
-			volumeAdjuster.resize(0.07f, 0.05f);
+		reposition(dim.getX(),dim.getY());
 	}
 
 	@Override

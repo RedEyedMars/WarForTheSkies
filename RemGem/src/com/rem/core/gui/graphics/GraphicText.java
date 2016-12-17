@@ -4,13 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rem.core.Hub;
+import com.rem.core.gui.graphics.elements.StretchableGraphicElement;
+import com.rem.core.gui.graphics.elements.BlankGraphicElement;
+import com.rem.core.gui.graphics.elements.GraphicElement;
+import com.rem.core.gui.graphics.elements.OffsetHandler;
 
-public class GraphicText extends GraphicEntity {
+public class GraphicText extends BlankGraphicElement{
 
 	public static final int LEFT_JUSTIFIED = 0;
 	public static final int MIDDLE_JUSTIFIED = 1;
 	public static final int RIGHT_JUSTIFIED = 2;
-	
+
 	public static final int FONT_SIZE_LARGE = 0;
 	public static final int FONT_SIZE_REGULAR = 1;
 	public static final int FONT_SIZE_TALLER = 2;
@@ -18,7 +22,7 @@ public class GraphicText extends GraphicEntity {
 
 	private static final float SMALL_FONT_WIDTH = 0.7f;
 	private static final float SMALL_FONT_HEIGHT = 0.8f;
-	
+
 	private static final float REGULAR_FONT_WIDTH = 1f;
 	private static final float REGULAR_FONT_HEIGHT = 1f;	
 
@@ -27,7 +31,7 @@ public class GraphicText extends GraphicEntity {
 
 	private static final float LARGE_FONT_WIDTH = 1.4f;
 	private static final float LARGE_FONT_HEIGHT = 3.2f;
-	
+
 	private float visualW=1f;
 	private float visualH=1f;
 
@@ -38,52 +42,46 @@ public class GraphicText extends GraphicEntity {
 	protected int lineIndex = 0;
 	private GraphicText self = this;
 	private int font;
-	private int layer;
-	private boolean isVisible = true;
-	
+	private int textLayer;
+	private boolean textVisible = true;
+
 	private int justified = LEFT_JUSTIFIED;
-	protected GraphicEntity blinker;
+	protected GraphicElement blinker;
 	public GraphicText(int font, String text, int layer) {
-		super(new GraphicElement());
+		super();
 		//Hub.renderer.loadFont(font);
 		this.font = font;
 		this.text = text;
-		this.layer = layer;
-		this.blinker = new GraphicEntity(
-					new GraphicElement(
-							R.solid_colour,GraphicElement.COLOUR_YELLOW,
-							0f,0.975f,0.005f,0.025f,Hub.TOP_LAYER)){
-				private double since;
-				@Override
-				public void resize(float w, float h){
-					super.resize(0.005f,0.025f);
-				}
-				@Override
-				public void update(double time){
-					since+=time;
-					if(isVisible()&&since>1){
-						blinker.setVisible(!blinker.isVisible());
-						since-=1f;
+		this.textLayer = layer;
+		this.blinker = new GraphicElement(
+				R.solid_colour,R.COLOUR_YELLOW,R.TOP_LAYER,
+				0f,0.975f,0.005f,0.025f){
+			@Override
+			protected AnimationHandler createAnimationHandler(){
+				return new AnimationHandler(){
+					@Override
+					public void animate(GraphicElement element) {
+						element.setVisible(!element.isVisible());
+						if(blinker.isVisible()){
+							blinker.reposition(
+									self.dim.getX()+blinker.getOffset().getX(0),
+									self.dim.getY()+blinker.getOffset().getY(0));
+						}
+
 					}
-					else if(!isVisible()&&since>0.5f){
-						blinker.setVisible(!blinker.isVisible());
-						since-=0.5f;
-					}
-					if(blinker.isVisible()){
-						blinker.reposition(self.getX()+self.offsetX(0), self.getY()+self.offsetY(0));
-					}
-				}
-			};
-		this.blinker.turnOff();
-		addChild(blinker);
-		String[] lines = text.split("\n");
-		for(int i=0;i<lines.length;++i){
-			TextLine line = new TextLine(lines[i]);
-			this.lines.add(line);
-			addChild(line);
-		}
-		this.resize(1f, 1f);
-		this.reposition(0f,0.97f);
+
+				};
+			}};
+			this.blinker.turnOff();
+			tree.addChild(blinker);
+			String[] lines = text.split("\n");
+			for(int i=0;i<lines.length;++i){
+				TextLine line = new TextLine(lines[i]);
+				this.lines.add(line);
+				tree.addChild(line);
+			}
+			resize(1f, 1f);
+			reposition(0f,0.97f);
 
 	}
 
@@ -100,7 +98,7 @@ public class GraphicText extends GraphicEntity {
 			for(int i=size;i<lines.length;++i){
 				TextLine line = new TextLine(lines[i]);
 				this.lines.add(line);
-				this.addChild(line);
+				tree.addChild(line);
 			}
 		}
 		for(int i=0;i<size;++i){
@@ -112,61 +110,84 @@ public class GraphicText extends GraphicEntity {
 			}
 		}
 
-		this.resize(getWidth(), getHeight());
-		this.reposition(getX(),getY());
+		resize(dim.getWidth(), dim.getHeight());
+		reposition(dim.getX(), dim.getY());
 	}
 
 	protected TextLine getLine(int i) {
 		while(i>=lines.size()){
 			TextLine line = new TextLine("");
 			this.lines.add(line);
-			this.addChild(line);
+			tree.addChild(line);
 		}
 		return lines.get(i);
 	}
 	public void setJustified(int justified){
 		this.justified = justified;
-		reposition(getX(),getY());
+		reposition(dim.getX(),dim.getY());
 	}
 	public boolean isJustified(int justified){
 		return this.justified == justified;
 	}
-	@Override
-	public float offsetX(int index){
-		if(getChild(index)==blinker){
-			if(lineIndex<lines.size()&&lines.get(lineIndex).length()>0&&charIndex>1){
-				int horizontalIndex = Math.min(charIndex-2, lines.get(lineIndex).length()-1);
-				return	lines.get(lineIndex).chars.get(horizontalIndex).getX();
-				
-			}
-			else if(lineIndex<lines.size()&&lines.get(lineIndex).length()>0&&charIndex==1){
-				return lines.get(lineIndex).chars.get(0).getWidth()*
-					   lines.get(lineIndex).chars.get(0).getWidthValue()*visualW;
-			}
-			return 0f;
-		}
-		else if(justified==LEFT_JUSTIFIED){
-			return super.offsetX(index);
-		}
-		else if(justified==RIGHT_JUSTIFIED){
-			if(getChild(index) instanceof TextLine){
-				return getWidth()-((TextLine)getChild(index)).getCharWidth();
-			}
-		}
-		else if(justified==MIDDLE_JUSTIFIED){
-			if(getChild(index) instanceof TextLine){
-				return getWidth()/2f-((TextLine)getChild(index)).getCharWidth()/2f;
-			}
-		}
-		return super.offsetX(index);
-	}
-	@Override
-	public float offsetY(int index){
 
-		if(getChild(index)==blinker){
-			return 0.005f-lineIndex*0.025f;
+	@Override
+	public OffsetHandler createOffsetHandler(final GraphicElement element){
+		if(element==blinker){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					if(lineIndex<lines.size()&&lines.get(lineIndex).length()>0&&charIndex>1){
+						int horizontalIndex = Math.min(charIndex-2, lines.get(lineIndex).length()-1);
+						return	lines.get(lineIndex).chars.get(horizontalIndex).dim.getX();
+
+					}
+					else if(lineIndex<lines.size()&&lines.get(lineIndex).length()>0&&charIndex==1){
+						return lines.get(lineIndex).chars.get(0).dim.getWidth()*
+								lines.get(lineIndex).chars.get(0).getWidthValue()*visualW;
+					}
+					return super.getX(index);
+				}
+				@Override
+				public float getY(int index){
+					return 0.005f-lineIndex*0.025f;
+				}
+			};
 		}
-		return 0.025f*(-index+1)*visualH;
+		else if(element instanceof TextLine){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					if(justified==LEFT_JUSTIFIED){
+						return super.getX(index);
+					}
+					else if(justified==RIGHT_JUSTIFIED){
+						return dim.getWidth()-((TextLine)element).getCharWidth();
+					}
+					else if(justified==MIDDLE_JUSTIFIED){
+						return dim.getWidth()/2f-((TextLine)element).getCharWidth()/2f;
+					}
+					else return super.getX(index);
+				}
+				@Override
+				public float getY(int index){
+					if(justified==LEFT_JUSTIFIED){
+						return 0.025f*(-index+1)*visualH;
+					}
+					else if(justified==RIGHT_JUSTIFIED){
+						return 0.025f*(-index+1)*visualH;
+					}
+					else if(justified==MIDDLE_JUSTIFIED){
+						return 0.025f*(-index+1)*visualH;
+					}
+					else return super.getY(index);
+				}
+				@Override
+				public String toString(){
+					return "TextLine.OffsetHandler()";
+				}
+			};
+		}
+		return super.createOffsetHandler(element);
 	}
 
 	public void setFontSize(int fontSize){
@@ -187,17 +208,17 @@ public class GraphicText extends GraphicEntity {
 			this.visualW = GraphicText.TALLER_FONT_WIDTH;
 			this.visualH = GraphicText.TALLER_FONT_HEIGHT;
 		}
-		this.resize(getWidth(), getHeight());
-		this.reposition(getX(),getY());
+		resize(dim.getWidth(), dim.getHeight());
+		reposition(dim.getX(), dim.getY());
 	}
 
 	@Override
 	public void setVisible(boolean visible){
 		super.setVisible(visible);
-		this.isVisible = visible;
+		this.textVisible = visible;
 	}
-	
-	protected class TextLine extends GraphicEntity{
+
+	protected class TextLine extends BlankGraphicElement{
 		private String text;
 		private float offset = 0f;
 		private List<GraphicChar> chars = new ArrayList<GraphicChar>();
@@ -210,7 +231,7 @@ public class GraphicText extends GraphicEntity {
 			for(int i=0;i<chars.length;++i){
 				GraphicChar c = new GraphicChar(chars[i]);
 				this.chars.add(c);
-				addChild(c);
+				tree.addChild(c);
 			}
 		}
 		public void change(String string) {
@@ -221,7 +242,7 @@ public class GraphicText extends GraphicEntity {
 				for(int i=size;i<string.length();++i){
 					GraphicChar c = new GraphicChar(string.charAt(i));
 					this.chars.add(c);	
-					addChild(c);
+					tree.addChild(c);
 				}
 			}
 			for(int i=0;i<size;++i){
@@ -235,15 +256,24 @@ public class GraphicText extends GraphicEntity {
 			}
 		}
 		@Override
-		public float offsetX(int index){
-			if(index==0){
-				offset = 0;
-			}
-			else if(index<chars.size()){
-				offset+=getChild(index-1).getWidth()*chars.get(index-1).getWidthValue()*visualW;
-			}
-
-			return offset;
+		public OffsetHandler createOffsetHandler(final GraphicElement element){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					if(index==0){
+						offset = 0;
+					}
+					else if(index<chars.size()){
+						offset+=tree.getChild(index-1).dim.getWidth()*
+								chars.get(index-1).getWidthValue()*visualW;
+					}
+					return offset;
+				}
+				@Override
+				public String toString(){
+					return "GraphicChar.OffsetHandler()";
+				}
+			};
 		}
 		public int length() {
 			return length;
@@ -254,7 +284,8 @@ public class GraphicText extends GraphicEntity {
 		public float getCharWidth(){
 			float accumulator = 0f;
 			for(int i=0;i<text.length();++i){
-				accumulator+=getChild(i).getWidth()*chars.get(i).getWidthValue()*visualW;
+				accumulator+=tree.getChild(i).dim.getWidth()*
+						chars.get(i).getWidthValue()*visualW;
 			}
 			return accumulator;
 		}
@@ -262,7 +293,8 @@ public class GraphicText extends GraphicEntity {
 			float accumulator = 0f;
 			int i=0;
 			for(;i<text.length();++i){
-				accumulator+=getChild(i).getWidth()*chars.get(i).getWidthValue()*visualW;
+				accumulator+=tree.getChild(i).dim.getWidth()*
+						chars.get(i).getWidthValue()*visualW;
 				if(accumulator>=max){
 					break;
 				}
@@ -277,15 +309,20 @@ public class GraphicText extends GraphicEntity {
 			}
 		}
 	}
-	
 
-	private class GraphicChar extends GraphicEntity{
+
+	private class GraphicChar extends StretchableGraphicElement{
 		private float value;
 
 		public GraphicChar(char c) {
-			super(new GraphicElement(font,c,layer));
+			super(font,c,textLayer);
 			setValue(c);
-			setVisible(isVisible);
+			setVisible(textVisible);
+		}
+
+		@Override
+		public void resize(float x, float y){
+			super.resize(0.025f*visualW,0.025f*visualH);
 		}
 
 		public float getWidthValue() {
@@ -310,14 +347,15 @@ public class GraphicText extends GraphicEntity {
 				value = Hub.renderer.letterWidths.get(font).get(c)*14/16;
 			}
 		}
+
 		@Override
-		public void resize(float x, float y){
-			super.resize(0.025f*visualW,0.025f*visualH);
+		public boolean draw(VisualBundle bundle){
+			return super.draw(bundle);
 		}
 	}
 	@Override
 	public void setLayer(int layer){
-		this.layer = layer;
+		this.textLayer = layer;
 		super.setLayer(layer);
 	}
 }

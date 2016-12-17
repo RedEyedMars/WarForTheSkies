@@ -11,9 +11,9 @@ import java.awt.image.BufferedImage;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
-import com.rem.core.gui.graphics.GraphicElement;
 import com.rem.core.gui.graphics.GraphicRenderer;
 import com.rem.core.gui.graphics.VisualBundle;
+import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.wfs.pc.gui.gl.GLApp;
 import com.rem.wfs.pc.gui.gl.GLImage;
 
@@ -63,21 +63,16 @@ public class PCGraphicRenderer extends GraphicRenderer{
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texMap[d.getTexture()]);
 			previousTexture = texMap[d.getTexture()];
 		}
-		if(d.isShape(GraphicElement.SHAPE_HEXAGON)){
-			GL11.glTexCoordPointer(2, 0, hexagonTextureBuffers.get(sizMap[d.getTexture()])[d.getFrame()]);
-		}
-		else {
-			GL11.glTexCoordPointer(2, 0, squareTextureBuffers.get(sizMap[d.getTexture()])[d.getFrame()]);
-		}
+		GL11.glTexCoordPointer(2, 0, d.shape().getTextureBuffer(sizMap[d.getTexture()])[d.getFrame()]);
 	}
 
 	@Override
-	protected void createFont(int texId, String texName, String fontName, int fontStyle, int size, float[] foreground, float[] background) {
+	protected void createFont(int texId, String fontName, int fontStyle, int size, float[] foreground, float[] background) {
 		GLImage image = new GLImage(createCharImage(
 				texId, 
 				new Font(fontName, fontStyle, size),size, foreground, background));
 		int tex = GLApp.makeTexture(image);
-		addTexture(texName,tex,16+"x"+16);
+		addTexture(texId,tex,16,16);
 	}
 
 
@@ -151,7 +146,7 @@ public class PCGraphicRenderer extends GraphicRenderer{
 	}
 
 	@Override
-	public void drawGraphicElement(VisualBundle visual) {
+	public void drawVisual(VisualBundle visual) {
 		GL11.glPushMatrix();
 		GL11.glTranslatef(visual.getX(), visual.getY(), 0.0f);
 		if(visual.getAngle()!=0f){
@@ -163,5 +158,22 @@ public class PCGraphicRenderer extends GraphicRenderer{
 		GL11.glVertexPointer(3, 0, visual.getVertexBuffer());
 		GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, visual.getNumberOfVertices());
 		GL11.glPopMatrix();
+	}
+
+	@Override
+	public void changeDrawMode(int oldMode, int newMode) {
+		if(oldMode==R.DRAW_MODE_VERTICES){
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			GL11.glDisable(GL11.GL_LIGHTING);
+		}
+		if(newMode==R.DRAW_MODE_VERTICES){
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			GL11.glEnable(GL11.GL_LIGHTING);
+		}
+		else if(newMode==R.DRAW_MODE_LINE){
+			GL11.glLineWidth(2);
+		}
+		
+		
 	}
 }

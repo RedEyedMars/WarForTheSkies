@@ -1,8 +1,8 @@
 package com.rem.wfs.pc;
 
-import com.rem.core.gui.graphics.GraphicView;
 import com.rem.core.Hub;
 import com.rem.core.Setupable;
+import com.rem.core.gui.graphics.elements.BlankGraphicElement;
 import com.rem.core.storage.Storage;
 import com.rem.wfs.menu.MainMenu;
 
@@ -38,7 +38,8 @@ public class Main implements Setupable {
 
 	public void setup(){
 	}
-	public GraphicView getFirstView(){
+	@Override
+	public BlankGraphicElement getFirstView(){
 		return new MainMenu();
 	}
 }

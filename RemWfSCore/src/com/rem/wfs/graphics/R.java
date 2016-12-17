@@ -6,4 +6,8 @@ public class R extends com.rem.core.gui.graphics.R{
 	public static int space_objects;
 	public static int faces_traits;
 	public static int background_1;
+	public static int resource_backs;
+	public static int resources;
+	public static int resource_types;
+	public static int spaceships;
 }

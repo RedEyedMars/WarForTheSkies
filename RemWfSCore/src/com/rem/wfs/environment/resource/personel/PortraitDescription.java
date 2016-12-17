@@ -1,8 +1,7 @@
 package com.rem.wfs.environment.resource.personel;
 
 import com.rem.core.environment.Range;
-import com.rem.core.gui.graphics.GraphicElement;
-import com.rem.core.gui.graphics.GraphicEntity;
+import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.storage.DataCollector;
 import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
@@ -37,13 +36,10 @@ public class PortraitDescription implements StorageHandler{
 		toSave.collect(hairId);
 	}
 
-	public GraphicEntity generateFace() {
-		GraphicEntity face = new GraphicEntity(
-				new GraphicElement(R.faces_traits,backgroundFrames.get(backgroundId)));
-		face.addChild(new GraphicEntity(
-				new GraphicElement(R.faces_traits,featureFrames.get(featuresId))));
-		face.addChild(new GraphicEntity(
-				new GraphicElement(R.faces_traits,hairFrames.get(hairId))));
+	public GraphicElement generateFace() {
+		GraphicElement face = new GraphicElement(R.faces_traits,backgroundFrames.get(backgroundId),R.MID_LAYER);
+		face.tree.addChild(new GraphicElement(R.faces_traits,featureFrames.get(featuresId),R.MID_LAYER));
+		face.tree.addChild(new GraphicElement(R.faces_traits,hairFrames.get(hairId),R.MID_LAYER));
 		return face;
 	}
 

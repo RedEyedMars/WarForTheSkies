@@ -1,5 +1,6 @@
 package com.rem.core.gui.inputs;
 
+import com.rem.core.gui.graphics.elements.GraphicElement;
 
 public class ClickEvent implements InputEvent{
 
@@ -51,5 +52,9 @@ public class ClickEvent implements InputEvent{
 	@Override
 	public int getType() {
 		return InputEvent.CLICK;
+	}
+	
+	public boolean isWithin(GraphicElement element){
+		return element.isWithin(x, y);
 	}
 }

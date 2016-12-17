@@ -3,13 +3,12 @@ package com.rem.core.environment;
 
 import com.rem.core.Action;
 import com.rem.core.gui.Updatable;
-import com.rem.core.gui.graphics.GraphicElement;
-import com.rem.core.gui.graphics.GraphicEntity;
+import com.rem.core.gui.graphics.elements.BlankGraphicElement;
 import com.rem.core.storage.DataCollector;
 import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
 
-public abstract class Environment extends GraphicEntity implements StorageHandler, Updatable {
+public abstract class Environment extends BlankGraphicElement implements StorageHandler, Updatable {
 
 	
 	protected String name;
@@ -21,10 +20,7 @@ public abstract class Environment extends GraphicEntity implements StorageHandle
 	public abstract void onCreate();
 	public abstract void restart(Action<Object> onComplete);
 	public Environment() {
-		this(new GraphicElement());
-	}
-	public Environment(GraphicElement element) {
-		super(element);
+		super();
 	}
 	public String getName(){
 		return name;

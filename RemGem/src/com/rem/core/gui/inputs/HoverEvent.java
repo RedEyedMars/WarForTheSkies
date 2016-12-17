@@ -1,5 +1,6 @@
 package com.rem.core.gui.inputs;
 
+import com.rem.core.gui.graphics.elements.GraphicElement;
 
 public class HoverEvent implements InputEvent{
 
@@ -22,5 +23,9 @@ public class HoverEvent implements InputEvent{
 	@Override
 	public int getType() {
 		return InputEvent.HOVER;
+	}
+	
+	public boolean isWithin(GraphicElement element){
+		return element.isWithin(x, y);
 	}
 }

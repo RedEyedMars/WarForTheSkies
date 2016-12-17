@@ -2,13 +2,13 @@ package com.rem.wfs.environment.resource;
 
 import com.rem.core.storage.StorageHandler;
 import com.rem.wfs.Creatable;
-import com.rem.wfs.graphics.Icon;
+import com.rem.wfs.graphics.Iconic;
 
 public class SpaceResource<T extends SpaceResource<T>> implements Creatable{
 	private float value;
 	private int limit;
 	private float growth;
-	private Icon icon;
+	private Iconic icon;
 	protected ResourceType<T> resourceType;
 	private ResourceContainer container;
 
@@ -46,7 +46,7 @@ public class SpaceResource<T extends SpaceResource<T>> implements Creatable{
 		this.growth= resourceType.generateInitialGrowth(container);
 	}	
 
-	public Icon getIcon(){
+	public Iconic getIcon(){
 		return icon;
 	}
 

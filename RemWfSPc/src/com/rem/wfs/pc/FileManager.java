@@ -17,15 +17,14 @@ import java.util.jar.JarFile;
 import com.rem.core.Hub;
 import com.rem.core.IFileManager;
 import com.rem.core.storage.FileResource;
-import com.rem.core.storage.Storage;
 import com.rem.wfs.pc.gui.graphics.R;
 import com.rem.core.Action;
 
 public class FileManager implements IFileManager{
 	@SuppressWarnings("rawtypes")
 	@Override
-	public FileResource createImageResource(String name, String path) {
-		return new FileResource<InputStream>(name,path, R.getResource(path));
+	public FileResource createImageResource(int id, String path) {
+		return new FileResource<InputStream>(id,path, R.getResource(path));
 	}
 
 	@Override
@@ -36,7 +35,7 @@ public class FileManager implements IFileManager{
 				path = new File(System.getenv("APPDATA"),"WarForTheSkies"+File.separator+path).getAbsolutePath();
 			}
 			return new FileResource<InputStream>(
-					Storage.getMapNameFromFileName(path),
+					-1,
 					path,
 					FileResource.INPUT_STREAM,
 					new Action<FileResource<InputStream>>(){
@@ -74,7 +73,7 @@ public class FileManager implements IFileManager{
 			path = new File(System.getenv("APPDATA"),"WarForTheSkies"+File.separator+path).getAbsolutePath();
 		}
 		return new FileResource<OutputStream>(
-				Storage.getMapNameFromFileName(path),
+				-1,
 				path,
 				FileResource.OUTPUT_STREAM,
 				new Action<FileResource<OutputStream>>(){

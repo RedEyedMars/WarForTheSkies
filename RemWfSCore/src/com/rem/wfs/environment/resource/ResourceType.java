@@ -3,9 +3,9 @@ package com.rem.wfs.environment.resource;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rem.core.Hub;
-import com.rem.core.gui.graphics.GraphicElement;
-import com.rem.wfs.graphics.Icon;
+import com.rem.core.gui.graphics.elements.GraphicElement;
+import com.rem.core.gui.graphics.R;
+import com.rem.wfs.graphics.Iconic;
 
 
 public abstract class ResourceType<ObjectType extends SpaceResource<ObjectType>> {
@@ -53,12 +53,13 @@ public abstract class ResourceType<ObjectType extends SpaceResource<ObjectType>>
 	public abstract float generateInitialGrowth(ResourceContainer container);
 	public abstract SpaceResource<ObjectType> createPlaceHolder(ResourceContainer container);
 
-	public abstract Icon createIcon(final ObjectType spaceResource);
+	public abstract Iconic createIcon(final ObjectType spaceResource);
 
-	public GraphicElement getIconBackgroundElement() {
-		return new GraphicElement(iconBackgroundTexture,iconBackgroundFrame,Hub.MID_LAYER);
+	public int[] getIconBackground() {
+		return new int[]{iconBackgroundTexture,iconBackgroundFrame,R.MID_LAYER};
 	}
 	public GraphicElement getIconElement() {
-		return new GraphicElement(iconTexture,iconFrame,Hub.MID_LAYER);
+		return new GraphicElement(iconTexture,iconFrame,R.MID_LAYER);
 	}
+
 }

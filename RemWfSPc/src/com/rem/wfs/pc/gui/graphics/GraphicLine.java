@@ -2,18 +2,12 @@ package com.rem.wfs.pc.gui.graphics;
 
 import org.lwjgl.opengl.GL11;
 
-import com.rem.core.gui.graphics.GraphicElement;
+import com.rem.core.gui.graphics.VisualBundle;
+import com.rem.core.gui.graphics.elements.GraphicElement;
 
+public class GraphicLine {
 
-
-public class PCGraphicLineElement {
-
-	protected static void draw(GraphicElement element){
-
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glDisable(GL11.GL_LIGHTING);
-		// OpenGL 1.1 drawing routine
-		GL11.glLineWidth(2);
+	protected static void draw(VisualBundle element){
 		GL11.glColor3f(1f, 0f, 0f);
 		GL11.glColor3f(0.5f,0.5f,1.0f);
 		GL11.glBegin(GL11.GL_LINES);
@@ -34,8 +28,6 @@ public class PCGraphicLineElement {
 			q0 = q1;
 		}
 		GL11.glEnd();
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glEnable(GL11.GL_LIGHTING);
 	}
 
 	private static float[] calculateBezierPoint(float t,

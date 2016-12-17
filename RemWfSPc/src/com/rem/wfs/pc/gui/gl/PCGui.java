@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
 import com.rem.core.gui.IGui;
-import com.rem.core.gui.graphics.GraphicView;
+import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.inputs.ClickEvent;
 import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.core.gui.inputs.KeyBoardEvent;
@@ -152,18 +152,18 @@ public class PCGui extends GLApp implements IGui {
 	}
 
 
-	public void setView(GraphicView view) {
+	public void setView(GraphicElement view) {
 		if(Hub.view!=null){
-			Hub.view.onRemoveFromDrawable();
+			Hub.view.removeFromDrawable();
 		}
 		Hub.handler.clear();
 		Hub.view = view;
-		Hub.handler.giveOnClick(view);
+		Hub.handler.giveOnClick(view);/*
 		KeyBoardListener keyListener = view.getDefaultKeyBoardListener();
 		if(keyListener!=null){
 			Hub.handler.giveOnType(keyListener);
-		}
-		view.onAddToDrawable();
+		}*/
+		view.addToDrawable();
 	}
 
 

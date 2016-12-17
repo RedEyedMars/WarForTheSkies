@@ -3,7 +3,8 @@ package com.rem.wfs.environment.hexagon;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rem.core.gui.graphics.GraphicElement;
+import com.rem.core.gui.graphics.elements.GraphicElement;
+import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.inputs.ClickEvent;
 import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.core.storage.Storable;
@@ -16,18 +17,14 @@ import com.rem.wfs.environment.hexagon.system.SpaceSystem;
 import com.rem.wfs.environment.location.Locatable;
 import com.rem.wfs.environment.location.Location;
 import com.rem.wfs.environment.location.LocationStorageHandler;
-import com.rem.wfs.environment.resource.ResourceContainer;
-import com.rem.wfs.environment.resource.ResourceListStorageHandler;
-import com.rem.wfs.environment.resource.ResourceType;
-import com.rem.wfs.environment.resource.SpaceResource;
-import com.rem.wfs.graphics.Icon;
+import com.rem.wfs.environment.resource.cluster.ResourceCluster;
+import com.rem.wfs.environment.resource.cluster.ResourceClusterListStorageHandler;
+import com.rem.wfs.graphics.Iconic;
 import com.rem.wfs.graphics.R;
 
-public class SpaceHexagon extends Hexagon implements ResourceContainer, Storable, Locatable, Identifiable{
-
-	private static final int OVER_GON_INDEX = 0;
-	private static final int SPACE_SYSTEM_INDEX = 1;
-
+public class SpaceHexagon extends Hexagon
+implements  Storable, Locatable, Identifiable{
+	
 	public static final int HOST_PLAYER_ID = 0;
 	public static final int FRIENDLY_HUMAN_PLAYER_ID = 2;
 	public static final int ENEMY_HUMAN_PLAYER_ID = 3;
@@ -35,41 +32,44 @@ public class SpaceHexagon extends Hexagon implements ResourceContainer, Storable
 	public static final int ENEMY_NPC_ID = 7;
 	public static final int UNCLAIMED_ID = 11;
 
-	private static SpaceHexagon currentlySelected = null;
+	//private static SpaceHexagon currentlySelected = null;
 
 	private Hexagon overGon;
 	private int ownerId;
 	private Location location;
 	private SpaceSystem spaceSystem;
-	@SuppressWarnings("rawtypes")
-	private List<SpaceResource> resourceList = new ArrayList<SpaceResource>(){
+
+	private List<ResourceCluster> resourceList = new ArrayList<ResourceCluster>(){
 		private static final long serialVersionUID = 6887318772910988733L;
 		@Override
-		public boolean add(SpaceResource arg){
-			addChild(arg.getIcon());
-			arg.getIcon().setVisible(isFriendlyState(ownerId));
+		public boolean add(ResourceCluster arg){
+			tree.addChild((GraphicElement)arg.getIcon());
 			return super.add(arg);
 		}
 		@Override
 		public boolean remove(Object arg){
-			int index = indexOf(arg);
-			if(index!=-1){
-				removeChild(index);
-				super.remove(index);
-				return true;
+			if(arg instanceof ResourceCluster){
+				ResourceCluster rc = (ResourceCluster)arg;
+				int index = indexOf(rc);
+				if(index!=-1){
+					tree.removeChild((GraphicElement) rc.getIcon());
+					super.remove(index);
+					return true;
+				}
+				else return false;
 			}
 			else return false;
 		}
 	};
 
 	public SpaceHexagon() {
-		super(new GraphicElement(R.solid_colour,GraphicElement.COLOUR_BLUE));
+		super(R.solid_colour,R.COLOUR_BLUE,R.BOT_LAYER);
 
-		overGon = new Hexagon(new GraphicElement(R.space_background,(int) (Math.random()*8)));
-		addChild(overGon);
+		overGon = new Hexagon(R.space_background,(int) (Math.random()*8),R.BOT_LAYER);
+		tree.addChild(overGon);
 
 		spaceSystem = new SpaceSystem();
-		addChild(spaceSystem);	
+		tree.addChild(spaceSystem);	
 
 	}
 
@@ -82,19 +82,13 @@ public class SpaceHexagon extends Hexagon implements ResourceContainer, Storable
 		else {
 			status = false;
 		}
-		for(@SuppressWarnings("rawtypes") 
-		    SpaceResource resource:this.resourceList){
+		for(ResourceCluster resource:this.resourceList){
 			resource.getIcon().setParentSelectedStatus(status);
 			resource.getIcon().onHover(event);
 		}
 		return status;
 	}
 
-	@Override
-	@SuppressWarnings("rawtypes")
-	public List<SpaceResource> getResources() {
-		return resourceList ;
-	}
 
 	public static SpaceHexagon createPlaceHolder() {
 		return new SpaceHexagon();
@@ -105,9 +99,8 @@ public class SpaceHexagon extends Hexagon implements ResourceContainer, Storable
 				new IdentityStorageHandler(this),
 				new LocationStorageHandler(this),
 				new StorableStorageHandler<SpaceSystem>(spaceSystem),
-				new ResourceListStorageHandler(this));
+				new ResourceClusterListStorageHandler(this));
 	}
-
 
 	@Override
 	public Location getLocation() {
@@ -120,66 +113,101 @@ public class SpaceHexagon extends Hexagon implements ResourceContainer, Storable
 		this.location = location;
 	}
 
+
 	@Override
 	public void reposition(float x, float y){
-		x+=location.getX()*getWidth()+(location.getY()%2==0?getWidth()/2f:0f);
-		y+=location.getY()*getHeight()*0.8f;
+		x+=location.getX()*dim.getWidth()+
+				(location.getY()%2==0?
+						dim.getWidth()/2f:
+							0f
+						);
+		y+=location.getY()*dim.getHeight()*0.8f;
 		super.reposition(x, y);
 	}
 	@Override
-	public float offsetX(int index){
-		if(index==OVER_GON_INDEX){
-			return getWidth()*0.05f;
+	public OffsetHandler createOffsetHandler(final GraphicElement element){
+		if(element==overGon){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					return dim.getWidth()*0.05f;
+				}
+				@Override
+				public float getY(int index){
+					return dim.getHeight()*0.05f;
+				}
+				@Override
+				public float getWidth(float w){
+					return w*0.9f;
+				}
+				@Override
+				public float getHeight(float w){
+					return w*0.9f;
+				}
+			};
 		}
-		else if(index==SPACE_SYSTEM_INDEX){
-			return getWidth()*0.25f;
+		else if(element==spaceSystem){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					return dim.getWidth()*0.25f;
+				}
+				@Override
+				public float getY(int index){
+					return dim.getHeight()*0.25f;
+				}
+				@Override
+				public float getWidth(float w){
+					return w*0.5f;
+				}
+				@Override
+				public float getHeight(float w){
+					return w*0.5f;
+				}
+			};
 		}
-
-		else if(getChild(index) instanceof Icon){
-			Icon icon = ((Icon)getChild(index));
-			if(icon.getId()<resourceList.size()/2){
-				return getWidth()*0.05f;
-			}
-			else return getWidth()*0.7f;
+		else if(element instanceof Iconic){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					Iconic icon = ((Iconic)element);
+					if(icon.getId()==2){
+						return dim.getWidth()-element.dim.getWidth();
+					}
+					else if(icon.getId()==1){
+						return dim.getWidth()/2f-element.dim.getWidth()/2f;
+					}
+					return super.getX(index);
+				}
+				@Override
+				public float getY(int index){
+					Iconic icon = ((Iconic)element);
+					if(icon.getId()==0||icon.getId()==2){
+						return dim.getHeight()*0.2f;
+					}
+					else if(icon.getId()==1){
+						return dim.getHeight()-element.dim.getHeight();
+					}
+					return super.getY(index);
+				}
+				@Override
+				public float getWidth(float w){
+					return w*0.15f;
+				}
+				@Override
+				public float getHeight(float h){
+					return h*0.15f;
+				}
+			};
 		}
-		else return super.offsetX(index);
+		else return super.createOffsetHandler(element);
 	}
-	@Override
-	public float offsetY(int index){
-		if(index==OVER_GON_INDEX){
-			return getHeight()*0.05f;
-		}
-		else if(index==SPACE_SYSTEM_INDEX){
-			return getHeight()*0.25f;
-		}
-		else if(getChild(index) instanceof Icon){
-			Icon icon = ((Icon)getChild(index));
-			if(icon.getId()<resourceList.size()/2){
-				return getHeight()*0.65f-icon.getId()*getHeight()*0.6f/(resourceList.size()/2);
-			}
-			else {
-				return getHeight()*0.65f-(icon.getId()-4)*getHeight()*0.6f/(resourceList.size()/2);
-			}
-		}
-		else return super.offsetY(index);
-	}
-	@Override
-	public void resize(float x, float y){
-		super.resize(x, y);
-		overGon.resize(x*0.9f, y*0.9f);
-		spaceSystem.resize(x*0.5f, y*0.5f);
-
-		for(int i=0;i<resourceList.size();++i){
-			resourceList.get(i).getIcon().resize(x*0.15f, y*0.15f);
-		}
-	}
-
 
 	public void onCreate(int owner) {
 		this.setId(owner);
 		this.spaceSystem.onCreate();
-		for(int i=0;i<ResourceType.types.size();++i){
-			SpaceResource<?> resource = ResourceType.types.get(i).createPlaceHolder(this);
+		for(int i=0;i<ResourceCluster.numberOfClusters;++i){
+			ResourceCluster resource = new ResourceCluster(i);
 			resource.onCreate();
 			this.resourceList.add(resource);
 		}
@@ -196,47 +224,49 @@ public class SpaceHexagon extends Hexagon implements ResourceContainer, Storable
 	public void setId(int id) {
 		this.ownerId = id;
 		if(ownerId==HOST_PLAYER_ID){
-			this.setFrame(GraphicElement.COLOUR_BLUE);
+			this.setFrame(R.COLOUR_BLUE);
 		}
 		else if(ownerId%FRIENDLY_HUMAN_PLAYER_ID==0){
-			this.setFrame(GraphicElement.COLOUR_GREEN);
+			this.setFrame(R.COLOUR_GREEN);
 		}
 		else if(ownerId%ENEMY_HUMAN_PLAYER_ID==0){
-			this.setFrame(GraphicElement.COLOUR_RED);
+			this.setFrame(R.COLOUR_RED);
 		}
 		else if(ownerId%FIENDLY_NPC_ID==0){
-			this.setFrame(GraphicElement.COLOUR_CYAN);
+			this.setFrame(R.COLOUR_CYAN);
 		}
 		else if(ownerId%ENEMY_NPC_ID==0){
-			this.setFrame(GraphicElement.COLOUR_RED);
+			this.setFrame(R.COLOUR_RED);
 		}
 		else if(ownerId%UNCLAIMED_ID==0){
-			this.setFrame(GraphicElement.COLOUR_WHITE);
-		}
-
-		for(SpaceResource<?> resource:resourceList){
-			resource.getIcon().setVisible(
-					isFriendlyState(ownerId));
+			this.setFrame(R.COLOUR_WHITE);
 		}
 	}
 
 	@Override
-	public void performOnRelease(ClickEvent e){
-		if(currentlySelected!=null||currentlySelected==this){
-			for(SpaceResource<?> resource:currentlySelected.resourceList){
-				resource.getIcon().setVisible(
-						isFriendlyState(currentlySelected.ownerId));
+	public boolean onClick(ClickEvent event){
+		if(dim.isWithin(event.getX(), event.getY())){
+			if(event.getAction()==ClickEvent.ACTION_UP){
+				/*
+				if(currentlySelected!=null||currentlySelected==this){
+					for(SpaceResource<?> resource:currentlySelected.resourceList){
+						resource.getIcon().setVisible(
+								isFriendlyState(currentlySelected.ownerId));
+					}
+				}
+				if(currentlySelected!=this){
+					currentlySelected = this;
+					for(SpaceResource<?> resource:resourceList){
+						resource.getIcon().setVisible(true);
+					}
+				}
+				else {
+					currentlySelected = null;
+				}*/
 			}
+			return super.onClick(event);
 		}
-		if(currentlySelected!=this){
-			currentlySelected = this;
-			for(SpaceResource<?> resource:resourceList){
-				resource.getIcon().setVisible(true);
-			}
-		}
-		else {
-			currentlySelected = null;
-		}
+		else return false;
 	}
 
 	public static int createId(int base){
@@ -259,5 +289,9 @@ public class SpaceHexagon extends Hexagon implements ResourceContainer, Storable
 		return ownerId==HOST_PLAYER_ID||
 				ownerId%FRIENDLY_HUMAN_PLAYER_ID==0||
 				ownerId%FIENDLY_NPC_ID==0;
+	}
+
+	public List<ResourceCluster> getResources() {
+		return resourceList;
 	}
 }

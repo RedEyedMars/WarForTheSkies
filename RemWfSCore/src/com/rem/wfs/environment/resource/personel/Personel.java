@@ -3,7 +3,6 @@ package com.rem.wfs.environment.resource.personel;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.rem.core.gui.graphics.GraphicElement;
 import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
 import com.rem.core.storage.handler.StorableListStorageHandler;
@@ -29,7 +28,7 @@ public class Personel implements Creatable {
 		this.name.onCreate();
 		for(int i=0;i<numberOfTraitsPerPerson;++i){
 			PersonelTrait trait = new PersonelTrait();
-			trait.onCreate();
+			trait.onCreate(i);
 			this.traits.add(trait);
 		}
 	}
@@ -48,11 +47,14 @@ public class Personel implements Creatable {
 	}
 	public PortraitIcon getPortaitIcon(int id) {
 		return new PortraitIcon(this,
-				new GraphicElement(R.faces_traits),
+				R.background_1,15,
 				description,name.getFullName(),id);
 	}
 	public PersonelName getName() {
 		return name;
+	}
+	public List<PersonelTrait> getTraits() {
+		return traits;
 	}
 
 }

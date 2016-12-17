@@ -7,20 +7,20 @@ import com.rem.wfs.environment.resource.ResourceContainer;
 import com.rem.wfs.environment.resource.ResourceIcon;
 import com.rem.wfs.environment.resource.StockList;
 import com.rem.wfs.environment.resource.StockType;
-import com.rem.wfs.graphics.Icon;
+import com.rem.wfs.graphics.Iconic;
 import com.rem.wfs.graphics.R;
-import com.rem.wfs.menu.PersonelListViewMenu;
+import com.rem.wfs.menu.PersonelListView;
 
 public class PersonelStockType extends StockType<Personel> {
 
-	private static final int TEXTURE_FRAME_POPULATION = 27;	
-	private static final int TEXTURE_FRAME_POPULATION_BACKGROUND = 31;
-	
+	private static final int TEXTURE_FRAME_POPULATION = 7;	
+	private static final int TEXTURE_FRAME_POPULATION_BACKGROUND = 13;
+
 	public PersonelStockType() {
 		super("Personel",
 				"Ships have varying Crew requirements.",
-				R.space_objects,TEXTURE_FRAME_POPULATION,
-				R.space_objects,TEXTURE_FRAME_POPULATION_BACKGROUND);
+				R.resources,TEXTURE_FRAME_POPULATION,
+				R.resource_backs,TEXTURE_FRAME_POPULATION_BACKGROUND);
 	}
 
 	@Override
@@ -28,13 +28,21 @@ public class PersonelStockType extends StockType<Personel> {
 		return new Personel();
 	}
 	@Override
-	public Icon createIcon(final StockList<Personel> spaceResource) {
+	public Iconic createIcon(final StockList<Personel> spaceResource) {
 		return new ResourceIcon<StockList<Personel>>(spaceResource,this,ResourceIcon.LEFT_JUSTIFIED){
 			@Override
-			public void performOnRelease(ClickEvent event){
-				((Game)Hub.view).addOverlayMenu(new PersonelListViewMenu(
-						(StockList<Personel>)spaceResource
-						));
+			public boolean onClick(ClickEvent event){
+
+				if(dim.isWithin(event.getX(), event.getY())){
+					if(event.getAction()==ClickEvent.ACTION_UP){
+					((Game)Hub.view).addOverlayMenu(
+							new PersonelListView(
+									(StockList<Personel>)spaceResource
+									));
+					}
+					return super.onClick(event);
+				}
+				else return false;
 			}
 		};
 	}

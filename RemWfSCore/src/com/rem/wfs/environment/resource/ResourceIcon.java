@@ -1,15 +1,15 @@
 package com.rem.wfs.environment.resource;
 
-import com.rem.core.Hub;
-import com.rem.core.gui.graphics.GraphicEntity;
 import com.rem.core.gui.graphics.GraphicText;
+import com.rem.core.gui.graphics.elements.GraphicElement;
+import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.wfs.environment.resource.ResourceType;
 import com.rem.wfs.environment.resource.SpaceResource;
-import com.rem.wfs.graphics.Icon;
+import com.rem.wfs.graphics.IconLineBackground;
 import com.rem.wfs.graphics.R;
 
-public class ResourceIcon <T extends SpaceResource<T>>extends Icon {
+public class ResourceIcon <T extends SpaceResource<T>> extends IconLineBackground {
 
 	private static final int SHOW_VALUE_STATE = 0;
 	private static final int SHOW_VALUE_AND_LIMIT_STATE = 1;
@@ -17,31 +17,29 @@ public class ResourceIcon <T extends SpaceResource<T>>extends Icon {
 
 	public static final int LEFT_JUSTIFIED = 0;
 	public static final int RIGHT_JUSTIFIED = 1;
-	
-	public static final float REGULAR_SIZE = 1f;
-	public static final float LARGE_SIZE = 1.15f;
 
-	private GraphicEntity icon;
+	private GraphicElement icon;
 	private GraphicText text;
 	private int state = SHOW_VALUE_STATE;
 	private T resource;
 	private int justified;
-	private float iconSizeFactor = REGULAR_SIZE;
 
 	private static final int FREE_STATE = 0;
 	private static final int HIDE_STATE = 1;
 	private static int overallState = FREE_STATE;
 
 	public ResourceIcon(T resource, ResourceType<T> type, int justified) {
-		super(type.getIconBackgroundElement(), type.getDescription(), type.getId());
+		super(type.getIconBackground()[0],
+				type.getIconBackground()[1],
+				type.getIconBackground()[2], type.getId());
 		this.resource = resource;
 		this.justified = justified;
-		icon = new GraphicEntity(type.getIconElement());
+		icon = type.getIconElement();
 		text = new GraphicText(R.arial,
-				getStateText(),Hub.MID_LAYER);
+				getStateText(),R.MID_LAYER);
 		text.setFontSize(GraphicText.FONT_SIZE_SMALL);
-		addChild(icon);
-		addChild(text);
+		tree.addChild(icon);
+		tree.addChild(text);
 	}
 	@Override
 	public boolean onHover(HoverEvent event){
@@ -65,10 +63,11 @@ public class ResourceIcon <T extends SpaceResource<T>>extends Icon {
 		}
 
 		text.change(getStateText());
-		resize(getHeight(),getHeight());
+		resize(dim.getHeight(),dim.getHeight());
 		return returnValue;
 	}
 	private String getStateText() {
+		if(resource==null)return "";
 		if(overallState==FREE_STATE){
 			switch(state){
 			case SHOW_VALUE_STATE:return getJustValue();
@@ -85,61 +84,67 @@ public class ResourceIcon <T extends SpaceResource<T>>extends Icon {
 		}
 		return null;
 	}
+	@Override
 	public void resize(float x, float y){
+		float previousWidth = dim.getWidth();
+		int stateTextLength = getStateText().length();
+		if(stateTextLength<=1)stateTextLength=2;
+		super.resize(0.02f+(float) (stateTextLength*x*0.25f), y);
+		if(text!=null){
+			text.resize(stateTextLength*x*0.25f,y);
+		}
+		if(icon!=null){
+			icon.resize(0.022f, y);
+		}
+		if(justified==LEFT_JUSTIFIED){
 
-		if(justified==LEFT_JUSTIFIED){
-			int stateTextLength = getStateText().length();
-			if(stateTextLength<=1)stateTextLength=2;
-			super.resize(x+stateTextLength*x/2.85f, y);
-			icon.resize(y*iconSizeFactor,y*iconSizeFactor);
-			text.resize(stateTextLength*x/3f,y);
-			reposition(getX(),getY());
+			reposition(dim.getX(),dim.getY());
 		}
 		else if(justified==RIGHT_JUSTIFIED){
-			int stateTextLength = getStateText().length();
-			if(stateTextLength<=1)stateTextLength=2;
-			float previousWidth = getWidth();
-			super.resize(x+stateTextLength*x/2.85f, y);
-			icon.resize(y*iconSizeFactor,y*iconSizeFactor);
-			text.resize(stateTextLength*x/3f,y);
-			reposition(getX()-(getWidth()-previousWidth),getY());
+			reposition(dim.getX()-(dim.getWidth()-previousWidth),dim.getY());
 		}
 	}
 	@Override
-	public float offsetX(int index){
-		if(justified==LEFT_JUSTIFIED){
-			if(getChild(index)==icon){
-				return 0.003f;
-			}
-			else if(getChild(index)==text){
-				return icon.getWidth();
-			}
-			else return super.offsetX(index);
+	public OffsetHandler createOffsetHandler(final GraphicElement element){
+		if(element==icon){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+					if(justified==LEFT_JUSTIFIED){
+						return -0.003f;
+					}
+					else if(justified==RIGHT_JUSTIFIED){
+						return text.dim.getWidth()-0.003f;
+					}
+					else return super.getX(index);
+
+				}
+			};
 		}
-		else if(justified==RIGHT_JUSTIFIED){
-			if(getChild(index)==icon){
-				return text.getWidth();
-			}
-			else if(getChild(index)==text){
-				return 0.003f;
-			}
-			else return super.offsetX(index);
+		else if(element==text){
+			return new OffsetHandler(){
+				@Override
+				public float getX(int index){
+
+					if(justified==LEFT_JUSTIFIED){
+						return icon.dim.getWidth();
+					}
+					else if(justified==RIGHT_JUSTIFIED){
+						return -0.003f;
+					}
+					else return super.getX(index);
+				}
+				@Override
+				public float getY(int index){
+					return 0.003f;
+				}
+			};
 		}
-		else return super.offsetX(index);
+		return super.createOffsetHandler(element);
 	}
-	@Override
-	public float offsetY(int index){
-		if(getChild(index)==text){
-			return 0.003f;
-		}
-		else return super.offsetY(index);
-	}
-	
-	public void setSizeFactor(float factor){
-		this.iconSizeFactor = factor;
-	}
+
 	public String getFullTextValue(){
-		return (resource.getValue()+"000").substring(0,(""+resource.getValue()).indexOf('.')+4)+" /"+resource.getLimit();
+		return (resource.getValue()+"000").substring(0,(""+resource.getValue()).indexOf('.')+2)+" /"+resource.getLimit();
 	}
 	public String getShortTextValue(){
 		return (""+resource.getValue()).substring(0,(""+resource.getValue()).indexOf('.'))+" /"+resource.getLimit();

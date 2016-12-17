@@ -1,64 +1,61 @@
 package com.rem.wfs.graphics;
 
-import com.rem.core.gui.graphics.GraphicElement;
-import com.rem.core.gui.graphics.GraphicEntity;
+import com.rem.core.gui.graphics.elements.GraphicElement;
+import com.rem.core.gui.graphics.elements.OffsetHandler;
+import com.rem.core.gui.graphics.elements.StaticHeightGraphicElement;
+import com.rem.core.gui.graphics.elements.StaticWidthGraphicElement;
+import com.rem.core.gui.graphics.elements.StretchableGraphicElement;
+import com.rem.core.gui.graphics.elements.dimension.DimensionHandler;
 
-public class Background extends GraphicEntity{
-	private static final float staticSize = 0.1f;
+public class Background extends StretchableGraphicElement{
 	public Background(int textureId, int layer){
-		super(new GraphicElement(textureId,5,layer));
-		addChild(new GraphicEntity(new GraphicElement(textureId,0,0f,0f,staticSize,staticSize,layer)));
-		addChild(new GraphicEntity(new GraphicElement(textureId,1,0f,0f,staticSize,staticSize,layer)));
-		addChild(new GraphicEntity(new GraphicElement(textureId,2,0f,0f,staticSize,staticSize,layer)));
-		addChild(new GraphicEntity(new GraphicElement(textureId,4,0f,0f,staticSize,staticSize,layer)));
-		addChild(new GraphicEntity(new GraphicElement(textureId,6,0f,0f,staticSize,staticSize,layer)));
-		addChild(new GraphicEntity(new GraphicElement(textureId,8,0f,0f,staticSize,staticSize,layer)));
-		addChild(new GraphicEntity(new GraphicElement(textureId,9,0f,0f,staticSize,staticSize,layer)));
-		addChild(new GraphicEntity(new GraphicElement(textureId,10,0f,0f,staticSize,staticSize,layer)));		
+		super(textureId,5,layer);
+		tree.addChild(new GraphicElement(textureId,0,layer));
+		tree.addChild(new StaticHeightGraphicElement(textureId,1,layer));
+		tree.addChild(new GraphicElement(textureId,2,layer));
+		tree.addChild(new StaticWidthGraphicElement(textureId,4,layer));
+		tree.addChild(new StaticWidthGraphicElement(textureId,6,layer));
+		tree.addChild(new GraphicElement(textureId,8,layer));
+		tree.addChild(new StaticHeightGraphicElement(textureId,9,layer));
+		tree.addChild(new GraphicElement(textureId,10,layer));		
 	}
-	
+
 	@Override
 	public void resize(float w, float h){
 		super.resize(w, h);
-		getChild(0).resize(staticSize, staticSize);
-		getChild(1).resize(w, staticSize);
-		getChild(2).resize(staticSize, staticSize);
-		getChild(3).resize(staticSize, h);
-		getChild(4).resize(staticSize, h);
-		getChild(5).resize(staticSize, staticSize);
-		getChild(6).resize(w, staticSize);
-		getChild(7).resize(staticSize, staticSize);
-		
-		reposition(getX(),getY());
+		reposition(dim.getX(),dim.getY());
 	}
-	
+
 	@Override
-	public float offsetX(int index){
-		switch(index){
-		case 0:return -staticSize;
-		case 1:return 0f;
-		case 2:return getWidth();
-		case 3:return -staticSize;
-		case 4:return getWidth();
-		case 5:return -staticSize;
-		case 6:return 0f;
-		case 7:return getWidth();
-		}
-		return super.offsetX(index);
+	public OffsetHandler createOffsetHandler(final GraphicElement element){
+		return new BackgroundOffsetHandler();
 	}
-	
-	@Override
-	public float offsetY(int index){
-		switch(index){
-		case 0:return getHeight();
-		case 1:return getHeight();
-		case 2:return getHeight();
-		case 3:return 0;
-		case 4:return 0;
-		case 5:return -staticSize;
-		case 6:return -staticSize;
-		case 7:return -staticSize;
+	protected class BackgroundOffsetHandler extends OffsetHandler{
+		@Override
+		public float getX(int index){
+			if(index==0||index==3||index==5){ //East border and corners.
+				return -DimensionHandler.getDefaultWidth(getTexture());
+			}
+			else if(index==1||index==6){//North and South borders
+				return 0f;
+			}
+			else if(index==2||index==4||index==7){//West border and corners.
+				return dim.getWidth();
+			}
+			else return super.getX(index);
 		}
-		return super.offsetY(index);
+		@Override
+		public float getY(int index){
+			if(index==0||index==1||index==2){//north border and corners
+				return dim.getHeight();
+			}
+			else if(index==3||index==4){//East and west borders
+				return 0f;
+			}
+			else if(index==5||index==6||index==7){//south border and corners;
+				return -DimensionHandler.getDefaultHeight(getTexture());
+			}
+			else return super.getY(index);
+		}
 	}
 }

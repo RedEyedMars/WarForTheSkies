@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 
 
-public class R {
+public class R extends com.rem.wfs.graphics.R {
 
 
 	public static InputStream getResource(String name){

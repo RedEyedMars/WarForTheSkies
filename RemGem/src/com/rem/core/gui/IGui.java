@@ -2,7 +2,7 @@ package com.rem.core.gui;
 
 import java.net.URL;
 
-import com.rem.core.gui.graphics.GraphicView;
+import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.inputs.KeyBoardListener;
 import com.rem.core.storage.FileResource;
 
@@ -21,7 +21,7 @@ public interface IGui {
 	
 	public void end();
 	
-	public void setView(GraphicView view);
+	public void setView(GraphicElement view);
 
 	public void setFinished(boolean b);
 

@@ -9,31 +9,25 @@ public class VisualBundle {
 	private float h;
 	
 
-	protected int vertexNumber = 4;
+	protected int numberOfVertices;
 	protected FloatBuffer vertexBuffer;
 	private float angle;
 
-	public VisualBundle(float x, float y, float w, float h, float angle, int vertexNumber, FloatBuffer vertexBuffer){
+	public VisualBundle(){
+		
+	}
+	public void setDimensions(float x, float y, float w, float h, float angle){
 
-		if(w<0){
-			this.x = x+w;
-			this.w = -w;
-		}
-		else {
-			this.x = x;
-			this.w = w;			
-		}
-		if(h<0){
-			this.y = y+h;
-			this.h = -h;
-		}
-		else {
-			this.y = y;
-			this.h = h;
-		}
+		this.x = x;
+		this.w = w;			
+		this.y = y;
+		this.h = h;
 		this.angle = angle;
-		this.vertexNumber = vertexNumber;
-		this.vertexBuffer = vertexBuffer;
+	}
+
+	public void setShapeInfo(int numberOfVertices, FloatBuffer buffer) {
+		this.numberOfVertices = numberOfVertices;
+		this.vertexBuffer = buffer;
 	}
 	
 	public float getX(){
@@ -52,7 +46,7 @@ public class VisualBundle {
 		return angle;
 	}
 	public int getNumberOfVertices(){
-		return vertexNumber;
+		return numberOfVertices;
 	}
 	public FloatBuffer getVertexBuffer(){
 		return vertexBuffer;
