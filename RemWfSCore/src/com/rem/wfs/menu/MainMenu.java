@@ -21,7 +21,7 @@ public class MainMenu extends Menu{
 					if(event.getAction()==ClickEvent.ACTION_UP){
 						Hub.map = new SpaceSector();
 						Hub.map.onCreate();
-						Storage.saveMap(Hub.manager.createOutputStream("scratch.sector", IFileManager.RELATIVE), Hub.map);
+						Storage.save(Hub.manager.createOutputStream("scratch.sector", IFileManager.RELATIVE), Hub.map);
 						Hub.gui.setView(new Game());
 					}
 					return super.onClick(event);

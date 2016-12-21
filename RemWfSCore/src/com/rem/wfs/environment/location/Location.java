@@ -1,5 +1,7 @@
 package com.rem.wfs.environment.location;
 
+import java.io.IOException;
+
 import com.rem.core.storage.DataCollector;
 import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
@@ -18,12 +20,12 @@ public class Location implements StorageHandler{
 		return y;
 	}
 	@Override
-	public void load(DataPresenter data) {
+	public void load(DataPresenter data) throws IOException {
 		this.x = data.nextInteger();
 		this.y = data.nextInteger();
 	}
 	@Override
-	public void save(DataCollector data) {
+	public void save(DataCollector data) throws IOException {
 		data.collect(x);
 		data.collect(y);
 	}

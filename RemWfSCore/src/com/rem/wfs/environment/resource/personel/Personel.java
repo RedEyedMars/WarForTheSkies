@@ -11,8 +11,8 @@ import com.rem.wfs.graphics.R;
 
 public class Personel implements Creatable {
 
-	private static final PersonelStockType PERSONEL = new PersonelStockType();
-	private static final int numberOfTraitsPerPerson = 3;
+	private static final PersonelStock PERSONEL = new PersonelStock.Standard();
+	public static final int numberOfTraitsPerPerson = 3;
 
 	public static final int ID_POPULATION = PERSONEL.getId();
 
@@ -27,8 +27,8 @@ public class Personel implements Creatable {
 		this.description.onCreate();
 		this.name.onCreate();
 		for(int i=0;i<numberOfTraitsPerPerson;++i){
-			PersonelTrait trait = new PersonelTrait();
-			trait.onCreate(i);
+			PersonelTrait trait = new PersonelTrait(i);
+			trait.onCreate();
 			this.traits.add(trait);
 		}
 	}
@@ -37,17 +37,17 @@ public class Personel implements Creatable {
 		return new HandlerListStorageHandler(
 				description,
 				name,
-				new StorableListStorageHandler<PersonelTrait>(traits,numberOfTraitsPerPerson){
+				new StorableListStorageHandler<PersonelTrait>(traits, Personel.numberOfTraitsPerPerson){
 
 					@Override
 					public PersonelTrait createPlaceHolder() {
-						return new PersonelTrait();
+						return new PersonelTrait(list.size());
 					}
 				});
 	}
 	public PortraitIcon getPortaitIcon(int id) {
 		return new PortraitIcon(this,
-				R.background_1,15,
+				R.single_background_2,0,
 				description,name.getFullName(),id);
 	}
 	public PersonelName getName() {
@@ -57,4 +57,13 @@ public class Personel implements Creatable {
 		return traits;
 	}
 
+	public void rotateTraitsClockwise(){
+		traits.get(0).swap(traits.get(2));
+		traits.get(0).swap(traits.get(1));
+	}
+	
+	public void rotateTraitsCounterClockwise(){
+		traits.get(0).swap(traits.get(1));
+		traits.get(0).swap(traits.get(2));
+	}
 }

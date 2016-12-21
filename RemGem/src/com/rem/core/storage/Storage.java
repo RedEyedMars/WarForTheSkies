@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import com.rem.core.Hub;
 import com.rem.core.IFileManager;
 import com.rem.core.environment.Environment;
@@ -35,8 +32,7 @@ public class Storage {
 		if(input.exists()){
 
 			if(Storage.debug_load)Hub.log.debug("Storage.loadMap", "Exists");
-			byte[] file = readVerbatum(reader);
-			loadMap(mapName,input.getPath(),file);
+			loadMap(mapName,input.getPath(),reader);
 		}
 		else {
 			try {
@@ -79,47 +75,17 @@ public class Storage {
 		return mapName;
 	}
 
-	public static void loadMap(String name,String filename, byte[] file){
-		int index = 0;
-		for(;(char)file[index]!='\n';++index);
-		Map<Integer,String> strings = loadStringMap(file);
-		DataPresenter header = new DataPresenter();
-		header.decodeHeader(file, index+1);
-		++index;
-		for(;(char)file[index]!='\n';++index);
-		DataPresenter loadedData = new DataPresenter();
-		loadedData.decode(file, index+1, strings, header);
+	public static void loadMap(String name,String filename, InputStream input){
+		DataPresenter dataLoader = new DataPresenter(input);
 		
 		Hub.map = Hub.creator.createPlaceHolderEnvironment();
 		Hub.map.setNameAndFileName(name,filename);
-		Hub.map.load(loadedData);
-	}
-
-	private static Map<Integer,String> loadStringMap(byte[] file) {
-		Map<Integer,String> strings = new HashMap<Integer,String>();
-		if(file[0]=='\n')return strings;
-		int next = 0;		
-		for(int i=1;i<file.length;i=next+1){
-			next=i;
-			while(file[next]!='\t'&&file[next]!='\n'){
-				++next;
-			}
-			strings.put(strings.size(), readStringFromBytes(file,i,next));
-			if(file[next]=='\n'){				
-				return strings;
-			}
+		try {
+			Hub.map.load(dataLoader);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		return strings;
 	}
-
-	private static String readStringFromBytes(byte[] file, int start, int end){
-		StringBuilder builder = new StringBuilder();
-		for(;start<end;++start){
-			builder.append(((char)(byte)file[start]));
-		}
-		return builder.toString();
-	}
-
 	public static byte[] readVerbatum(InputStream reader){
 		List<Byte> builder = new ArrayList<Byte>();
 		try {
@@ -175,34 +141,13 @@ public class Storage {
 		}
 	}
 
-	public static void saveMap(FileResource<OutputStream> resource, Environment map) {
-		DataCollector container = new DataCollector();
-		map.save(container);
-		if(Storage.debug_load)Hub.log.debug("Storage.saveMap","");
-		save(resource,container);
-	}
-	public static void save(FileResource<OutputStream> resource, DataCollector toSave) {
+	public static void save(FileResource<OutputStream> resource, StorageHandler target) {
 		createFolder("data");
 		OutputStream writer = resource.get();
 		try {
-			List<Byte> build = new ArrayList<Byte>();
-			for(String string:toSave){
-				build.add((byte) '\t');
-				for(char b:string.toCharArray()){
-					build.add((byte)b);
-				}
-				
-			}
-
-			build.add((byte)'\n');
-			toSave.getHeader().encode(build);
+			DataCollector toSave = new DataCollector(writer);
+			target.save(toSave);
 			if(Storage.debug_load)Hub.log.debug("Storage.saveMap","");
-
-			build.add((byte)'\n');
-			toSave.encode(build);
-			for(int i=0;i<build.size();++i){
-				writer.write(build.get(i));
-			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

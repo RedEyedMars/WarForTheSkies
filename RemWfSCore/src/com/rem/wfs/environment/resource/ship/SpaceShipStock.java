@@ -7,10 +7,11 @@ import com.rem.wfs.environment.resource.ResourceContainer;
 import com.rem.wfs.environment.resource.ResourceIcon;
 import com.rem.wfs.environment.resource.StockList;
 import com.rem.wfs.environment.resource.StockType;
+import com.rem.wfs.environment.resource.personel.Personel;
 import com.rem.wfs.graphics.Iconic;
 
 public abstract class SpaceShipStock extends StockType<SpaceShip>{
-	public static final List<StockType<SpaceShip>> types = new ArrayList<StockType<SpaceShip>>();
+	public static final List<SpaceShipStock> types = new ArrayList<SpaceShipStock>();
 	public SpaceShipStock(String name, String description, int iconTexture, int iconFrame,
 			int iconBackgroundTexture, int iconBackgroundFrame) {
 		super(name, description, iconTexture, iconFrame, iconBackgroundTexture, iconBackgroundFrame);
@@ -31,4 +32,7 @@ public abstract class SpaceShipStock extends StockType<SpaceShip>{
 	public float generateInitialValue(ResourceContainer container) { return 0; }
 	@Override
 	public float generateInitialGrowth(ResourceContainer container) { return 0; }
+	
+	public abstract StockType<Personel> getPersonelStock();
 }
+

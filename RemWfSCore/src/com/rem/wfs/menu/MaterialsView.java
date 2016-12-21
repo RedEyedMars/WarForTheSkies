@@ -33,7 +33,7 @@ public class MaterialsView extends BlankGraphicElement{
 			Material metal, Material fuel, Material energy){
 		super();
 		final GraphicElement self = this;
-		background = new Background(R.background_1,R.MID_LAYER);
+		background = new Background(R.background_2,R.MID_LAYER);
 		background.resize(0.7f, 0.7f);
 		tree.addChild(background);
 
@@ -41,7 +41,7 @@ public class MaterialsView extends BlankGraphicElement{
 		addResource(fuel);
 		addResource(energy);
 
-		close = new GraphicElement(R.faces_traits,31,R.MID_LAYER){
+		close = new GraphicElement(R.faces,0,R.MID_LAYER){
 			@Override
 			public boolean onClick(ClickEvent event){
 
@@ -68,11 +68,11 @@ public class MaterialsView extends BlankGraphicElement{
 			final MaterialGraphicElement mge = (MaterialGraphicElement)element;
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return background.dim.getWidth()/5;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return dim.getHeight()-mge.dim.getHeight()*(mge.getId()+3);
 				}
 			};
@@ -80,11 +80,11 @@ public class MaterialsView extends BlankGraphicElement{
 		else if(element == close){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return background.dim.getWidth();
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return background.dim.getHeight();
 				}
 			};
@@ -116,11 +116,11 @@ public class MaterialsView extends BlankGraphicElement{
 			if(element==text){
 				return new OffsetHandler(){
 					@Override
-					public float getX(int index){
+					public float getX(){
 						return dim.getWidth()+0.05f;
 					}
 					@Override
-					public float getY(int index){
+					public float getY(){
 						return dim.getHeight()/2;
 					}
 				};

@@ -129,11 +129,11 @@ public class MusicPlayer extends MenuButton {
 		if(element == playPauseButton){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return element.dim.getWidth()*0f+0.01f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.005f;
 				}
 			};
@@ -141,11 +141,11 @@ public class MusicPlayer extends MenuButton {
 		else if(element == skipButton){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return element.dim.getWidth()*1f+0.01f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.005f;
 				}
 			};
@@ -153,11 +153,11 @@ public class MusicPlayer extends MenuButton {
 		else if(element == volumeAdjuster){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return element.dim.getWidth()*2f+0.015f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.015f;
 				}
 			};
@@ -165,11 +165,11 @@ public class MusicPlayer extends MenuButton {
 		else if(element == minimizeButton){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return dim.getWidth()-element.dim.getWidth();
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.005f;
 				}
 			};
@@ -177,11 +177,11 @@ public class MusicPlayer extends MenuButton {
 		else if(element == text){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return 0.01f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.015f+(MAXIMIZED_HEIGHT-MINIMIZED_HEIGHT);
 				}
 			};

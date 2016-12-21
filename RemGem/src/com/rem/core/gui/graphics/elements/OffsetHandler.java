@@ -1,9 +1,9 @@
 package com.rem.core.gui.graphics.elements;
 public class OffsetHandler {
-		public float getX(int index){
+		public float getX(){
 			return 0f;
 		}
-		public float getY(int index){
+		public float getY(){
 			return 0f;
 		}
 		public float getWidth(float w){

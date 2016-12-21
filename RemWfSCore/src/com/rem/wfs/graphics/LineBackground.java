@@ -37,19 +37,17 @@ public class LineBackground extends StretchableGraphicElement{
 		if(element == left){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return -element.dim.getWidth();
 				}
-
 			};
 		}
 		else if(element == right){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return dim.getWidth();
 				}
-
 			};			
 		}
 		else return super.createOffsetHandler(element);

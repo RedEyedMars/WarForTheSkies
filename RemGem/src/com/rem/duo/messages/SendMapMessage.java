@@ -1,6 +1,9 @@
 package com.rem.duo.messages;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.rem.core.storage.Storage;
@@ -49,12 +52,15 @@ public class SendMapMessage extends Message{
 	 */
 	@Override
 	public void act(MessageHandler handler) {
-		byte[] bs = new byte[bytes.size()];
-		for(int i=0;i<bytes.size();++i){
-			bs[i]=bytes.get(i);
-		}
+		final Iterator<Byte> byteItr = this.bytes.iterator();
 		//Those bytes are combined into a map object.
-		Storage.loadMap(mapName,null,bs);
+		Storage.loadMap(mapName,null,new InputStream(){
+			@Override
+			public int read() throws IOException {
+				return byteItr.next();
+			}
+			
+		});
 		//onEnd Message is acted upon.
 		onEnd.act(handler);
 	}

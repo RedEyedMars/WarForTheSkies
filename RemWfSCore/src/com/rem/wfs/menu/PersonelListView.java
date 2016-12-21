@@ -8,6 +8,7 @@ import com.rem.core.gui.graphics.elements.BlankGraphicElement;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.inputs.ClickEvent;
+import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.wfs.Game;
 import com.rem.wfs.environment.resource.personel.Personel;
 import com.rem.wfs.environment.resource.personel.PortraitIcon;
@@ -20,23 +21,45 @@ public class PersonelListView extends BlankGraphicElement implements IconListene
 	private static final int MOUSE_DOWN = 0;
 	private static final int MOUSE_UP = 1;
 	private static final int MOUSE_DRAG = 2;
-	
+
 	private Background background;
 	private GraphicElement close;
 	private List<PortraitIcon> icons = new ArrayList<PortraitIcon>();
-	
+
 	private int clickState = MOUSE_UP;
 	private float clickX;
 	private float clickY;
-	private float scroll = 0f; 
+	private float scroll = 0f;
+	private GraphicElement previousView;
+	private int currentSelectedId = -1;
 	public PersonelListView(List<Personel> personelList){
+		this(personelList,null);
+	}
+	public PersonelListView(List<Personel> personelList, GraphicElement previousView){
 		super();
 		final PersonelListView self = this;
+		this.previousView = previousView;
 
-		background = new Background(R.background_1,R.MID_LAYER);
-		background.resize(0.8f, 0.15f);
-		tree.addChild(background);	
-		
+		background = new Background(R.background_2,R.MID_LAYER);
+		background.resize(previousView!=null?0.8f:0.8f, 0.15f);
+		if(previousView==null){
+			tree.addChild(background);	
+
+			close = new GraphicElement(R.faces,0,R.MID_LAYER){
+				@Override
+				public boolean onClick(ClickEvent event){
+					if(dim.isWithin(event.getX(), event.getY())){
+						if(event.getAction()==ClickEvent.ACTION_UP){
+							((Game)Hub.view).removeOverlayMenu(self);
+						}
+						return super.onClick(event);
+					}
+					else return false;
+				}
+			};
+			tree.addChild(close);
+		}
+
 		for(int i=0;i<personelList.size();++i){
 			PortraitIcon icon = personelList.get(i).getPortaitIcon(i);
 			icon.setIconListener(this);
@@ -45,20 +68,6 @@ public class PersonelListView extends BlankGraphicElement implements IconListene
 			tree.addChild(icon);
 		}
 
-		
-		close = new GraphicElement(R.faces_traits,31,R.MID_LAYER){
-			@Override
-			public boolean onClick(ClickEvent event){
-				if(dim.isWithin(event.getX(), event.getY())){
-					if(event.getAction()==ClickEvent.ACTION_UP){
-						((Game)Hub.view).removeOverlayMenu(self);
-					}
-					return super.onClick(event);
-				}
-				else return false;
-			}
-		};
-		tree.addChild(close);
 		this.reposition(0.1f,0.4f);
 	}
 	@Override
@@ -67,11 +76,11 @@ public class PersonelListView extends BlankGraphicElement implements IconListene
 			final PortraitIcon icon = (PortraitIcon)element;
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return icon.getId()*icon.dim.getWidth()+0.003f+scroll;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return background.dim.getHeight()/2f-element.dim.getHeight()/2f;
 				}
 			};
@@ -79,25 +88,33 @@ public class PersonelListView extends BlankGraphicElement implements IconListene
 		else if(element == close){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return background.dim.getWidth();
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return background.dim.getHeight();
+				}
+			};
+		}
+		else if(element == background){
+			return new OffsetHandler(){
+				@Override
+				public float getWidth(float w){
+					return previousView!=null?0.8f:w;
 				}
 			};
 		}
 		else return super.createOffsetHandler(element);
 	}
-	
+
 	@Override
 	public void reposition(float x, float y){
 		super.reposition(x, y);
 		for(int i=0;i<icons.size();++i){
 			icons.get(i).setVisible(
 					icons.get(i).dim.getX()>=x&&
-					icons.get(i).dim.getX()+icons.get(i).dim.getWidth()<=x+background.dim.getWidth()+0.003);			
+					icons.get(i).dim.getX()+icons.get(i).dim.getWidth()<=x+background.dim.getWidth()+0.005);			
 		}
 	}
 
@@ -128,9 +145,29 @@ public class PersonelListView extends BlankGraphicElement implements IconListene
 	@Override
 	public void performOnRelease(int id, ClickEvent event) {
 		if(clickState == MOUSE_DOWN){
-			((Game)Hub.view).removeOverlayMenu(this);
-			((Game)Hub.view).addOverlayMenu(new PersonelView(icons.get(id).getPersonel(),this));
+			selectIcon(id);
 		}
 		clickState = MOUSE_UP;
+	}
+	@Override
+	public void performOnHoverOn(int id, HoverEvent event){
+		if(id != currentSelectedId){
+			if(currentSelectedId!=-1){
+				this.icons.get(currentSelectedId).setParentSelectedStatus(false);
+			}
+			this.icons.get(id).setParentSelectedStatus(true);
+			currentSelectedId = id;
+		}
+	}
+	@Override
+	public void performOnHoverOff(int id, HoverEvent event) {
+		
+	}
+	
+	public void selectIcon(int id){
+		((Game)Hub.view).removeOverlayMenu(previousView!=null?previousView:this);
+		((Game)Hub.view).addOverlayMenu(
+				new PersonelView(icons.get(id).getPersonel(),
+								previousView!=null?previousView:this));
 	}
 }

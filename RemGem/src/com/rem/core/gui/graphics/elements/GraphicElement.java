@@ -41,7 +41,6 @@ public class GraphicElement implements MouseListener, Updatable {
 	public final TreeHandler tree;
 	private ShapeHandler shapeHandler;
 	private AnimationHandler animationHandler;
-	private OffsetHandler offsetHandler = DEFAULT_OFFSET_HANDLER;
 
 	private GraphicElement root = null;
 
@@ -61,14 +60,6 @@ public class GraphicElement implements MouseListener, Updatable {
 	
 	public OffsetHandler createOffsetHandler(final GraphicElement element){
 		return DEFAULT_OFFSET_HANDLER;
-	}
-	
-	public OffsetHandler getOffset(){
-		return offsetHandler;
-	}
-	
-	public void setOffset(OffsetHandler offsetHandler){
-		this.offsetHandler = offsetHandler;
 	}
 
 	protected AnimationHandler createAnimationHandler() {
@@ -252,23 +243,29 @@ public class GraphicElement implements MouseListener, Updatable {
 		for(GraphicElement element:tree){
 			element.onMouseScroll(distance);
 		}
-	}	
+	}
+	
+	public void reset(){
+		resize(dim.getWidth(),dim.getHeight());
+		reposition(dim.getX(),dim.getY());
+	}
 
 	public void resize(float w, float h) {
 		dim.resize(w,h);
-		for(GraphicElement element:tree){
-			element.resize(element.offsetHandler.getWidth(w),
-					       element.offsetHandler.getHeight(h));
+		for(GraphicBundle bundle:tree.getBundles()){
+			bundle.element.resize(
+					bundle.offset.getWidth(w),
+					bundle.offset.getHeight(h));
 		}
 	}
 
 	public void reposition(float x, float y) {
 		dim.setX(x);
 		dim.setY(y);
-		for(int i=0;i<tree.size();++i){
-			tree.getChild(i).reposition(
-					x+tree.getChild(i).offsetHandler.getX(i),
-					y+tree.getChild(i).offsetHandler.getY(i));
+		for(GraphicBundle bundle:tree.getBundles()){
+			bundle.element.reposition(
+					x+bundle.offset.getX(),
+					y+bundle.offset.getY());
 		}
 	}
 	public int getDrawMode() {

@@ -1,5 +1,7 @@
 package com.rem.wfs.environment.resource.ship;
 
+import java.io.IOException;
+
 import com.rem.core.environment.Range;
 import com.rem.core.storage.DataCollector;
 import com.rem.core.storage.DataPresenter;
@@ -24,7 +26,7 @@ public class ShipName implements StorageHandler {
 	}
 	
 	@Override
-	public void load(DataPresenter data) {
+	public void load(DataPresenter data) throws IOException {
 		this.nameId = data.nextInteger();
 		if(nameId>-1){
 			name = getName(nameId);
@@ -42,7 +44,7 @@ public class ShipName implements StorageHandler {
 	}
 
 	@Override
-	public void save(DataCollector toSave) {
+	public void save(DataCollector toSave) throws IOException {
 		toSave.collect(nameId);
 		if(nameId==-1){
 			toSave.collect(name);

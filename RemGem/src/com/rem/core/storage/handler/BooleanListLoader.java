@@ -1,5 +1,6 @@
 package com.rem.core.storage.handler;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.rem.core.storage.DataCollector;
@@ -7,25 +8,17 @@ import com.rem.core.storage.DataPresenter;
 
 public class BooleanListLoader extends ListStorageHandler<Boolean>{
 
-	public BooleanListLoader(List<Boolean> toHandle) {
-		super(toHandle);
-	}
 	public BooleanListLoader(List<Boolean> toHandle, int maxSize) {
 		super(toHandle, maxSize);
 	}
 	@Override
-	public Boolean loadObject(DataPresenter data) {
+	public Boolean loadObject(DataPresenter data) throws IOException {
 		return data.nextBoolean();
 	}
-
+	
 	@Override
-	public void save(DataCollector toSave) {
-		if(handleSize){
-			toSave.collect(list.size());
-		}
-		for(Boolean element:list){
-			toSave.collect(element);
-		}
+	public void saveObject(DataCollector toSave, Boolean element) throws IOException {
+		toSave.collect(element);
 	}
 
 }

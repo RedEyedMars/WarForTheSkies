@@ -1,7 +1,10 @@
 package com.rem.wfs.environment.resource.personel;
 
+import java.io.IOException;
+
 import com.rem.core.environment.Range;
 import com.rem.core.gui.graphics.elements.GraphicElement;
+import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.storage.DataCollector;
 import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.Storable;
@@ -11,36 +14,53 @@ import com.rem.wfs.graphics.R;
 
 public class PersonelTrait implements Storable{
 
-	private static final Range colourRange = new Range(25,29);
-	private static final Range typeRange = new Range(17,22);
+	private static final Range colourDownRange = new Range(17,21);
+	private static final Range colourUpRange = new Range(9,13);
+	private static final Range typeRange = new Range(1,6);
 	
 	private Integer colourId;
 	private Integer typeId;
 	private Icon icon;
+	private boolean selected;
+	private int traitId;
+	
+	public PersonelTrait(int id){
+		this.traitId = id;
+	}
 
-	public void onCreate(int id){
-		this.colourId = colourRange.getRandomIndex();
+	public void onCreate(){
+		this.colourId = colourUpRange.getRandomIndex();
 		this.typeId = typeRange.getRandomIndex();
 		
-		this.icon = new Icon(
-				R.faces_traits,colourRange.get(colourId),R.MID_LAYER,getName(typeId),id){
-			{
-				tree.addChild(new GraphicElement(R.faces_traits,typeRange.get(typeId),R.MID_LAYER));
-			}
-		};
+		updateIcon();
+	}
+
+
+	private void updateIcon() {
+		if(icon==null)return;
+		if(selected){
+			this.icon.setFrame(colourDownRange.get(colourId));
+		}
+		else {
+			this.icon.setFrame(colourUpRange.get(colourId));
+		}
+		this.icon.tree.getChild(0).setFrame(typeRange.get(typeId));
+		this.icon.setDescription(getName(typeId));
 	}
 
 	@Override
 	public StorageHandler getStorageHandler(){
 		return new StorageHandler(){
 			@Override
-			public void load(DataPresenter data) {
+			public void load(DataPresenter data) throws IOException {
 				colourId = data.nextInteger();
 				typeId = data.nextInteger();
+				
+				updateIcon();
 			}
 
 			@Override
-			public void save(DataCollector toSave) {
+			public void save(DataCollector toSave) throws IOException {
 				toSave.collect(colourId);
 				toSave.collect(typeId);
 			}
@@ -49,6 +69,34 @@ public class PersonelTrait implements Storable{
 
 
 	public Icon getIcon(){
+		if(icon==null){
+			this.icon = new Icon(
+					R.traits,0,R.MID_LAYER,"DESCRIPTION_NOT_YET_SET",traitId){
+				{
+					tree.addChild(new GraphicElement(R.traits,0,R.MID_LAYER));
+				}
+				@Override
+				public void setLayer(int layer){
+					this.layer = layer;
+				}
+				@Override
+				public void setParentSelectedStatus(boolean status){
+					selected = status;
+					updateIcon();
+					reset();
+				}
+				@Override
+				public OffsetHandler createOffsetHandler(final GraphicElement element){
+					return new OffsetHandler(){
+						@Override
+						public float getY(){
+							return selected?-0.01f:0f;
+						}
+					};
+				}
+			};
+			updateIcon();
+		}
 		return icon;
 	}
 	
@@ -60,10 +108,8 @@ public class PersonelTrait implements Storable{
 		otherTrait.colourId = colour;
 		otherTrait.typeId = type;
 		
-		icon.setFrame(colourRange.get(colourId));
-		icon.tree.getChild(0).setFrame(typeRange.get(typeId));
-		otherTrait.icon.setFrame(colourRange.get(otherTrait.colourId));
-		otherTrait.icon.tree.getChild(0).setFrame(typeRange.get(otherTrait.typeId));
+		updateIcon();
+		otherTrait.updateIcon();
 	}
 
 	private static String getName(Integer typeId) {

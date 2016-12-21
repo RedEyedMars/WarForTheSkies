@@ -6,6 +6,7 @@ import java.util.List;
 import com.rem.core.Hub;
 import com.rem.core.gui.graphics.elements.StretchableGraphicElement;
 import com.rem.core.gui.graphics.elements.BlankGraphicElement;
+import com.rem.core.gui.graphics.elements.GraphicBundle;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
 
@@ -63,9 +64,14 @@ public class GraphicText extends BlankGraphicElement{
 					public void animate(GraphicElement element) {
 						element.setVisible(!element.isVisible());
 						if(blinker.isVisible()){
-							blinker.reposition(
-									self.dim.getX()+blinker.getOffset().getX(0),
-									self.dim.getY()+blinker.getOffset().getY(0));
+							for(GraphicBundle bundle:tree.getBundles()){
+								if(bundle.element==blinker){
+									blinker.reposition(
+											self.dim.getX()+bundle.offset.getX(),
+											self.dim.getY()+bundle.offset.getY());
+									break;
+								}
+							}
 						}
 
 					}
@@ -135,7 +141,7 @@ public class GraphicText extends BlankGraphicElement{
 		if(element==blinker){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					if(lineIndex<lines.size()&&lines.get(lineIndex).length()>0&&charIndex>1){
 						int horizontalIndex = Math.min(charIndex-2, lines.get(lineIndex).length()-1);
 						return	lines.get(lineIndex).chars.get(horizontalIndex).dim.getX();
@@ -145,20 +151,21 @@ public class GraphicText extends BlankGraphicElement{
 						return lines.get(lineIndex).chars.get(0).dim.getWidth()*
 								lines.get(lineIndex).chars.get(0).getWidthValue()*visualW;
 					}
-					return super.getX(index);
+					return super.getX();
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.005f-lineIndex*0.025f;
 				}
 			};
 		}
 		else if(element instanceof TextLine){
+			final int thisLinesIndex = tree.size();
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					if(justified==LEFT_JUSTIFIED){
-						return super.getX(index);
+						return super.getX();
 					}
 					else if(justified==RIGHT_JUSTIFIED){
 						return dim.getWidth()-((TextLine)element).getCharWidth();
@@ -166,20 +173,20 @@ public class GraphicText extends BlankGraphicElement{
 					else if(justified==MIDDLE_JUSTIFIED){
 						return dim.getWidth()/2f-((TextLine)element).getCharWidth()/2f;
 					}
-					else return super.getX(index);
+					else return super.getX();
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					if(justified==LEFT_JUSTIFIED){
-						return 0.025f*(-index+1)*visualH;
+						return 0.025f*(-thisLinesIndex+1)*visualH;
 					}
 					else if(justified==RIGHT_JUSTIFIED){
-						return 0.025f*(-index+1)*visualH;
+						return 0.025f*(-thisLinesIndex+1)*visualH;
 					}
 					else if(justified==MIDDLE_JUSTIFIED){
-						return 0.025f*(-index+1)*visualH;
+						return 0.025f*(-thisLinesIndex+1)*visualH;
 					}
-					else return super.getY(index);
+					else return super.getY();
 				}
 				@Override
 				public String toString(){
@@ -257,15 +264,16 @@ public class GraphicText extends BlankGraphicElement{
 		}
 		@Override
 		public OffsetHandler createOffsetHandler(final GraphicElement element){
+			final int thisCharIndex = tree.size();
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
-					if(index==0){
+				public float getX(){
+					if(thisCharIndex==0){
 						offset = 0;
 					}
-					else if(index<chars.size()){
-						offset+=tree.getChild(index-1).dim.getWidth()*
-								chars.get(index-1).getWidthValue()*visualW;
+					else if(thisCharIndex<chars.size()){
+						offset+=tree.getChild(thisCharIndex-1).dim.getWidth()*
+								chars.get(thisCharIndex-1).getWidthValue()*visualW;
 					}
 					return offset;
 				}

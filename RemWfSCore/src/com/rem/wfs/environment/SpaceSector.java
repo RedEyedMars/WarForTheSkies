@@ -1,5 +1,6 @@
 package com.rem.wfs.environment;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,13 +70,13 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 				new SpaceHexagonListStorageHandler(this),
 				new StorageHandler(){
 					@Override
-					public void load(DataPresenter data) {	
+					public void load(DataPresenter data) throws IOException {	
 						lastUpdatedTime = data.nextLong();					
 						reposition(dim.getX()-0.3f,dim.getY()-0.4f);
 					}
 
 					@Override
-					public void save(DataCollector toSave) {
+					public void save(DataCollector toSave) throws IOException {
 						toSave.collect(lastUpdatedTime);
 					}					
 				});

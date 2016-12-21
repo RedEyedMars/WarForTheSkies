@@ -47,9 +47,8 @@ public class ResourceCluster implements Storable, ResourceContainer{
 		addTexture(MATERIAL_TEXTURE,MATERIAL_FRAME,new Range(0,2));
 		addTexture(PERSONEL_TEXTURE,PERSONEL_FRAME,new Range(3,3));
 		addTexture(SPACESHIP_TEXTURE,SPACESHIP_FRAME,new Range(4,7));
-		numberOfClusters = textures.size();
 	}
-	public static int numberOfClusters;
+	public final static int numberOfClusters = 3;
 
 	private List<SpaceResource> resources = new ArrayList<SpaceResource>();
 	private Icon icon;
@@ -82,7 +81,10 @@ public class ResourceCluster implements Storable, ResourceContainer{
 						}
 						else if(id == SPACESHIP_ID){						
 							((Game)Hub.view).addOverlayMenu(new SpaceShipListView(
-									(List<SpaceShip>)resources.get(0)
+									(List<SpaceShip>)resources.get(0),
+									(List<SpaceShip>)resources.get(1),
+									(List<SpaceShip>)resources.get(2),
+									(List<SpaceShip>)resources.get(3)
 									));							
 						}
 					}

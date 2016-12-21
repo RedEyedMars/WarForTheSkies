@@ -1,6 +1,8 @@
 package com.rem.core.environment;
 
 
+import java.io.IOException;
+
 import com.rem.core.Action;
 import com.rem.core.gui.Updatable;
 import com.rem.core.gui.graphics.elements.BlankGraphicElement;
@@ -33,11 +35,11 @@ public abstract class Environment extends BlankGraphicElement implements Storage
 		this.fileName = filename;
 	}
 	@Override
-	public void load(DataPresenter data) {
+	public void load(DataPresenter data) throws IOException {
 		getStorageHandler().load(data);
 	}
 	@Override
-	public void save(DataCollector toSave) {
+	public void save(DataCollector toSave) throws IOException {
 		getStorageHandler().save(toSave);
 	}
 	

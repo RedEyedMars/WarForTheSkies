@@ -48,7 +48,7 @@ public class MenuButton extends BlankGraphicElement {
 		else if(element==mid){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return left.dim.getWidth();
 				}
 				@Override
@@ -60,7 +60,7 @@ public class MenuButton extends BlankGraphicElement {
 		else if(element==right){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return left.dim.getWidth()+mid.dim.getWidth();
 				}
 				@Override
@@ -72,7 +72,7 @@ public class MenuButton extends BlankGraphicElement {
 		else if(element==text){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					if(text.isJustified(GraphicText.MIDDLE_JUSTIFIED)){
 						return 0.0f;
 					}
@@ -82,10 +82,10 @@ public class MenuButton extends BlankGraphicElement {
 					else if(text.isJustified(GraphicText.RIGHT_JUSTIFIED)){
 						return -0.05f;
 					}
-					else return super.getX(index);
+					else return super.getX();
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.02f;
 				}
 			};

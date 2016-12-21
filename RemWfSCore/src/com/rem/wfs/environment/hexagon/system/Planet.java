@@ -1,6 +1,8 @@
 package com.rem.wfs.environment.hexagon.system;
 
 
+import java.io.IOException;
+
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.storage.DataCollector;
 import com.rem.core.storage.DataPresenter;
@@ -49,12 +51,12 @@ public class Planet extends GraphicElement implements Storable, Identifiable {
 				new IdentityStorageHandler(this),
 				new StorageHandler(){
 					@Override
-					public void load(DataPresenter data){
+					public void load(DataPresenter data) throws IOException{
 						distanceFromStar = data.nextInteger();
 						angleToCenter = data.nextFloat();
 					}
 					@Override
-					public void save(DataCollector toSave){
+					public void save(DataCollector toSave) throws IOException{
 						toSave.collect(distanceFromStar);
 						toSave.collect((float)angleToCenter);
 					}					
@@ -89,10 +91,10 @@ public class Planet extends GraphicElement implements Storable, Identifiable {
 
 	@Override
 	public void reposition(float x, float y){
-		double radius = Math.sqrt(Math.pow(x-(system.dim.getX()+system.dim.getWidth()/3f),2)
-				+Math.pow(y-(system.dim.getY()+system.dim.getHeight()/3f),2));
-		x=(float) (system.dim.getX()+system.dim.getWidth()/3f+Math.cos(angleToCenter)*radius);
-		y=(float) (system.dim.getY()+system.dim.getHeight()/3f+Math.sin(angleToCenter)*radius);
+		double radius = Math.sqrt(Math.pow(x-(system.dim.getX()+system.dim.getWidth()/4f),2)
+				+Math.pow(y-(system.dim.getY()+system.dim.getHeight()/4f),2));
+		x=(float) (system.dim.getX()+system.dim.getWidth()/4f+Math.cos(angleToCenter)*radius);
+		y=(float) (system.dim.getY()+system.dim.getHeight()/4f+Math.sin(angleToCenter)*radius);
 		super.reposition(x, y);
 	}
 	

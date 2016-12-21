@@ -8,15 +8,7 @@ public class PlanetListStorageHandler extends StorableListStorageHandler<Planet>
 
 	private SpaceSystem parentSystem;
 	public PlanetListStorageHandler(SpaceSystem system, List<Planet> toHandle) {
-		super(toHandle);
-		this.parentSystem = system;
-	}
-	public PlanetListStorageHandler(SpaceSystem system, List<Planet> toHandle, int maxSize) {
-		super(toHandle, maxSize);
-		this.parentSystem = system;
-	}
-	public PlanetListStorageHandler(SpaceSystem system, List<Planet> toHandle, boolean handleMax) {
-		super(toHandle, handleMax);
+		super(toHandle,-1);
 		this.parentSystem = system;
 	}
 	@Override

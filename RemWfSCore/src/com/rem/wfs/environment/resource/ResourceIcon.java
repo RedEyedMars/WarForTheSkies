@@ -109,14 +109,14 @@ public class ResourceIcon <T extends SpaceResource<T>> extends IconLineBackgroun
 		if(element==icon){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					if(justified==LEFT_JUSTIFIED){
 						return -0.003f;
 					}
 					else if(justified==RIGHT_JUSTIFIED){
 						return text.dim.getWidth()-0.003f;
 					}
-					else return super.getX(index);
+					else return super.getX();
 
 				}
 			};
@@ -124,7 +124,7 @@ public class ResourceIcon <T extends SpaceResource<T>> extends IconLineBackgroun
 		else if(element==text){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 
 					if(justified==LEFT_JUSTIFIED){
 						return icon.dim.getWidth();
@@ -132,10 +132,10 @@ public class ResourceIcon <T extends SpaceResource<T>> extends IconLineBackgroun
 					else if(justified==RIGHT_JUSTIFIED){
 						return -0.003f;
 					}
-					else return super.getX(index);
+					else return super.getX();
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.003f;
 				}
 			};

@@ -209,19 +209,20 @@ public class Client {
 		if(resource.exists()){
 			//If it does exist, read the bytes.
 			file = Storage.readVerbatum(input);
+			//Sends the herald message in the SendMapMessage to prime the Server and consequently the partnered Client. 
+			client.getHandler().sendNow(new SendMapMessage(mapName,onEnd,file));
+			
+			if(loadForSelf){
+				resource = Hub.manager.createInputStream(filename,IFileManager.ABSOLUTE);
+				//Load the map from the bytes.
+				Storage.loadMap(mapName,filename,resource.get());
+			}
 		}
 		else {
 			//If the file doesn't exist, close the stream.
 			input.close();			
 		}
 		
-		//Sends the herald message in the SendMapMessage to prime the Server and consequently the partnered Client. 
-		client.getHandler().sendNow(new SendMapMessage(mapName,onEnd,file));
-		
-		if(loadForSelf){
-			//Load the map from the bytes.
-			Storage.loadMap(mapName,filename,file);
-		}
 	}
 	
 	public static void addAcceptor(String name, Acceptor acceptor){

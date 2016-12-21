@@ -129,11 +129,11 @@ implements  Storable, Locatable, Identifiable{
 		if(element==overGon){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return dim.getWidth()*0.05f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return dim.getHeight()*0.05f;
 				}
 				@Override
@@ -149,12 +149,12 @@ implements  Storable, Locatable, Identifiable{
 		else if(element==spaceSystem){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
-					return dim.getWidth()*0.25f;
+				public float getX(){
+					return dim.getWidth()*0.3f;
 				}
 				@Override
-				public float getY(int index){
-					return dim.getHeight()*0.25f;
+				public float getY(){
+					return dim.getHeight()*0.3f;
 				}
 				@Override
 				public float getWidth(float w){
@@ -162,14 +162,14 @@ implements  Storable, Locatable, Identifiable{
 				}
 				@Override
 				public float getHeight(float w){
-					return w*0.5f;
+					return w*0.25f;
 				}
 			};
 		}
 		else if(element instanceof Iconic){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					Iconic icon = ((Iconic)element);
 					if(icon.getId()==2){
 						return dim.getWidth()-element.dim.getWidth();
@@ -177,10 +177,10 @@ implements  Storable, Locatable, Identifiable{
 					else if(icon.getId()==1){
 						return dim.getWidth()/2f-element.dim.getWidth()/2f;
 					}
-					return super.getX(index);
+					return super.getX();
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					Iconic icon = ((Iconic)element);
 					if(icon.getId()==0||icon.getId()==2){
 						return dim.getHeight()*0.2f;
@@ -188,7 +188,7 @@ implements  Storable, Locatable, Identifiable{
 					else if(icon.getId()==1){
 						return dim.getHeight()-element.dim.getHeight();
 					}
-					return super.getY(index);
+					return super.getY();
 				}
 				@Override
 				public float getWidth(float w){

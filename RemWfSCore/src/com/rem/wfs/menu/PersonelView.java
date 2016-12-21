@@ -33,7 +33,7 @@ public class PersonelView extends BlankGraphicElement{
 		this.previousMenu = previousView;
 		final PersonelView self = this;
 		this.person = personToView;
-		background = new Background(R.background_1,R.MID_LAYER);
+		background = new Background(R.background_2,R.MID_LAYER);
 		background.resize(0.7f, 0.7f);
 		tree.addChild(background);
 		icon = personToView.getPortaitIcon(0);
@@ -49,15 +49,7 @@ public class PersonelView extends BlankGraphicElement{
 		lastName = new GraphicText(R.impact,personToView.getName().getLastName(),R.MID_LAYER);
 		tree.addChild(lastName);
 		
-		for(int i=0;i<personToView.getTraits().size();++i){
-			Icon icon = personToView.getTraits().get(i).getIcon();
-			icon.resize(0.1f, 0.1f);
-			icon.setLayer(R.MID_LAYER);
-			tree.addChild(icon);
-		}
-		
-		
-		close = new GraphicElement(R.faces_traits,31,R.MID_LAYER){
+		close = new GraphicElement(R.faces,0,R.MID_LAYER){
 			@Override
 			public boolean onClick(ClickEvent event){
 
@@ -73,8 +65,18 @@ public class PersonelView extends BlankGraphicElement{
 		};
 		tree.addChild(close);
 		
+		for(int i=0;i<personToView.getTraits().size();++i){
+			Icon icon = personToView.getTraits().get(i).getIcon();
+			icon.resize(0.1f, 0.1f);
+			icon.setLayer(R.MID_LAYER);
+			tree.addChild(icon);
+		}
+		
+		
+		
+		
 		swapTraits_0_2 = 
-				new Button(new Button.Setting(R.background_1),
+				new Button(new Button.Setting(R.buttons_1),
 						   R.MID_LAYER,0f,0f,0f,
 						   new Action<ClickEvent>(){
 							@Override
@@ -85,10 +87,10 @@ public class PersonelView extends BlankGraphicElement{
 							}
 					
 						   },
-						   new GraphicElement(R.faces_traits,16,R.MID_LAYER));
+						   new GraphicElement(R.traits,16,R.MID_LAYER));
 		tree.addChild(swapTraits_0_2);
 		swapTraits_0_1 = 
-				new Button(new Button.Setting(R.background_1),
+				new Button(new Button.Setting(R.buttons_1),
 						   R.MID_LAYER,0f,0f,0f,
 						   new Action<ClickEvent>(){
 							@Override
@@ -99,10 +101,10 @@ public class PersonelView extends BlankGraphicElement{
 							}
 					
 						   },
-						   new GraphicElement(R.faces_traits,24,R.MID_LAYER));
+						   new GraphicElement(R.traits,24,R.MID_LAYER));
 		tree.addChild(swapTraits_0_1);
 		swapTraits_1_2 = 
-				new Button(new Button.Setting(R.background_1),
+				new Button(new Button.Setting(R.buttons_1),
 						   R.MID_LAYER,0f,0f,0f,
 						   new Action<ClickEvent>(){
 							@Override
@@ -113,7 +115,7 @@ public class PersonelView extends BlankGraphicElement{
 							}
 					
 						   },
-						   new GraphicElement(R.faces_traits,8,R.MID_LAYER));
+						   new GraphicElement(R.traits,8,R.MID_LAYER));
 		tree.addChild(swapTraits_1_2);
 		
 		reposition(0.15f,0.15f);
@@ -124,11 +126,11 @@ public class PersonelView extends BlankGraphicElement{
 		if(element==icon){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return 0.1f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return background.dim.getHeight()-icon.dim.getHeight()-0.055f;
 				}
 			};
@@ -136,11 +138,11 @@ public class PersonelView extends BlankGraphicElement{
 		else if(element==nameLabel){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return 0.1f+icon.dim.getWidth()+0.02f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return background.dim.getHeight()-icon.dim.getHeight();
 				}
 			};
@@ -148,11 +150,11 @@ public class PersonelView extends BlankGraphicElement{
 		else if(element==firstName){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return 0.1f+icon.dim.getWidth()+0.2f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return background.dim.getHeight()-icon.dim.getHeight();
 				}
 			};
@@ -160,11 +162,11 @@ public class PersonelView extends BlankGraphicElement{
 		else if(element==lastName){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return 0.1f+icon.dim.getWidth()+0.2f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return background.dim.getHeight()-icon.dim.getHeight()-0.05f;
 				}
 			};
@@ -172,11 +174,11 @@ public class PersonelView extends BlankGraphicElement{
 		else if(element==close){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return background.dim.getWidth();
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return background.dim.getHeight();
 				}
 			};
@@ -184,11 +186,11 @@ public class PersonelView extends BlankGraphicElement{
 		else if(element==swapTraits_0_2){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return 0.45f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.3f;
 				}
 			};
@@ -196,11 +198,11 @@ public class PersonelView extends BlankGraphicElement{
 		else if(element==swapTraits_0_1){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return 0.25f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.3f;
 				}
 			};
@@ -208,11 +210,11 @@ public class PersonelView extends BlankGraphicElement{
 		else if(element==swapTraits_1_2){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return 0.35f;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return 0.1f;
 				}
 			};
@@ -221,7 +223,7 @@ public class PersonelView extends BlankGraphicElement{
 			final Icon elementAsIcon = (Icon)element;
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					int id = elementAsIcon.getId();
 					if(id==0){
 						return element.dim.getWidth()/2f+0.25f;
@@ -231,7 +233,7 @@ public class PersonelView extends BlankGraphicElement{
 					}
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					if( elementAsIcon.getId()==0){
 						return 0.2f+element.dim.getHeight()*0.75f;
 					}

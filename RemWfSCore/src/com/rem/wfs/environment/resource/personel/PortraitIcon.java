@@ -19,6 +19,17 @@ public class PortraitIcon extends Icon {
 	public Personel getPersonel() {
 		return person;
 	}
-	
+	@Override
+	public void setParentSelectedStatus(boolean status){
+		if(status != this.parentSelected){
+			super.setParentSelectedStatus(status);
+			if(status){
+				this.setFrame(this.getFrame()+1);
+			}
+			else {
+				this.setFrame(this.getFrame()-1);
+			}
+		}
+	}	
 
 }

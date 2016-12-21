@@ -6,7 +6,7 @@ import com.rem.wfs.environment.SpaceSector;
 public class SpaceHexagonListStorageHandler extends StorableListStorageHandler<SpaceHexagon>{
 	
 	public SpaceHexagonListStorageHandler(SpaceSector spaceSector){
-		super(spaceSector.getHexagons(),true);
+		super(spaceSector.getHexagons(),-1);
 	}
 
 	@Override

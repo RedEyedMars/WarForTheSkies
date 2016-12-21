@@ -1,5 +1,7 @@
 package com.rem.wfs.environment.resource.personel;
 
+import java.io.IOException;
+
 import com.rem.core.environment.Range;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.storage.DataCollector;
@@ -23,23 +25,23 @@ public class PortraitDescription implements StorageHandler{
 		hairId = hairFrames.getRandomIndex();
 	}
 	@Override
-	public void load(DataPresenter data) {
+	public void load(DataPresenter data) throws IOException {
 		backgroundId = data.nextInteger();
 		featuresId = data.nextInteger();
 		hairId = data.nextInteger();
 	}
 
 	@Override
-	public void save(DataCollector toSave) {
+	public void save(DataCollector toSave) throws IOException {
 		toSave.collect(backgroundId);
 		toSave.collect(featuresId);
 		toSave.collect(hairId);
 	}
 
 	public GraphicElement generateFace() {
-		GraphicElement face = new GraphicElement(R.faces_traits,backgroundFrames.get(backgroundId),R.MID_LAYER);
-		face.tree.addChild(new GraphicElement(R.faces_traits,featureFrames.get(featuresId),R.MID_LAYER));
-		face.tree.addChild(new GraphicElement(R.faces_traits,hairFrames.get(hairId),R.MID_LAYER));
+		GraphicElement face = new GraphicElement(R.faces,backgroundFrames.get(backgroundId),R.MID_LAYER);
+		face.tree.addChild(new GraphicElement(R.faces,featureFrames.get(featuresId),R.MID_LAYER));
+		face.tree.addChild(new GraphicElement(R.faces,hairFrames.get(hairId),R.MID_LAYER));
 		return face;
 	}
 

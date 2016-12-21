@@ -20,8 +20,8 @@ public class Main implements Setupable {
 	private static String filePath = "";
 	
 	public static void main(String[] args) {
-		Storage.debug_save = true;
-		Storage.debug_load = true;
+		Storage.debug_save = false;
+		Storage.debug_load = false;
 		handleArgs(args);
 		Hub.load(new Creator(),new Main(),true,true, true);
 	}

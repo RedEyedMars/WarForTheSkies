@@ -3,6 +3,7 @@ package com.rem.wfs.environment.hexagon.system;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.rem.core.Hub;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.storage.Storable;
@@ -53,13 +54,14 @@ public class SpaceSystem extends GraphicElement implements Storable, Identifiabl
 
 	public SpaceSystem() {
 		super(R.space_objects,0,R.BOT_LAYER);
+		resize(dim.getWidth(),dim.getHeight());
 	}
 
 	@Override
 	public StorageHandler getStorageHandler() {
 		return new HandlerListStorageHandler(
 				new IdentityStorageHandler(this),
-				new PlanetListStorageHandler(this,planets,true));
+				new PlanetListStorageHandler(this,planets));
 	}
 
 	@Override
@@ -76,24 +78,25 @@ public class SpaceSystem extends GraphicElement implements Storable, Identifiabl
 	@Override
 	public OffsetHandler createOffsetHandler(final GraphicElement element){
 		if(element instanceof Planet){
+			final Planet planet = (Planet)element; 
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
-					return dim.getWidth()*2/3f+
-							((Planet)element).getDistance()*
-							dim.getWidth()/2f/planets.size();
+				public float getX(){
+					return dim.getWidth()/2f+
+							planet.getDistance()*
+							planet.dim.getWidth();
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					return dim.getHeight()/2f;
 				}
 				@Override
 				public float getWidth(float w){
-					return w*0.3f;
+					return 0.025f;
 				}
 				@Override
 				public float getHeight(float h){
-					return h*0.3f;
+					return 0.025f;
 				}
 			};
 		}
@@ -111,7 +114,11 @@ public class SpaceSystem extends GraphicElement implements Storable, Identifiabl
 		case LARGE_STAR:return LARGE_STAR_FRAME;
 		case BLUE_GIANT:return BLUE_GIANT_FRAME;
 		case RED_GIANT:return RED_GIANT_FRAME;
-		default: throw new RuntimeException("SpaceSystem.convertIdToFrame could not convert the id:"+id+" to a frame index");
+		default:{
+			Hub.log.debug("", "");
+			throw new RuntimeException("SpaceSystem.convertIdToFrame could not convert the id:"+id+" to a frame index");
+		}
+			
 		}
 	}
 

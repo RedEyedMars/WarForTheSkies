@@ -3,11 +3,11 @@ package com.rem.core.gui.graphics.elements.tree;
 import java.util.Iterator;
 
 import com.rem.core.Hub;
+import com.rem.core.gui.graphics.elements.GraphicBundle;
 import com.rem.core.gui.graphics.elements.GraphicElement;
-
 public class NodeTreeHandler implements TreeHandler{
 
-	private GraphicElement self;
+	protected GraphicElement self;
 	public NodeTreeHandler(GraphicElement self){
 		this.self = self;
 	}	
@@ -26,7 +26,6 @@ public class NodeTreeHandler implements TreeHandler{
 			}
 			element.setRoot(self.getRoot());
 		}
-		element.setOffset(self.createOffsetHandler(element));
 	}
 
 	@Override
@@ -66,6 +65,31 @@ public class NodeTreeHandler implements TreeHandler{
 	@Override
 	public int size() {
 		return 0;
+	}
+
+	@Override
+	public Iterable<GraphicBundle> getBundles() {
+		return new Iterable<GraphicBundle>(){
+
+			@Override
+			public Iterator<GraphicBundle> iterator() {
+				return new Iterator<GraphicBundle>(){
+
+					@Override
+					public boolean hasNext() {
+						return false;
+					}
+
+					@Override
+					public GraphicBundle next() {
+						return null;
+					}
+
+					@Override
+					public void remove() {
+						
+					}};
+			}};
 	}
 
 

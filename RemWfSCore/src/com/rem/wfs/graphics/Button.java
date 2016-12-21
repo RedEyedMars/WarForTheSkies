@@ -9,7 +9,6 @@ import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.graphics.elements.StaticHeightGraphicElement;
 import com.rem.core.gui.graphics.elements.dimension.DimensionHandler;
 import com.rem.core.gui.inputs.ClickEvent;
-import com.rem.core.gui.inputs.HoverEvent;
 
 public class Button extends StaticHeightGraphicElement{
 
@@ -70,7 +69,7 @@ public class Button extends StaticHeightGraphicElement{
 		if(element==leftCap){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return -element.dim.getWidth();
 				}
 
@@ -87,7 +86,7 @@ public class Button extends StaticHeightGraphicElement{
 		else if(element == rightCap){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return dim.getWidth();
 				}
 
@@ -104,11 +103,11 @@ public class Button extends StaticHeightGraphicElement{
 		else if(element == centerPiece){
 			return new OffsetHandler(){
 				@Override
-				public float getX(int index){
+				public float getX(){
 					return dim.getWidth()/2-centerPiece.dim.getWidth()/2;
 				}
 				@Override
-				public float getY(int index){
+				public float getY(){
 					if(hovered){
 						return dim.getHeight()*1/2-centerPiece.dim.getHeight()/2;
 					}
@@ -130,38 +129,37 @@ public class Button extends StaticHeightGraphicElement{
 	}
 	
 	@Override
-	public boolean onHover(HoverEvent event){
-		if(event.isWithin(this)||event.isWithin(leftCap)||event.isWithin(rightCap)){
-			leftCap.setFrame(leftCapWhenDown);
-			this.setFrame(middleWhenDown);
-			rightCap.setFrame(rightCapWhenDown);
-			hovered = true;
-			reposition(dim.getX(),dim.getY());
-			return centerPiece.onHover(event);
+	public boolean onClick(ClickEvent event){
+		if(onClick!=null&&(event.isWithin(this)||event.isWithin(leftCap)||event.isWithin(rightCap))){
+			if(event.getAction() == ClickEvent.ACTION_DOWN){
+				leftCap.setFrame(leftCapWhenDown);
+				this.setFrame(middleWhenDown);
+				rightCap.setFrame(rightCapWhenDown);
+				hovered = true;
+			}
+			else if(event.getAction() == ClickEvent.ACTION_UP){
+				leftCap.setFrame(leftCapWhenUp);
+				this.setFrame(middleWhenUp);
+				rightCap.setFrame(rightCapWhenUp);
+				hovered = false;
+				
+				onClick.act(event);
+			}
 		}
 		else {
 			leftCap.setFrame(leftCapWhenUp);
 			this.setFrame(middleWhenUp);
 			rightCap.setFrame(rightCapWhenUp);
 			hovered = false;
-			reposition(dim.getX(),dim.getY());
-			return false;
 		}
-	}
-	
-	@Override
-	public boolean onClick(ClickEvent event){
-		if(onClick!=null&&(event.isWithin(this)||event.isWithin(leftCap)||event.isWithin(rightCap))){
-			if(event.getAction() == ClickEvent.ACTION_UP){
-				onClick.act(event);
-			}
-		}
+
+		reposition(dim.getX(),dim.getY());
 		return super.onClick(event);
 	}
 	
 	private final static Map<Integer,Setting> settings = new HashMap<Integer,Setting>();
 	static {
-		new Setting(R.background_1,12,13,14,3,7,11);
+		new Setting(R.buttons_1,4,5,6,0,1,2);
 	}
 	public static class Setting {
 		private int leftCapWhenUp;
@@ -196,7 +194,7 @@ public class Button extends StaticHeightGraphicElement{
 			this.rightCapWhenDown = rightCapWhenDown;
 			
 
-			settings.put(R.background_1, this);
+			settings.put(R.buttons_1, this);
 		}
 	}
 

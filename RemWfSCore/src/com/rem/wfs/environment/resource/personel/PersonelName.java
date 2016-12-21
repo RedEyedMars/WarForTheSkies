@@ -1,5 +1,7 @@
 package com.rem.wfs.environment.resource.personel;
 
+import java.io.IOException;
+
 import com.rem.core.environment.Range;
 import com.rem.core.storage.DataCollector;
 import com.rem.core.storage.DataPresenter;
@@ -25,7 +27,7 @@ public class PersonelName implements StorageHandler{
 	}
 	
 	@Override
-	public void load(DataPresenter data) {
+	public void load(DataPresenter data) throws IOException {
 		this.firstNameId = data.nextInteger();
 		if(firstNameId>-1){
 			firstName = getFirstName(firstNameId);
@@ -43,7 +45,7 @@ public class PersonelName implements StorageHandler{
 	}
 
 	@Override
-	public void save(DataCollector toSave) {
+	public void save(DataCollector toSave) throws IOException {
 		toSave.collect(firstNameId);
 		if(firstNameId==-1){
 			toSave.collect(firstName);

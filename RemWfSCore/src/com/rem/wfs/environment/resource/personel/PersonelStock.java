@@ -11,12 +11,12 @@ import com.rem.wfs.graphics.Iconic;
 import com.rem.wfs.graphics.R;
 import com.rem.wfs.menu.PersonelListView;
 
-public class PersonelStockType extends StockType<Personel> {
+public abstract class PersonelStock extends StockType<Personel> {
 
 	private static final int TEXTURE_FRAME_POPULATION = 7;	
 	private static final int TEXTURE_FRAME_POPULATION_BACKGROUND = 13;
 
-	public PersonelStockType() {
+	public PersonelStock() {
 		super("Personel",
 				"Ships have varying Crew requirements.",
 				R.resources,TEXTURE_FRAME_POPULATION,
@@ -48,11 +48,15 @@ public class PersonelStockType extends StockType<Personel> {
 	}
 
 
-	@Override
-	public float generateInitialValue(ResourceContainer container) { return 2f; }
-	@Override
-	public int generateInitialLimit(ResourceContainer container) { return (int) (Math.random()*16)+2; }
-	@Override
-	public float generateInitialGrowth(ResourceContainer container) { return (float) (Math.random()*0.04+0.03); }
 
+	
+	public static  class Standard extends PersonelStock{
+		@Override
+		public float generateInitialValue(ResourceContainer container) { return 2f; }
+		@Override
+		public int generateInitialLimit(ResourceContainer container) { return (int) (Math.random()*16)+2; }
+		@Override
+		public float generateInitialGrowth(ResourceContainer container) { return (float) (Math.random()*0.04+0.03); }
+
+	}
 }

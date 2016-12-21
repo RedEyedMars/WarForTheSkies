@@ -18,6 +18,7 @@ public class Game extends BlankGraphicElement{
 		overlays.push(menu);
 		Hub.handler.giveOnClick(menu);
 		tree.addChild(menu);
+		menu.reposition(menu.dim.getX(), menu.dim.getY());
 	}
 	public void removeOverlayMenu(GraphicElement menu){
 		while(!overlays.isEmpty()&&
@@ -25,7 +26,8 @@ public class Game extends BlankGraphicElement{
 			
 			Hub.handler.removeOnClick(overlays.pop());
 		}
-		Hub.handler.removeOnClick(menu);
-		tree.removeChild(menu);
+		GraphicElement toRemove = overlays.pop();
+		Hub.handler.removeOnClick(toRemove);
+		tree.removeChild(toRemove);
 	}
 }
