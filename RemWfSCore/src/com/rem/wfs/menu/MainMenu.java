@@ -45,11 +45,11 @@ public class MainMenu extends Menu{
 							Hub.manager.deleteFile("scratch.sector",IFileManager.RELATIVE);
 							Hub.gui.setView(new MainMenu());
 						}				
-			},deleteText);
+					},deleteText);
 			tree.addChild(button);
 		}
 		else {
-			MenuButton generateNewSectorButton = new MenuButton("Generate New"){
+			MenuButton generateNewSectorButton = new MenuButton("New"){
 				@Override
 				public boolean onClick(ClickEvent event){
 

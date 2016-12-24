@@ -14,19 +14,21 @@ public class ShipDetails implements StorageHandler {
 	private static final int[] shipFrames = new int[]{8,16,24,32};
 	private static final Range[] featureFrames = new Range[]{new Range(9,14), new Range(17,22), new Range(25,30), new Range(33,33)};
 	private static final Range animalFrames = new Range(1,5);
-	
+
 
 	private int shipId = -1;
 	private int featuresId = -1;
 	private int animalId = -1;
 	private SpaceShip spaceShip;
-	
+
 	public ShipDetails(SpaceShip spaceShip){
-		this.spaceShip = spaceShip;
+		if(spaceShip!=null&&spaceShip.getResource()!=null){
+			this.spaceShip = spaceShip;
+			shipId = spaceShip.getSpaceShipClassificationId();
+		}
 	}
 
 	public void onCreate(){
-		shipId = spaceShip.getSpaceShipClassificationId();
 		featuresId = featureFrames[spaceShip.getSpaceShipClassificationId()].getRandomIndex();
 		animalId = animalFrames.getRandomIndex();
 	}

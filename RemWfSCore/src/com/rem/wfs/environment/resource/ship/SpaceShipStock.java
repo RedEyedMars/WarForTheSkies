@@ -33,7 +33,7 @@ public abstract class SpaceShipStock extends StockType<SpaceShip>{
 		return icon;
 	}
 	@Override
-	public float generateInitialValue(ResourceContainer container) { return 0; }
+	public float generateInitialValue(ResourceContainer container) { return 1f; }
 	@Override
 	public float generateInitialGrowth(ResourceContainer container) { return 0; }
 	
