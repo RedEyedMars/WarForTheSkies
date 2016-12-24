@@ -7,9 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.rem.core.Action;
+import com.rem.core.Hub;
+import com.rem.core.IFileManager;
 import com.rem.core.environment.Environment;
+import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.core.storage.DataCollector;
 import com.rem.core.storage.DataPresenter;
+import com.rem.core.storage.Storage;
 import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
 import com.rem.wfs.environment.hexagon.SpaceHexagon;
@@ -54,12 +58,29 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 		}
 	};
 
+	private Thread saveThread = new Thread(){
+		@Override
+		public void run(){
+			try {
+				while(Hub.gui.isRunning()){
+					Storage.save(
+							Hub.manager.createOutputStream(Hub.map.getFileName(), IFileManager.ABSOLUTE),
+							Hub.map);
+					Thread.sleep(5000);
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	};
+
 	public SpaceSector() {
 		super();
 		new Material(null,null);
 		new Personel();
 		new SpaceShip(null);
 		ResourceCluster.setup();
+		
 	}
 
 	@Override
@@ -105,7 +126,7 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 			}
 		}
 		reposition(dim.getX()-0.3f,dim.getY()-0.4f);
-		
+
 		getHexagon(4,6).setId(SpaceHexagon.createId(SpaceHexagon.HOST_PLAYER_ID));
 		getHexagon(5,6).setId(SpaceHexagon.createId(SpaceHexagon.HOST_PLAYER_ID));
 		getHexagon(3,6).setId(SpaceHexagon.createId(SpaceHexagon.HOST_PLAYER_ID));
@@ -113,12 +134,12 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 		getHexagon(5,7).setId(SpaceHexagon.createId(SpaceHexagon.HOST_PLAYER_ID));
 		getHexagon(4,5).setId(SpaceHexagon.createId(SpaceHexagon.HOST_PLAYER_ID));
 		getHexagon(5,5).setId(SpaceHexagon.createId(SpaceHexagon.HOST_PLAYER_ID));
-		
+
 		location = new Location(0,0);
 		id = NORMAL_SECTOR;
 		this.lastUpdatedTime = System.currentTimeMillis();
 	}
-	
+
 	public SpaceHexagon getHexagon(int x, int y){
 		return hexMap.get(y).get(x);
 	}
@@ -160,7 +181,32 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 		this.id = id;
 	}
 
+	@Override
+	public boolean onHover(HoverEvent event){
+		SpaceHexagon hoverOn = null;
+		for(SpaceHexagon hex:spaceHexagons){
+			if(hex.onHover(event)){
+				hoverOn = hex;
+			}
+		}
+		for(SpaceHexagon hex:spaceHexagons){
+			hex.performOnHover(event, hex==hoverOn);
+		}
+		return true;
+	}
+	
+	public void start(){
+		saveThread.start();
+	}
 
-
+	@Override
+	public void update(double secondsSinceLastFrame){
+		long currentTime = System.currentTimeMillis();
+		double seconds = (currentTime-lastUpdatedTime)/1000.0;
+		for(SpaceHexagon hex:spaceHexagons){
+			hex.update(seconds);
+		}
+		lastUpdatedTime = currentTime;
+	}
 
 }

@@ -74,13 +74,13 @@ public class MenuButton extends BlankGraphicElement {
 				@Override
 				public float getX(){
 					if(text.isJustified(GraphicText.MIDDLE_JUSTIFIED)){
-						return 0.0f;
+						return dim.getWidth()/2f;
 					}
 					else if(text.isJustified(GraphicText.LEFT_JUSTIFIED)){
-						return 0.05f;
+						return 0;
 					}
 					else if(text.isJustified(GraphicText.RIGHT_JUSTIFIED)){
-						return -0.05f;
+						return dim.getWidth();
 					}
 					else return super.getX();
 				}

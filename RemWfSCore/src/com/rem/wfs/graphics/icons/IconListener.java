@@ -1,4 +1,4 @@
-package com.rem.wfs.graphics;
+package com.rem.wfs.graphics.icons;
 
 import com.rem.core.gui.inputs.ClickEvent;
 import com.rem.core.gui.inputs.HoverEvent;

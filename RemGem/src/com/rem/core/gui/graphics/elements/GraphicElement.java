@@ -40,7 +40,7 @@ public class GraphicElement implements MouseListener, Updatable {
 	public final DimensionHandler dim;
 	public final TreeHandler tree;
 	private ShapeHandler shapeHandler;
-	private AnimationHandler animationHandler;
+	protected AnimationHandler animationHandler;
 
 	private GraphicElement root = null;
 

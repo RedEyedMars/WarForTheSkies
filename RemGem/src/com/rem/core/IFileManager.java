@@ -17,7 +17,7 @@ public interface IFileManager {
 	public FileResource<OutputStream> createOutputStream(String path, int pathType);
 	@SuppressWarnings("rawtypes")
 	public FileResource createImageResource(int textureId, String path);
-	public boolean deleteFile(String string);
+	public boolean deleteFile(String string, int pathType);
 	public void createDirectory(String string);
 	public File getDirectory(String path, int pathType);
 	public Iterator<String> getFileNames(String string, int pathType);

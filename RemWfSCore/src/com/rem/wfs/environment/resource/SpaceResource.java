@@ -2,13 +2,10 @@ package com.rem.wfs.environment.resource;
 
 import com.rem.core.storage.StorageHandler;
 import com.rem.wfs.Creatable;
-import com.rem.wfs.graphics.Iconic;
-
 public class SpaceResource<T extends SpaceResource<T>> implements Creatable{
 	private float value;
 	private int limit;
 	private float growth;
-	private Iconic icon;
 	protected ResourceType<T> resourceType;
 	private ResourceContainer container;
 
@@ -22,7 +19,6 @@ public class SpaceResource<T extends SpaceResource<T>> implements Creatable{
 				);
 	}
 
-	@SuppressWarnings("unchecked")
 	public SpaceResource(
 			ResourceContainer container,
 			ResourceType<T> type,
@@ -35,20 +31,14 @@ public class SpaceResource<T extends SpaceResource<T>> implements Creatable{
 		this.growth = initialGrowth;
 
 		this.container = container;
-		if(type!=null){
-			this.icon = type.createIcon((T) this);
-		}
 	}
 
-	public void onCreate() {
+	@Override
+	public void onCreate(ResourceContainer container) {
 		this.value = resourceType.generateInitialValue(container);
 		this.limit = resourceType.generateInitialLimit(container);
 		this.growth= resourceType.generateInitialGrowth(container);
 	}	
-
-	public Iconic getIcon(){
-		return icon;
-	}
 
 
 	public Float getValue() {
@@ -68,6 +58,14 @@ public class SpaceResource<T extends SpaceResource<T>> implements Creatable{
 	}
 	public void setGrowth(Float growth){
 		this.growth = growth;
+	}
+	public void grow(float seconds){
+		if(getValue()+getGrowth()*seconds<getLimit()){
+			setValue(getValue()+getGrowth()*seconds);
+		}
+		else {
+			setValue((float)getLimit());
+		}
 	}
 
 	@Override

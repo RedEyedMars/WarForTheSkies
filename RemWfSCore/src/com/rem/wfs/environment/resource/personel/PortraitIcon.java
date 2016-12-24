@@ -2,7 +2,7 @@ package com.rem.wfs.environment.resource.personel;
 
 import com.rem.core.gui.graphics.R;
 import com.rem.core.gui.graphics.elements.GraphicElement;
-import com.rem.wfs.graphics.Icon;
+import com.rem.wfs.graphics.icons.Icon;
 
 public class PortraitIcon extends Icon {
 

@@ -28,6 +28,7 @@ public class PCGui extends GLApp implements IGui {
 	private Setupable main;
 
 	private boolean drag = true;
+	private boolean running = true;
 	
 
 	public PCGui(Setupable setupable){
@@ -144,6 +145,7 @@ public class PCGui extends GLApp implements IGui {
 
 	@Override
 	public void end(){
+		this.running = false;
 		super.cleanup();
 	}
 	@Override
@@ -237,6 +239,11 @@ public class PCGui extends GLApp implements IGui {
 	@Override
 	public boolean isKeyBoardShowing() {
 		return true;
+	}
+	
+	@Override
+	public boolean isRunning(){
+		return running;
 	}
 
 }

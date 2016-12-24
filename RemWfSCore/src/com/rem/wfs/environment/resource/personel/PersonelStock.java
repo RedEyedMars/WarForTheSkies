@@ -7,8 +7,8 @@ import com.rem.wfs.environment.resource.ResourceContainer;
 import com.rem.wfs.environment.resource.ResourceIcon;
 import com.rem.wfs.environment.resource.StockList;
 import com.rem.wfs.environment.resource.StockType;
-import com.rem.wfs.graphics.Iconic;
 import com.rem.wfs.graphics.R;
+import com.rem.wfs.graphics.icons.Iconic;
 import com.rem.wfs.menu.PersonelListView;
 
 public abstract class PersonelStock extends StockType<Personel> {
@@ -35,8 +35,9 @@ public abstract class PersonelStock extends StockType<Personel> {
 
 				if(dim.isWithin(event.getX(), event.getY())){
 					if(event.getAction()==ClickEvent.ACTION_UP){
-					((Game)Hub.view).addOverlayMenu(
+					((Game)Hub.view).buildOverlay(
 							new PersonelListView(
+									"Unassigned Personel",
 									(StockList<Personel>)spaceResource
 									));
 					}

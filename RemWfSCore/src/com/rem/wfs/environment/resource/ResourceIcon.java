@@ -6,8 +6,8 @@ import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.wfs.environment.resource.ResourceType;
 import com.rem.wfs.environment.resource.SpaceResource;
-import com.rem.wfs.graphics.IconLineBackground;
 import com.rem.wfs.graphics.R;
+import com.rem.wfs.graphics.icons.IconLineBackground;
 
 public class ResourceIcon <T extends SpaceResource<T>> extends IconLineBackground {
 

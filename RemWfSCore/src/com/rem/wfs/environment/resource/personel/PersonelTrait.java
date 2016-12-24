@@ -9,8 +9,8 @@ import com.rem.core.storage.DataCollector;
 import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.Storable;
 import com.rem.core.storage.StorageHandler;
-import com.rem.wfs.graphics.Icon;
 import com.rem.wfs.graphics.R;
+import com.rem.wfs.graphics.icons.Icon;
 
 public class PersonelTrait implements Storable{
 

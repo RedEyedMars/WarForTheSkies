@@ -1,20 +1,18 @@
 package com.rem.wfs.menu;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
-import com.rem.core.Hub;
 import com.rem.core.gui.graphics.GraphicText;
-import com.rem.core.gui.graphics.elements.BlankGraphicElement;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
-import com.rem.core.gui.inputs.ClickEvent;
-import com.rem.wfs.Game;
 import com.rem.wfs.environment.resource.material.Material;
-import com.rem.wfs.graphics.Background;
 import com.rem.wfs.graphics.R;
+import com.rem.wfs.graphics.icons.IconListener;
+import com.rem.wfs.graphics.icons.Iconic;
 
-public class MaterialsView extends BlankGraphicElement{
+public class MaterialsView extends OverlayView{
 
 	private static final Map<Integer,Integer> textures = new HashMap<Integer,Integer>();
 	private static final Map<Integer,Integer> frames = new HashMap<Integer,Integer>();
@@ -27,34 +25,15 @@ public class MaterialsView extends BlankGraphicElement{
 		addTexture(Material.ID_FUEL,R.space_objects,25);
 		addTexture(Material.ID_ENERGY_CRYSTAL,R.space_objects,26);
 	}
-	private Background background;
-	private GraphicElement close;
 	public MaterialsView(
+			String name,
 			Material metal, Material fuel, Material energy){
-		super();
-		final GraphicElement self = this;
-		background = new Background(R.background_2,R.MID_LAYER);
-		background.resize(0.7f, 0.7f);
-		tree.addChild(background);
+		super(name,0.7f,0.7f);
 
 		addResource(metal);
 		addResource(fuel);
 		addResource(energy);
-
-		close = new GraphicElement(R.faces,0,R.MID_LAYER){
-			@Override
-			public boolean onClick(ClickEvent event){
-
-				if(dim.isWithin(event.getX(), event.getY())){
-					if(event.getAction()==ClickEvent.ACTION_UP){
-						((Game)Hub.view).removeOverlayMenu(self);
-					}
-					return super.onClick(event);
-				}
-				else return false;
-			}
-		};
-		tree.addChild(close);
+		
 		reposition(0.15f,0.15f);
 
 	}
@@ -74,18 +53,6 @@ public class MaterialsView extends BlankGraphicElement{
 				@Override
 				public float getY(){
 					return dim.getHeight()-mge.dim.getHeight()*(mge.getId()+3);
-				}
-			};
-		}
-		else if(element == close){
-			return new OffsetHandler(){
-				@Override
-				public float getX(){
-					return background.dim.getWidth();
-				}
-				@Override
-				public float getY(){
-					return background.dim.getHeight();
 				}
 			};
 		}
@@ -139,5 +106,27 @@ public class MaterialsView extends BlankGraphicElement{
 		builder.append("/");
 		builder.append(material.getLimit());
 		return builder.toString();		
+	}
+	@Override
+	public Iterator<Iconic> iterator() {
+		return new Iterator<Iconic>(){
+
+			@Override
+			public boolean hasNext() {
+				return false;
+			}
+
+			@Override
+			public Iconic next() {
+				return null;
+			}
+
+			@Override
+			public void remove() {				
+			}};
+	}
+	@Override
+	public IconListener getIconListener(Iconic icon) {
+		return null;
 	}
 }

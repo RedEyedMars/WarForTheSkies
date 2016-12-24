@@ -1,6 +1,8 @@
-package com.rem.wfs.graphics;
+package com.rem.wfs.graphics.icons;
 
+import com.rem.core.gui.graphics.elements.tree.TreeHandler;
 import com.rem.core.gui.inputs.ClickEvent;
+import com.rem.wfs.graphics.LineBackground;
 
 public class IconLineBackground extends LineBackground implements Iconic{
 
@@ -24,10 +26,6 @@ public class IconLineBackground extends LineBackground implements Iconic{
 		this.parentSelected = parentSelected;
 	}
 
-	public void setIconListener(IconListener listener) {
-		this.listener = listener;
-	}
-
 	@Override
 	public boolean onClick(ClickEvent event){
 
@@ -45,4 +43,19 @@ public class IconLineBackground extends LineBackground implements Iconic{
 		else return false;
 	}
 
+
+	@Override
+	public void addIconListener(IconListener iconListener) {
+		this.listener = iconListener;
+	}
+
+	@Override
+	public void removeIconListener() {
+		this.listener = null;
+	}
+
+	@Override
+	public void addToTree(TreeHandler addSelfToThisTree) {
+		addSelfToThisTree.addChild(this);		
+	}
 }

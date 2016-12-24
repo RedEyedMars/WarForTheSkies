@@ -2,7 +2,7 @@ package com.rem.wfs.environment.resource.cluster;
 
 import com.rem.core.gui.graphics.elements.dimension.DimensionHandler;
 import com.rem.core.gui.graphics.elements.dimension.StaticDimensionHandler;
-import com.rem.wfs.graphics.Icon;
+import com.rem.wfs.graphics.icons.Icon;
 
 public class ResourceClusterIcon extends Icon {
 

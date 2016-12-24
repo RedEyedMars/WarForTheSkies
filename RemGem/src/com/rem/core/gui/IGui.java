@@ -21,6 +21,8 @@ public interface IGui {
 	
 	public void end();
 	
+	public boolean isRunning();
+	
 	public void setView(GraphicElement view);
 
 	public void setFinished(boolean b);

@@ -19,8 +19,8 @@ import com.rem.wfs.environment.location.Location;
 import com.rem.wfs.environment.location.LocationStorageHandler;
 import com.rem.wfs.environment.resource.cluster.ResourceCluster;
 import com.rem.wfs.environment.resource.cluster.ResourceClusterListStorageHandler;
-import com.rem.wfs.graphics.Iconic;
 import com.rem.wfs.graphics.R;
+import com.rem.wfs.graphics.icons.Iconic;
 
 public class SpaceHexagon extends Hexagon
 implements  Storable, Locatable, Identifiable{
@@ -82,11 +82,13 @@ implements  Storable, Locatable, Identifiable{
 		else {
 			status = false;
 		}
-		for(ResourceCluster resource:this.resourceList){
-			resource.getIcon().setParentSelectedStatus(status);
-			resource.getIcon().onHover(event);
-		}
 		return status;
+	}
+	
+	public void performOnHover(HoverEvent event, boolean hoveringOn){
+		for(ResourceCluster resource:this.resourceList){
+			resource.getIcon().setParentSelectedStatus(hoveringOn);
+		}
 	}
 
 
@@ -247,22 +249,6 @@ implements  Storable, Locatable, Identifiable{
 	public boolean onClick(ClickEvent event){
 		if(dim.isWithin(event.getX(), event.getY())){
 			if(event.getAction()==ClickEvent.ACTION_UP){
-				/*
-				if(currentlySelected!=null||currentlySelected==this){
-					for(SpaceResource<?> resource:currentlySelected.resourceList){
-						resource.getIcon().setVisible(
-								isFriendlyState(currentlySelected.ownerId));
-					}
-				}
-				if(currentlySelected!=this){
-					currentlySelected = this;
-					for(SpaceResource<?> resource:resourceList){
-						resource.getIcon().setVisible(true);
-					}
-				}
-				else {
-					currentlySelected = null;
-				}*/
 			}
 			return super.onClick(event);
 		}
@@ -282,7 +268,10 @@ implements  Storable, Locatable, Identifiable{
 
 	@Override
 	public void update(double secondsSinceLastFrame){
-		super.update(secondsSinceLastFrame);		
+		super.update(secondsSinceLastFrame);
+		for(ResourceCluster cluster:resourceList){
+			cluster.update((float)secondsSinceLastFrame);
+		}
 	}
 
 	public static boolean isFriendlyState(int ownerId) {
@@ -294,4 +283,5 @@ implements  Storable, Locatable, Identifiable{
 	public List<ResourceCluster> getResources() {
 		return resourceList;
 	}
+	
 }

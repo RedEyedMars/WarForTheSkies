@@ -1,52 +1,49 @@
 package com.rem.wfs.menu;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import com.rem.core.Hub;
 import com.rem.core.gui.graphics.GraphicText;
 import com.rem.core.gui.graphics.elements.BlankGraphicElement;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.inputs.ClickEvent;
 import com.rem.core.gui.inputs.HoverEvent;
-import com.rem.wfs.Game;
 import com.rem.wfs.environment.resource.personel.Personel;
 import com.rem.wfs.environment.resource.personel.PersonelTrait;
+import com.rem.wfs.environment.resource.personel.PortraitIcon;
 import com.rem.wfs.environment.resource.ship.DetailedShipIcon;
 import com.rem.wfs.environment.resource.ship.SpaceShip;
-import com.rem.wfs.graphics.Background;
-import com.rem.wfs.graphics.Icon;
-import com.rem.wfs.graphics.IconListener;
 import com.rem.wfs.graphics.R;
+import com.rem.wfs.graphics.icons.Icon;
+import com.rem.wfs.graphics.icons.IconListener;
+import com.rem.wfs.graphics.icons.Iconic;
 
-public class SpaceShipView extends BlankGraphicElement{
-	
+public class SpaceShipView extends OverlayView{
+
 	private List<com.rem.wfs.menu.SpaceShipView.TraitCluster.ReleaseEvent> events = 
 			new ArrayList<com.rem.wfs.menu.SpaceShipView.TraitCluster.ReleaseEvent>();
-	
-	private GraphicElement previousMenu;
-	private Background background;
+
 	private DetailedShipIcon icon;
 	private GraphicText nameLabel;
-	private GraphicText name;
+	private GraphicText shipName;
 	private GraphicText suffix;
-	private GraphicElement close;
 	private SpaceShip ship;
 	private PersonelListView crew;
 
 	private List<TraitCluster> traitClusters = new ArrayList<TraitCluster>();
 	private int currentHoverId = -1;
 
-	public SpaceShipView(SpaceShip ship, GraphicElement previousView){
-		super();
+	private Iconic shipFuel;
+
+	public SpaceShipView(
+			String name,
+			SpaceShip ship){
+		super(name, 0.8f, 0.8f);
 		events.clear();
-		this.previousMenu = previousView;
-		final SpaceShipView self = this;
 		this.ship = ship;
-		background = new Background(R.background_2,R.MID_LAYER);
-		background.resize(0.8f, 0.8f);
-		tree.addChild(background);
+		
 		icon = ship.getDetailedIcon(0);
 		icon.setLayer(R.MID_LAYER);
 		icon.resize(0.16f, 0.16f);
@@ -55,32 +52,33 @@ public class SpaceShipView extends BlankGraphicElement{
 		nameLabel = new GraphicText(R.impact,"Name:",R.MID_LAYER);
 		tree.addChild(nameLabel);
 
-		name = new GraphicText(R.impact,ship.getName().getName(),R.MID_LAYER);
-		tree.addChild(name);
+		shipName = new GraphicText(R.impact,ship.getName().getName(),R.MID_LAYER);
+		tree.addChild(shipName);
 		suffix = new GraphicText(R.impact,ship.getName().getSuffix(),R.MID_LAYER);
 		tree.addChild(suffix);
+		
+		shipFuel = ship.getFuel().getMeter();
+		shipFuel.addToTree(tree);
 
-		close = new GraphicElement(R.faces,0,R.MID_LAYER){
+		crew = new PersonelListView("Crew",this.ship.getCrew(),this){
 			@Override
-			public boolean onClick(ClickEvent event){
-				if(dim.isWithin(event.getX(), event.getY())){
-					if(event.getAction()==ClickEvent.ACTION_UP){
-						((Game)Hub.view).removeOverlayMenu(self);
-						((Game)Hub.view).addOverlayMenu(previousMenu);
-					}
-					return super.onClick(event);
-				}
-				else return false;
+			public void performOnRelease(int id, ClickEvent event){
+				traitClusters.get(id).select(false);
+				super.performOnRelease(id, event);
 			}
-		};
-		tree.addChild(close);
-
-		crew = new PersonelListView(this.ship.getCrew(),this){
-
 			@Override
 			public void performOnHoverOn(int id, HoverEvent event) {
+				if(currentHoverId!=-1){
+					super.performOnHoverOff(currentHoverId, event);
+					traitClusters.get(currentHoverId).select(false);
+				}
+				currentHoverId=id;
 				super.performOnHoverOn(id, event);
-				setHovering(id);
+				traitClusters.get(id).select(true);
+			}
+			@Override
+			public void performOnHoverOff(int id, HoverEvent event) {
+				
 			}
 		};
 
@@ -90,8 +88,6 @@ public class SpaceShipView extends BlankGraphicElement{
 			traitClusters.add(cluster);
 			tree.addChild(cluster);
 		}
-
-
 		tree.addChild(crew);
 
 		reposition(0.1f,0.1f);
@@ -104,7 +100,7 @@ public class SpaceShipView extends BlankGraphicElement{
 			return new OffsetHandler(){
 				@Override
 				public float getX(){
-					return 0.1f;
+					return 0.003f;
 				}
 				@Override
 				public float getY(){
@@ -116,7 +112,7 @@ public class SpaceShipView extends BlankGraphicElement{
 			return new OffsetHandler(){
 				@Override
 				public float getX(){
-					return 0.1f+icon.dim.getWidth()+0.02f;
+					return 0.003f+icon.dim.getWidth()+0.02f;
 				}
 				@Override
 				public float getY(){
@@ -124,11 +120,11 @@ public class SpaceShipView extends BlankGraphicElement{
 				}
 			};
 		}
-		else if(element==name){
+		else if(element==shipName){
 			return new OffsetHandler(){
 				@Override
 				public float getX(){
-					return 0.1f+icon.dim.getWidth()+0.12f;
+					return 0.003f+icon.dim.getWidth()+0.12f;
 				}
 				@Override
 				public float getY(){
@@ -140,7 +136,7 @@ public class SpaceShipView extends BlankGraphicElement{
 			return new OffsetHandler(){
 				@Override
 				public float getX(){
-					return 0.1f+icon.dim.getWidth()+0.2f;
+					return 0.003f+icon.dim.getWidth()+0.2f;
 				}
 				@Override
 				public float getY(){
@@ -148,15 +144,15 @@ public class SpaceShipView extends BlankGraphicElement{
 				}
 			};
 		}
-		else if(element==close){
+		else if(element==shipFuel){
 			return new OffsetHandler(){
 				@Override
 				public float getX(){
-					return background.dim.getWidth();
+					return background.dim.getWidth()-0.003f-element.dim.getWidth();
 				}
 				@Override
 				public float getY(){
-					return background.dim.getHeight();
+					return background.dim.getHeight()-icon.dim.getHeight();
 				}
 			};
 		}
@@ -184,16 +180,7 @@ public class SpaceShipView extends BlankGraphicElement{
 		else return super.createOffsetHandler(element);
 	}
 
-	private void setHovering(int id){
-		if(id!=currentHoverId){
-			if(currentHoverId>=0){
-				traitClusters.get(currentHoverId ).select(false);
-			}
-			traitClusters.get(id).select(true);
-			this.currentHoverId = id;
-		}
-	}
-	
+
 	@Override
 	public void update(double secondsSinceLastFrame){
 		super.update(secondsSinceLastFrame);
@@ -205,7 +192,7 @@ public class SpaceShipView extends BlankGraphicElement{
 	private class TraitCluster extends BlankGraphicElement implements IconListener {
 
 		private List<PersonelTrait> traits = new ArrayList<PersonelTrait>(Personel.numberOfTraitsPerPerson);
-		
+
 		private int id;
 		private boolean isSelected;
 		public TraitCluster(Personel personel, int id) {
@@ -219,7 +206,6 @@ public class SpaceShipView extends BlankGraphicElement{
 				Icon icon = trait.getIcon();
 				icon.setLayer(R.MID_LAYER);
 				icon.tree.getChild(0).setLayer(R.TOP_LAYER);
-				icon.setIconListener(this);
 				tree.addChild(icon);
 			}
 		}
@@ -256,11 +242,10 @@ public class SpaceShipView extends BlankGraphicElement{
 				};
 			}
 			else return super.createOffsetHandler(element);
-		}			
+		}
 
 		@Override
 		public void performOnHoverOn(int id, HoverEvent event) {
-			setHovering(this.id);			
 			crew.performOnHoverOn(this.id, event);
 		}
 		@Override
@@ -273,14 +258,69 @@ public class SpaceShipView extends BlankGraphicElement{
 		public void performOnRelease(int id, ClickEvent event) {
 			events.add(new ReleaseEvent());
 		}
-		
+
 		public class ReleaseEvent {
 			public void act(){
 				if(isSelected){
+					select(false);
 					crew.selectIcon(id);
 				}
 			}
 		}
-
 	}
+
+	@Override
+	public Iterator<Iconic> iterator() {
+		final Iterator<Iconic> crewItr = crew.iterator();
+		final Iterator<TraitCluster> traitClusterItr = traitClusters.iterator();
+		return new Iterator<Iconic>(){
+
+			private Iterator<PersonelTrait> traitItr;
+			@Override
+			public boolean hasNext() {
+				return crewItr.hasNext()||traitClusterItr.hasNext();
+			}
+
+			@Override
+			public Iconic next() {
+				if(crewItr.hasNext()){
+					return crewItr.next();
+				}
+				else {
+					if(traitItr==null||!traitItr.hasNext()){
+						traitItr = traitClusterItr.next().traits.iterator();
+						return next();
+					}
+					else {
+						return traitItr.next().getIcon();
+					}
+				}
+			}
+
+			@Override
+			public void remove() {				
+			}
+			
+		};
+	}
+
+
+	@Override
+	public IconListener getIconListener(Iconic icon) {
+		if(icon instanceof PortraitIcon){
+			return crew.getIconListener(icon);
+		}
+		else {
+			for(TraitCluster cluster:traitClusters){
+				for(PersonelTrait trait:cluster.traits){
+					if(trait.getIcon() == icon){
+						return cluster;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	
 }

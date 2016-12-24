@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rem.core.gui.graphics.elements.GraphicElement;
+import com.rem.wfs.graphics.icons.Iconic;
 import com.rem.core.gui.graphics.R;
-import com.rem.wfs.graphics.Iconic;
 
 
 public abstract class ResourceType<ObjectType extends SpaceResource<ObjectType>> {

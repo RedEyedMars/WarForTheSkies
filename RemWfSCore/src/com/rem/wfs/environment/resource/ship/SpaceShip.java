@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.rem.core.environment.Range;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
@@ -17,6 +18,7 @@ import com.rem.wfs.environment.resource.StockList;
 import com.rem.wfs.environment.resource.StockType;
 import com.rem.wfs.environment.resource.personel.Personel;
 import com.rem.wfs.environment.resource.personel.PersonelStock;
+import com.rem.wfs.graphics.Meter;
 import com.rem.wfs.graphics.R;
 
 public class SpaceShip extends GraphicElement implements Creatable, Identifiable, ResourceContainer{
@@ -31,15 +33,13 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	private static final int MINER_BACKGROUND_FRAME = 13;
 	private static final SpaceShipStock HARBINGER = new SpaceShipStock(
 			"Flag Ship", "Used in defending large areas and is the only unit able of capturing other hexagons.",
+			new ShipBuilder(new Range(1500,2000),new Range(5000,6000)),
 			R.spaceships,HARBINGER_FRAME,
 			R.resource_backs,HARBINGER_BACKGROUND_FRAME
 			){
 		@Override
 		public int generateInitialLimit(ResourceContainer container)
 		{ return (int) (Math.random()*2); }
-
-		@Override
-		public float generateInitialValue(ResourceContainer container) { return 3f; }
 
 		@Override
 		public StockType<Personel> getPersonelStock() {
@@ -64,15 +64,13 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	};
 	private static final SpaceShipStock LANCER = new SpaceShipStock(
 			"Lancer", "Long ranged bulky ship that can defend flag ships well.",
+			new ShipBuilder(new Range(500,700),new Range(1500,2000)),
 			R.spaceships,LANCER_FRAME,
 			R.resource_backs,LANCER_BACKGROUND_FRAME
 			){
 		@Override
 		public int generateInitialLimit(ResourceContainer container)
 		{ return (int) (Math.random()*5)+2; }
-
-		@Override
-		public float generateInitialValue(ResourceContainer container) { return 4f; }
 
 		@Override
 		public StockType<Personel> getPersonelStock() {
@@ -97,15 +95,13 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	};
 	private static final SpaceShipStock FIGHTER = new SpaceShipStock(
 			"Fighter", "Quick sleek ship, designed for quick manuevers.",
+			new ShipBuilder(new Range(100,175),new Range(200,250)),
 			R.spaceships,FIGHTER_FRAME,
 			R.resource_backs,FIGHTER_BACKGROUND_FRAME
 			){
 		@Override
 		public int generateInitialLimit(ResourceContainer container)
 		{ return (int) (Math.random()*16)+8; }
-
-		@Override
-		public float generateInitialValue(ResourceContainer container) { return 5f; }
 		
 		@Override
 		public StockType<Personel> getPersonelStock() {
@@ -130,6 +126,7 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	};
 	private static final SpaceShipStock MINER = new SpaceShipStock(
 			"Miner", "Ship that cannot fight but does contibute to resource collection.",
+			new ShipBuilder(new Range(10,20),new Range(10000,20000)),
 			R.spaceships,MINER_FRAME,
 			R.resource_backs,MINER_BACKGROUND_FRAME
 			){
@@ -213,6 +210,24 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 			};
 		}
 	};
+	private ShipStatistic hp = new ShipStatistic(){
+		@Override
+		protected Meter createMeter() {
+			return null;
+		}
+		
+	};
+	private ShipStatistic fuel = new ShipStatistic(){
+		@Override
+		protected Meter createMeter() {
+			return new Meter(fuel,"Fuel",R.spaceships,56,R.MID_LAYER,new Meter.Animation(){
+				@Override
+				public void animate(GraphicElement element, float percentFull) {
+					element.setFrame((int) (55+(1f-percentFull)*8));
+				}				
+			});
+		}		
+	};
 
 	public SpaceShip(SpaceShipStock resource) {
 		super(R.space_objects,0,R.BOT_LAYER);
@@ -220,7 +235,8 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 		details = new ShipDetails(this);
 		name = new ShipName();
 		if(resource!=null){
-			crewContainer.add(resource.getPersonelStock().createPlaceHolder(this));
+			crewContainer.add(
+					resource.getPersonelStock().createPlaceHolder(this));
 		}
 	}
 
@@ -229,8 +245,10 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 		return new HandlerListStorageHandler(
 				new IdentityStorageHandler(this),
 				details,
-				name,
-				crew.getStorageHandler());
+				name,				
+				crew.getStorageHandler(),
+				hp,
+				fuel);
 	}
 
 	@Override
@@ -248,10 +266,11 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	}
 
 	@Override
-	public void onCreate() {
+	public void onCreate(ResourceContainer container) {
 		details.onCreate();
 		name.onCreate();
-		crew.onCreate();
+		crew.onCreate(container);
+		resource.getBuilder().setup(this, container);
 	}
 	
 	public ShipName getName(){
@@ -277,4 +296,13 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	public List<Personel> getCrew(){
 		return crew;
 	}
+
+	public ShipStatistic getHp(){
+		return hp;
+	}
+	
+	public ShipStatistic getFuel(){
+		return fuel;
+	}
+	
 }

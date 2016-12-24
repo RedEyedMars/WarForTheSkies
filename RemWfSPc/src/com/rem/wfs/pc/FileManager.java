@@ -84,6 +84,7 @@ public class FileManager implements IFileManager{
 						} catch (FileNotFoundException e) {
 							File file = new File(resource.getPath());
 							try {
+								System.out.println(resource.getPath());
 								if(	file.createNewFile() ){
 									resource.set(new FileOutputStream(resource.getPath()));
 									resource.setExists(false);
@@ -97,9 +98,15 @@ public class FileManager implements IFileManager{
 	}
 
 	@Override
-	public boolean deleteFile(String path){
-		File file = new File(path);
-		if(file.exists()){
+	public boolean deleteFile(String path, int pathType){
+		File file = null;
+		if(pathType==IFileManager.ABSOLUTE){
+			file = new File(path);
+		}
+		else if(pathType == IFileManager.RELATIVE){
+			file = new File(System.getenv("APPDATA"),"WarForTheSkies"+File.separator+path);
+		}
+		if(file!=null&&file.exists()){
 			return file.delete();
 		}
 		return false;

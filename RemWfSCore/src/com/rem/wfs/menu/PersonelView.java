@@ -1,41 +1,36 @@
 package com.rem.wfs.menu;
 
 
+import java.util.Iterator;
+
 import com.rem.core.Action;
-import com.rem.core.Hub;
 import com.rem.core.gui.graphics.GraphicText;
-import com.rem.core.gui.graphics.elements.BlankGraphicElement;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.inputs.ClickEvent;
-import com.rem.wfs.Game;
 import com.rem.wfs.environment.resource.personel.Personel;
+import com.rem.wfs.environment.resource.personel.PersonelTrait;
 import com.rem.wfs.environment.resource.personel.PortraitIcon;
-import com.rem.wfs.graphics.Background;
 import com.rem.wfs.graphics.Button;
-import com.rem.wfs.graphics.Icon;
 import com.rem.wfs.graphics.R;
+import com.rem.wfs.graphics.icons.Icon;
+import com.rem.wfs.graphics.icons.IconListener;
+import com.rem.wfs.graphics.icons.Iconic;
 
-public class PersonelView extends BlankGraphicElement{
-	private GraphicElement previousMenu;
+public class PersonelView extends OverlayView{
 	private Personel person;
-	private Background background;
 	private PortraitIcon icon;
 	private GraphicText nameLabel;
 	private GraphicText firstName;
 	private GraphicText lastName;
-	private GraphicElement close;
 	private GraphicElement swapTraits_1_2;
 	private GraphicElement swapTraits_0_2;
 	private GraphicElement swapTraits_0_1;
-	public PersonelView(Personel personToView, GraphicElement previousView){		
-		super();
-		this.previousMenu = previousView;
-		final PersonelView self = this;
+	public PersonelView(
+			String name,
+			Personel personToView, GraphicElement previousView){		
+		super(name,0.7f, 0.7f);
 		this.person = personToView;
-		background = new Background(R.background_2,R.MID_LAYER);
-		background.resize(0.7f, 0.7f);
-		tree.addChild(background);
 		icon = personToView.getPortaitIcon(0);
 		icon.setLayer(R.MID_LAYER);
 		icon.resize(0.16f, 0.16f);
@@ -49,31 +44,12 @@ public class PersonelView extends BlankGraphicElement{
 		lastName = new GraphicText(R.impact,personToView.getName().getLastName(),R.MID_LAYER);
 		tree.addChild(lastName);
 		
-		close = new GraphicElement(R.faces,0,R.MID_LAYER){
-			@Override
-			public boolean onClick(ClickEvent event){
-
-				if(dim.isWithin(event.getX(), event.getY())){
-					if(event.getAction()==ClickEvent.ACTION_UP){
-						((Game)Hub.view).removeOverlayMenu(self);
-						((Game)Hub.view).addOverlayMenu(previousMenu);
-					}
-					return super.onClick(event);
-				}
-				else return false;
-			}
-		};
-		tree.addChild(close);
-		
 		for(int i=0;i<personToView.getTraits().size();++i){
 			Icon icon = personToView.getTraits().get(i).getIcon();
-			icon.resize(0.1f, 0.1f);
+			icon.setParentSelectedStatus(false);
 			icon.setLayer(R.MID_LAYER);
 			tree.addChild(icon);
-		}
-		
-		
-		
+		}		
 		
 		swapTraits_0_2 = 
 				new Button(new Button.Setting(R.buttons_1),
@@ -171,18 +147,6 @@ public class PersonelView extends BlankGraphicElement{
 				}
 			};
 		}
-		else if(element==close){
-			return new OffsetHandler(){
-				@Override
-				public float getX(){
-					return background.dim.getWidth();
-				}
-				@Override
-				public float getY(){
-					return background.dim.getHeight();
-				}
-			};
-		}
 		else if(element==swapTraits_0_2){
 			return new OffsetHandler(){
 				@Override
@@ -244,5 +208,32 @@ public class PersonelView extends BlankGraphicElement{
 			};
 		}
 		else return super.createOffsetHandler(element);
+	}
+
+	@Override
+	public Iterator<Iconic> iterator() {
+		final Iterator<PersonelTrait> itr = person.getTraits().iterator();
+		return new Iterator<Iconic>(){
+
+			@Override
+			public boolean hasNext() {
+				return itr.hasNext();
+			}
+
+			@Override
+			public Iconic next() {
+				return itr.next().getIcon();
+			}
+
+			@Override
+			public void remove() {				
+			}
+			
+		};
+	}
+
+	@Override
+	public IconListener getIconListener(Iconic icon) {
+		return null;
 	}
 }

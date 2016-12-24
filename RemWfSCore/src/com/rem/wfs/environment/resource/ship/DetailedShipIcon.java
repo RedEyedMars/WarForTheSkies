@@ -1,8 +1,8 @@
 package com.rem.wfs.environment.resource.ship;
 
 import com.rem.core.gui.graphics.elements.GraphicElement;
-import com.rem.wfs.graphics.Icon;
 import com.rem.wfs.graphics.R;
+import com.rem.wfs.graphics.icons.Icon;
 
 public class DetailedShipIcon extends Icon {
 	private GraphicElement faceElement;
@@ -19,5 +19,17 @@ public class DetailedShipIcon extends Icon {
 	}
 	public SpaceShip getShip() {
 		return ship;
+	}
+	@Override
+	public void setParentSelectedStatus(boolean status){
+		if(status != this.parentSelected){
+			super.setParentSelectedStatus(status);
+			if(status){
+				this.setFrame(this.getFrame()+1);
+			}
+			else {
+				this.setFrame(this.getFrame()-1);
+			}
+		}
 	}
 }

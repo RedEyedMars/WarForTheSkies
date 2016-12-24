@@ -1,10 +1,10 @@
 package com.rem.wfs.menu;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.rem.core.Hub;
-import com.rem.core.gui.graphics.elements.BlankGraphicElement;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.inputs.ClickEvent;
@@ -12,57 +12,43 @@ import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.wfs.Game;
 import com.rem.wfs.environment.resource.personel.Personel;
 import com.rem.wfs.environment.resource.personel.PortraitIcon;
-import com.rem.wfs.graphics.Background;
-import com.rem.wfs.graphics.IconListener;
 import com.rem.wfs.graphics.R;
+import com.rem.wfs.graphics.icons.IconListener;
+import com.rem.wfs.graphics.icons.Iconic;
 
-public class PersonelListView extends BlankGraphicElement implements IconListener {
+public class PersonelListView extends OverlayView implements IconListener {
 
 	private static final int MOUSE_DOWN = 0;
 	private static final int MOUSE_UP = 1;
 	private static final int MOUSE_DRAG = 2;
-
-	private Background background;
-	private GraphicElement close;
+	
 	private List<PortraitIcon> icons = new ArrayList<PortraitIcon>();
 
 	private int clickState = MOUSE_UP;
 	private float clickX;
 	private float clickY;
+	private int withinId = -1;
 	private float scroll = 0f;
-	private GraphicElement previousView;
-	private int currentSelectedId = -1;
-	public PersonelListView(List<Personel> personelList){
-		this(personelList,null);
+	private GraphicElement hostView;
+	public PersonelListView(
+			String name,
+			List<Personel> personelList){
+		this(name,personelList,null);
 	}
-	public PersonelListView(List<Personel> personelList, GraphicElement previousView){
-		super();
-		final PersonelListView self = this;
-		this.previousView = previousView;
+	public PersonelListView(
+			String name,
+			List<Personel> personelList, GraphicElement hostView){
+		super(name,hostView!=null?0.8f:0.8f, 0.15f);
+		this.hostView = hostView;
 
-		background = new Background(R.background_2,R.MID_LAYER);
-		background.resize(previousView!=null?0.8f:0.8f, 0.15f);
-		if(previousView==null){
-			tree.addChild(background);	
-
-			close = new GraphicElement(R.faces,0,R.MID_LAYER){
-				@Override
-				public boolean onClick(ClickEvent event){
-					if(dim.isWithin(event.getX(), event.getY())){
-						if(event.getAction()==ClickEvent.ACTION_UP){
-							((Game)Hub.view).removeOverlayMenu(self);
-						}
-						return super.onClick(event);
-					}
-					else return false;
-				}
-			};
-			tree.addChild(close);
+		if(hostView!=null){
+			background.setVisible(false);
+			close.setVisible(false);
+			title.setVisible(false);
 		}
 
 		for(int i=0;i<personelList.size();++i){
 			PortraitIcon icon = personelList.get(i).getPortaitIcon(i);
-			icon.setIconListener(this);
 			icon.setLayer(R.MID_LAYER);
 			icons.add(icon);
 			tree.addChild(icon);
@@ -85,26 +71,6 @@ public class PersonelListView extends BlankGraphicElement implements IconListene
 				}
 			};
 		}
-		else if(element == close){
-			return new OffsetHandler(){
-				@Override
-				public float getX(){
-					return background.dim.getWidth();
-				}
-				@Override
-				public float getY(){
-					return background.dim.getHeight();
-				}
-			};
-		}
-		else if(element == background){
-			return new OffsetHandler(){
-				@Override
-				public float getWidth(float w){
-					return previousView!=null?0.8f:w;
-				}
-			};
-		}
 		else return super.createOffsetHandler(element);
 	}
 
@@ -119,55 +85,119 @@ public class PersonelListView extends BlankGraphicElement implements IconListene
 	}
 
 	@Override
-	public void performOnClick(int id, ClickEvent event) {
-		if(clickState==MOUSE_UP){
-			clickState = MOUSE_DOWN;
-			clickX = event.getX();
-			clickY = event.getY();
+	public boolean onClick(ClickEvent event) {
+		if(close!=null&&event.isWithin(close)){
+			close.onClick(event);
+			return true;
 		}
-		else if(clickState==MOUSE_DOWN||clickState==MOUSE_DRAG){
+		if(clickState==MOUSE_UP&&event.getAction()==ClickEvent.ACTION_DOWN){
+			for(int i=0;i<icons.size();++i){
+				if(event.isWithin(icons.get(i))){
+					withinId = i;
+					break;
+				}
+			}
+			if(withinId!=-1){
+				clickState = MOUSE_DOWN;
+				clickX = event.getX();
+				clickY = event.getY();
+			}
+		}
+		else if((clickState==MOUSE_DOWN||clickState==MOUSE_DRAG)&&
+				event.getAction()==ClickEvent.ACTION_DOWN){
 			double distanceFromStart = Math.sqrt(Math.pow(event.getX()-clickX, 2)+Math.pow(event.getY()-clickY, 2));
 			if(distanceFromStart>0.01f){
 				clickState = MOUSE_DRAG;
 				scroll += event.getX()-clickX;
-				if(scroll>(background.dim.getWidth()-icons.get(id).dim.getWidth()))
-					scroll = background.dim.getWidth()-icons.get(id).dim.getWidth();
-				else if(scroll<-icons.get(id).dim.getWidth()*(icons.size()-1)){
-					scroll = -icons.get(id).dim.getWidth()*(icons.size()-1);
+				if(scroll>(background.dim.getWidth()-icons.get(withinId).dim.getWidth()))
+					scroll = background.dim.getWidth()-icons.get(withinId).dim.getWidth();
+				else if(scroll<-icons.get(withinId).dim.getWidth()*(icons.size()-1)){
+					scroll = -icons.get(withinId).dim.getWidth()*(icons.size()-1);
 				}
 				reposition(dim.getX(),dim.getY());		
 				clickX = event.getX();
 				clickY = event.getY();
 			}
 		}
-	}
-
-	@Override
-	public void performOnRelease(int id, ClickEvent event) {
-		if(clickState == MOUSE_DOWN){
-			selectIcon(id);
+		else if(event.getAction()==ClickEvent.ACTION_UP){
+			if(clickState == MOUSE_DOWN){
+				selectIcon(withinId);
+			}
+			clickState = MOUSE_UP;
+			withinId = -1;
 		}
-		clickState = MOUSE_UP;
+		return true;
 	}
 	@Override
 	public void performOnHoverOn(int id, HoverEvent event){
-		if(id != currentSelectedId){
-			if(currentSelectedId!=-1){
-				this.icons.get(currentSelectedId).setParentSelectedStatus(false);
-			}
-			this.icons.get(id).setParentSelectedStatus(true);
-			currentSelectedId = id;
-		}
+		this.icons.get(id).setParentSelectedStatus(true);
 	}
 	@Override
 	public void performOnHoverOff(int id, HoverEvent event) {
-		
+		this.icons.get(id).setParentSelectedStatus(false);		
 	}
-	
+
 	public void selectIcon(int id){
-		((Game)Hub.view).removeOverlayMenu(previousView!=null?previousView:this);
-		((Game)Hub.view).addOverlayMenu(
-				new PersonelView(icons.get(id).getPersonel(),
-								previousView!=null?previousView:this));
+		((Game)Hub.view).buildOverlay(
+				new PersonelView(
+						"Personel",
+						icons.get(id).getPersonel(),
+						hostView!=null?hostView:this));
+	}
+	@Override
+	public void performOnClick(int id, ClickEvent event) {		
+	}
+	@Override
+	public void performOnRelease(int id, ClickEvent event) {		
+	}
+	@Override
+	public Iterator<Iconic> iterator() {
+		final Iterator<PortraitIcon> itr = icons.iterator();
+		return new Iterator<Iconic>(){
+
+			@Override
+			public boolean hasNext() {
+				return itr.hasNext();
+			}
+
+			@Override
+			public Iconic next() {
+				return itr.next();
+			}
+
+			@Override
+			public void remove() {				
+			}
+
+		};
+	}
+	@Override
+	public IconListener getIconListener(Iconic icon) {
+		return this;
+	}
+	public Iterable<Personel> getPersonel() {
+		final Iterator<PortraitIcon> itr = icons.iterator();
+		return new Iterable<Personel>(){
+
+			@Override
+			public Iterator<Personel> iterator() {
+				return new Iterator<Personel>(){
+					@Override
+					public boolean hasNext() {
+						return itr.hasNext();
+					}
+
+					@Override
+					public Personel next() {
+						return itr.next().getPersonel();
+					}
+
+					@Override
+					public void remove() {				
+					}
+				};
+			}
+
+		};
 	}
 }

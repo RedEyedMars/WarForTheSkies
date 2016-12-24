@@ -7,6 +7,7 @@ import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
 import com.rem.core.storage.handler.StorableListStorageHandler;
 import com.rem.wfs.Creatable;
+import com.rem.wfs.environment.resource.ResourceContainer;
 import com.rem.wfs.graphics.R;
 
 public class Personel implements Creatable {
@@ -23,7 +24,7 @@ public class Personel implements Creatable {
 		this.description = new PortraitDescription();
 		this.name = new PersonelName();
 	}
-	public void onCreate(){
+	public void onCreate(ResourceContainer container){
 		this.description.onCreate();
 		this.name.onCreate();
 		for(int i=0;i<numberOfTraitsPerPerson;++i){

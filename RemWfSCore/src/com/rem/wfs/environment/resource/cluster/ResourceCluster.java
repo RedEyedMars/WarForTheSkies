@@ -16,9 +16,9 @@ import com.rem.wfs.environment.resource.SpaceResource;
 import com.rem.wfs.environment.resource.material.Material;
 import com.rem.wfs.environment.resource.personel.Personel;
 import com.rem.wfs.environment.resource.ship.SpaceShip;
-import com.rem.wfs.graphics.Icon;
-import com.rem.wfs.graphics.Iconic;
 import com.rem.wfs.graphics.R;
+import com.rem.wfs.graphics.icons.Icon;
+import com.rem.wfs.graphics.icons.Iconic;
 import com.rem.wfs.menu.MaterialsView;
 import com.rem.wfs.menu.PersonelListView;
 import com.rem.wfs.menu.SpaceShipListView;
@@ -67,7 +67,8 @@ public class ResourceCluster implements Storable, ResourceContainer{
 				if(dim.isWithin(event.getX(), event.getY())){
 					if(event.getAction()==ClickEvent.ACTION_UP){
 						if(id == MATERIAL_ID){						
-							((Game)Hub.view).addOverlayMenu(new MaterialsView(
+							((Game)Hub.view).buildOverlay(new MaterialsView(
+									"Material",
 									(Material)resources.get(0),
 									(Material)resources.get(1),
 									(Material)resources.get(2)
@@ -75,12 +76,14 @@ public class ResourceCluster implements Storable, ResourceContainer{
 									));
 						}
 						else if(id == PERSONEL_ID){						
-							((Game)Hub.view).addOverlayMenu(new PersonelListView(
+							((Game)Hub.view).buildOverlay(new PersonelListView(
+									"Unassigned Peronsel",
 									(List<Personel>)resources.get(0)										
 									));							
 						}
 						else if(id == SPACESHIP_ID){						
-							((Game)Hub.view).addOverlayMenu(new SpaceShipListView(
+							((Game)Hub.view).buildOverlay(new SpaceShipListView(
+									"Space-Ship Yards",
 									(List<SpaceShip>)resources.get(0),
 									(List<SpaceShip>)resources.get(1),
 									(List<SpaceShip>)resources.get(2),
@@ -113,11 +116,16 @@ public class ResourceCluster implements Storable, ResourceContainer{
 	}
 	public void onCreate() {
 		for(SpaceResource<?> resource:resources){
-			resource.onCreate();
+			resource.onCreate(this);
 		}
 	}
 	public int getId(){
 		return id;
 	}
 
+	public void update(float secondsSinceLastUpdate){
+		for(SpaceResource<?> resource:resources){
+			resource.grow(secondsSinceLastUpdate);
+		}
+	}
 }

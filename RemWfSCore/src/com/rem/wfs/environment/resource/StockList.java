@@ -22,13 +22,13 @@ public class StockList<Type extends Creatable> extends SpaceResource<StockList<T
 	}
 
 	@Override
-	public void onCreate(){
-		super.onCreate();
+	public void onCreate(ResourceContainer container){
+		super.onCreate(container);
 		int size = (int)(float)getValue();
 		setValue(getValue()-size);
 		for(int i=0;i<size;++i){
 			Type element = stockType.createObjectPlaceHolder();
-			element.onCreate();
+			element.onCreate(container);
 			add(element);
 		}
 	}

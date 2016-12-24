@@ -49,6 +49,7 @@ public class GraphicText extends BlankGraphicElement{
 	private int justified = LEFT_JUSTIFIED;
 	protected GraphicElement blinker;
 	public GraphicText(int font, String text, int layer) {
+		//super(R.solid_colour,R.COLOUR_BLUE,layer);
 		super();
 		//Hub.renderer.loadFont(font);
 		this.font = font;
@@ -77,18 +78,18 @@ public class GraphicText extends BlankGraphicElement{
 					}
 
 				};
-			}};
-			this.blinker.turnOff();
-			tree.addChild(blinker);
-			String[] lines = text.split("\n");
-			for(int i=0;i<lines.length;++i){
-				TextLine line = new TextLine(lines[i]);
-				this.lines.add(line);
-				tree.addChild(line);
 			}
-			resize(1f, 1f);
-			reposition(0f,0.97f);
-
+		};
+		this.blinker.turnOff();
+		tree.addChild(blinker);
+		String[] lines = text.split("\n");
+		for(int i=0;i<lines.length;++i){
+			TextLine line = new TextLine(lines[i]);
+			this.lines.add(line);
+			tree.addChild(line);
+		}
+		reposition(0f,0.97f);
+		resize(1f, 1f);
 	}
 
 	public String getText(){
@@ -137,6 +138,35 @@ public class GraphicText extends BlankGraphicElement{
 	}
 
 	@Override
+	public void resize(float w, float h){
+		float maxWidth = 0f;
+		for(TextLine line:lines){
+			float lineWidth = line.getCharWidth();
+			line.resize(lineWidth, 0.025f*visualH);
+			if(lineWidth>maxWidth){
+				maxWidth = lineWidth;
+			}
+		}
+		dim.resize(maxWidth, lines.size()*0.025f*visualH);
+	}
+
+	@Override
+	public void reposition(float x, float y){
+		if(justified==MIDDLE_JUSTIFIED){
+			super.reposition(dim.getX()+dim.getWidth()/2f, dim.getY()+(lines.size()-1)*0.025f*visualH);
+			super.reposition(x-dim.getWidth()/2f, y-(lines.size()-1)*0.025f*visualH);
+		}
+		else if(justified==RIGHT_JUSTIFIED){
+			super.reposition(dim.getX()+dim.getWidth(), dim.getY()+(lines.size()-1)*0.025f*visualH);
+			super.reposition(x-dim.getWidth(), y-(lines.size()-1)*0.025f*visualH);
+		}
+		else if(justified==LEFT_JUSTIFIED){
+			super.reposition(dim.getX(), dim.getY()+(lines.size()-1)*0.025f*visualH);
+			super.reposition(x, y-(lines.size()-1)*0.025f*visualH);
+		}
+	}
+
+	@Override
 	public OffsetHandler createOffsetHandler(final GraphicElement element){
 		if(element==blinker){
 			return new OffsetHandler(){
@@ -171,26 +201,22 @@ public class GraphicText extends BlankGraphicElement{
 						return dim.getWidth()-((TextLine)element).getCharWidth();
 					}
 					else if(justified==MIDDLE_JUSTIFIED){
-						return dim.getWidth()/2f-((TextLine)element).getCharWidth()/2f;
+						return dim.getWidth()-((TextLine)element).getCharWidth();
 					}
 					else return super.getX();
 				}
 				@Override
 				public float getY(){
 					if(justified==LEFT_JUSTIFIED){
-						return 0.025f*(-thisLinesIndex+1)*visualH;
+						return 0.025f*(thisLinesIndex-1)*visualH;
 					}
 					else if(justified==RIGHT_JUSTIFIED){
-						return 0.025f*(-thisLinesIndex+1)*visualH;
+						return 0.025f*(thisLinesIndex-1)*visualH;
 					}
 					else if(justified==MIDDLE_JUSTIFIED){
-						return 0.025f*(-thisLinesIndex+1)*visualH;
+						return 0.025f*(thisLinesIndex-1)*visualH;
 					}
 					else return super.getY();
-				}
-				@Override
-				public String toString(){
-					return "TextLine.OffsetHandler()";
 				}
 			};
 		}
@@ -272,14 +298,10 @@ public class GraphicText extends BlankGraphicElement{
 						offset = 0;
 					}
 					else if(thisCharIndex<chars.size()){
-						offset+=tree.getChild(thisCharIndex-1).dim.getWidth()*
+						offset+=chars.get(thisCharIndex-1).dim.getWidth()*
 								chars.get(thisCharIndex-1).getWidthValue()*visualW;
 					}
 					return offset;
-				}
-				@Override
-				public String toString(){
-					return "GraphicChar.OffsetHandler()";
 				}
 			};
 		}
@@ -291,8 +313,8 @@ public class GraphicText extends BlankGraphicElement{
 		}
 		public float getCharWidth(){
 			float accumulator = 0f;
-			for(int i=0;i<text.length();++i){
-				accumulator+=tree.getChild(i).dim.getWidth()*
+			for(int i=0;i<chars.size();++i){
+				accumulator+=chars.get(i).dim.getWidth()*
 						chars.get(i).getWidthValue()*visualW;
 			}
 			return accumulator;
@@ -326,6 +348,7 @@ public class GraphicText extends BlankGraphicElement{
 			super(font,c,textLayer);
 			setValue(c);
 			setVisible(textVisible);
+			super.resize(0.025f*visualW,0.025f*visualH);
 		}
 
 		@Override
