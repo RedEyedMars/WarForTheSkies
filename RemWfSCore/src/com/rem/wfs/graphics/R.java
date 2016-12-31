@@ -13,4 +13,5 @@ public class R extends com.rem.core.gui.graphics.R{
 	public static int resources;
 	public static int resource_types;
 	public static int spaceships;
+	public static int station_icons;
 }

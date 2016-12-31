@@ -11,11 +11,16 @@ public class Range implements Iterable<Integer>{
 		this.first = first;
 		this.last = last;
 		this.size = last+1-first;
-	}
-	
+	}	
 	
 	public int get(int index){
 		return index+first;
+	}
+	public int indexOf(int element){
+		if(element>last||element<first){
+			return -1;
+		}
+		else return element-first;
 	}
 	public int getRandomElement(){
 		return get((int) (Math.random()*(size)));

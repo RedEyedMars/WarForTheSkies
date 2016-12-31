@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 
 public class FloatListStorageHandler extends ListStorageHandler<Float>{
 
@@ -12,12 +11,12 @@ public class FloatListStorageHandler extends ListStorageHandler<Float>{
 		super(toHandle, maxSize);
 	}
 	@Override
-	public Float loadObject(DataPresenter data) throws IOException {
-		return data.nextFloat();
+	public Float createObject() throws IOException {
+		return 0f;
 	}
 
 	@Override
-	public void saveObject(DataCollector toSave,Float element) throws IOException {
-		toSave.collect(element);
+	public Float collectObject(DataCollector data,Float element) throws IOException {
+		return data.collect(element);
 	}
 }

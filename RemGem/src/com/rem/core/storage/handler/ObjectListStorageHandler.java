@@ -14,8 +14,9 @@ public abstract class ObjectListStorageHandler<T extends StorageHandler> extends
 	}
 
 	@Override
-	public void saveObject(DataCollector toSave, T element) throws IOException {
-		element.save(toSave);
+	public T collectObject(DataCollector data, T element) throws IOException {
+		element.collect(data);
+		return element;
 	}
 
 }

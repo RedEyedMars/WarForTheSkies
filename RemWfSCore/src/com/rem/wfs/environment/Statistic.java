@@ -3,5 +3,5 @@ package com.rem.wfs.environment;
 public interface Statistic {
 
 	public float getValue();
-	public float getLimit();
+	public int getLimit();
 }

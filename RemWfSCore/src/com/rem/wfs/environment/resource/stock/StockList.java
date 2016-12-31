@@ -1,4 +1,4 @@
-package com.rem.wfs.environment.resource;
+package com.rem.wfs.environment.resource.stock;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,10 +10,12 @@ import com.rem.core.storage.Storable;
 import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
 import com.rem.core.storage.handler.StorableListStorageHandler;
-import com.rem.wfs.Creatable;
+import com.rem.wfs.environment.resource.ResourceContainer;
+import com.rem.wfs.environment.resource.ResourceStorageHandler;
+import com.rem.wfs.environment.resource.SpaceResource;
 
-public class StockList<Type extends Creatable> extends SpaceResource<StockList<Type>> implements Storable, List<Type>{
-
+public class StockList<Type extends StockElement> extends SpaceResource<StockList<Type>> implements Storable, List<Type>{
+	
 	private List<Type> list = new ArrayList<Type>();
 	private StockType<Type> stockType;
 	public StockList(ResourceContainer container, StockType<Type> stockType) {
@@ -27,21 +29,29 @@ public class StockList<Type extends Creatable> extends SpaceResource<StockList<T
 		int size = (int)(float)getValue();
 		setValue(getValue()-size);
 		for(int i=0;i<size;++i){
-			Type element = stockType.createObjectPlaceHolder();
+			Type element = stockType.createObjectPlaceHolder(this);
 			element.onCreate(container);
 			add(element);
 		}
 	}
 	@Override
 	public StorageHandler getStorageHandler() {
+		final StockList<Type> self = this;
 		return new HandlerListStorageHandler(
 				new ResourceStorageHandler<StockList<Type>>(this),
 				new StorableListStorageHandler<Type>(list,(int)(float)getValue()){
 					@Override
-					public Type createPlaceHolder() {
-						return stockType.createObjectPlaceHolder();
+					public Type createObject() {
+						return stockType.createObjectPlaceHolder(self);
 					}
 				});
+	}
+	
+	@Override
+	public void grow(float seconds){
+		for(Type element:this){
+			element.grow(getContainer(), seconds);
+		}
 	}
 
 	@Override

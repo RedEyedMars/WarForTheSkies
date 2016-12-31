@@ -1,15 +1,9 @@
 package com.rem.wfs.environment.resource.personel;
 
-import com.rem.core.Hub;
-import com.rem.core.gui.inputs.ClickEvent;
-import com.rem.wfs.Game;
 import com.rem.wfs.environment.resource.ResourceContainer;
-import com.rem.wfs.environment.resource.ResourceIcon;
-import com.rem.wfs.environment.resource.StockList;
-import com.rem.wfs.environment.resource.StockType;
+import com.rem.wfs.environment.resource.stock.StockList;
+import com.rem.wfs.environment.resource.stock.StockType;
 import com.rem.wfs.graphics.R;
-import com.rem.wfs.graphics.icons.Iconic;
-import com.rem.wfs.menu.PersonelListView;
 
 public abstract class PersonelStock extends StockType<Personel> {
 
@@ -24,32 +18,9 @@ public abstract class PersonelStock extends StockType<Personel> {
 	}
 
 	@Override
-	public Personel createObjectPlaceHolder() {
+	public Personel createObjectPlaceHolder(StockList<Personel> parent) {
 		return new Personel();
 	}
-	@Override
-	public Iconic createIcon(final StockList<Personel> spaceResource) {
-		return new ResourceIcon<StockList<Personel>>(spaceResource,this,ResourceIcon.LEFT_JUSTIFIED){
-			@Override
-			public boolean onClick(ClickEvent event){
-
-				if(dim.isWithin(event.getX(), event.getY())){
-					if(event.getAction()==ClickEvent.ACTION_UP){
-					((Game)Hub.view).buildOverlay(
-							new PersonelListView(
-									"Unassigned Personel",
-									(StockList<Personel>)spaceResource
-									));
-					}
-					return super.onClick(event);
-				}
-				else return false;
-			}
-		};
-	}
-
-
-
 	
 	public static  class Standard extends PersonelStock{
 		@Override

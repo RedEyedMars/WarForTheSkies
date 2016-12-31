@@ -16,9 +16,10 @@ import com.rem.wfs.environment.IdentityStorageHandler;
 import com.rem.wfs.environment.hexagon.system.SpaceSystem;
 import com.rem.wfs.environment.location.Locatable;
 import com.rem.wfs.environment.location.Location;
-import com.rem.wfs.environment.location.LocationStorageHandler;
+import com.rem.wfs.environment.resource.ResourceContainer;
 import com.rem.wfs.environment.resource.cluster.ResourceCluster;
 import com.rem.wfs.environment.resource.cluster.ResourceClusterListStorageHandler;
+import com.rem.wfs.environment.resource.ship.stations.SpaceStation;
 import com.rem.wfs.graphics.R;
 import com.rem.wfs.graphics.icons.Iconic;
 
@@ -36,14 +37,14 @@ implements  Storable, Locatable, Identifiable{
 
 	private Hexagon overGon;
 	private int ownerId;
-	private Location location;
+	private Location location = new Location(0,0);
 	private SpaceSystem spaceSystem;
 
 	private List<ResourceCluster> resourceList = new ArrayList<ResourceCluster>(){
 		private static final long serialVersionUID = 6887318772910988733L;
 		@Override
 		public boolean add(ResourceCluster arg){
-			tree.addChild((GraphicElement)arg.getIcon());
+			tree.addChild((GraphicElement)(arg).getIcon());
 			return super.add(arg);
 		}
 		@Override
@@ -61,6 +62,8 @@ implements  Storable, Locatable, Identifiable{
 			else return false;
 		}
 	};
+
+	private List<SpaceStation> spaceStations = new ArrayList<SpaceStation>();
 
 	public SpaceHexagon() {
 		super(R.solid_colour,R.COLOUR_BLUE,R.BOT_LAYER);
@@ -86,8 +89,8 @@ implements  Storable, Locatable, Identifiable{
 	}
 	
 	public void performOnHover(HoverEvent event, boolean hoveringOn){
-		for(ResourceCluster resource:this.resourceList){
-			resource.getIcon().setParentSelectedStatus(hoveringOn);
+		for(ResourceContainer resource:this.resourceList){
+			((ResourceCluster)resource).getIcon().setParentSelectedStatus(hoveringOn);
 		}
 	}
 
@@ -99,7 +102,7 @@ implements  Storable, Locatable, Identifiable{
 	public StorageHandler getStorageHandler(){
 		return new HandlerListStorageHandler(
 				new IdentityStorageHandler(this),
-				new LocationStorageHandler(this),
+				location,
 				new StorableStorageHandler<SpaceSystem>(spaceSystem),
 				new ResourceClusterListStorageHandler(this));
 	}
@@ -209,7 +212,7 @@ implements  Storable, Locatable, Identifiable{
 		this.setId(owner);
 		this.spaceSystem.onCreate();
 		for(int i=0;i<ResourceCluster.numberOfClusters;++i){
-			ResourceCluster resource = new ResourceCluster(i);
+			ResourceCluster resource = new ResourceCluster(resourceList,i);
 			resource.onCreate();
 			this.resourceList.add(resource);
 		}
@@ -269,8 +272,8 @@ implements  Storable, Locatable, Identifiable{
 	@Override
 	public void update(double secondsSinceLastFrame){
 		super.update(secondsSinceLastFrame);
-		for(ResourceCluster cluster:resourceList){
-			cluster.update((float)secondsSinceLastFrame);
+		for(ResourceContainer cluster:resourceList){
+			((ResourceCluster)cluster).update((float)secondsSinceLastFrame);
 		}
 	}
 
@@ -280,8 +283,12 @@ implements  Storable, Locatable, Identifiable{
 				ownerId%FIENDLY_NPC_ID==0;
 	}
 
-	public List<ResourceCluster> getResources() {
+	public List<? extends ResourceContainer> getResources() {
 		return resourceList;
+	}
+
+	public List<SpaceStation> getAvailibleStations() {
+		return spaceStations;
 	}
 	
 }

@@ -23,7 +23,7 @@ public class Material extends SpaceResource<Material> {
 		@Override
 		public int generateInitialLimit(ResourceContainer container) { return (int) (Math.random()*4+3); }
 		@Override
-		public float generateInitialGrowth(ResourceContainer container) { return (float) (Math.random()*0.04+0.03); }
+		public float generateInitialGrowth(ResourceContainer container) { return (float) (Math.random()*0.4+0.3); }
 	};
 
 	private static final MaterialResourceType FUEL = new MaterialResourceType(
@@ -39,7 +39,7 @@ public class Material extends SpaceResource<Material> {
 		{ return (int) (Math.random()*100+100); }
 		@Override
 		public float generateInitialGrowth(ResourceContainer container)
-		{ return (float) (Math.random()+1); }
+		{ return (float) (Math.random()*5+3); }
 	};
 	private static final MaterialResourceType ENERGY_CRYSTAL = new MaterialResourceType(
 			"Energy Crystal",

@@ -1,4 +1,4 @@
-package com.rem.wfs.menu;
+package com.rem.wfs.environment.resource.personel.menu;
 
 
 import java.util.Iterator;
@@ -8,6 +8,7 @@ import com.rem.core.gui.graphics.GraphicText;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.inputs.ClickEvent;
+import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.wfs.environment.resource.personel.Personel;
 import com.rem.wfs.environment.resource.personel.PersonelTrait;
 import com.rem.wfs.environment.resource.personel.PortraitIcon;
@@ -16,6 +17,7 @@ import com.rem.wfs.graphics.R;
 import com.rem.wfs.graphics.icons.Icon;
 import com.rem.wfs.graphics.icons.IconListener;
 import com.rem.wfs.graphics.icons.Iconic;
+import com.rem.wfs.menu.OverlayView;
 
 public class PersonelView extends OverlayView{
 	private Personel person;
@@ -235,5 +237,9 @@ public class PersonelView extends OverlayView{
 	@Override
 	public IconListener getIconListener(Iconic icon) {
 		return null;
+	}
+
+	@Override
+	public void hoverNoIcon(HoverEvent event) {		
 	}
 }

@@ -5,8 +5,7 @@ import com.rem.core.gui.inputs.HoverEvent;
 
 public interface IconListener {
 
-	public void performOnHoverOn(int id, HoverEvent event);
-	public void performOnHoverOff(int id, HoverEvent event);
+	public void performOnHover(int id, HoverEvent event);
 	public void performOnClick(int id, ClickEvent event);
 	public void performOnRelease(int id, ClickEvent event);
 }

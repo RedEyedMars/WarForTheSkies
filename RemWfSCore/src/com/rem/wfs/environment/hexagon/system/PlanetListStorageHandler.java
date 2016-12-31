@@ -12,7 +12,7 @@ public class PlanetListStorageHandler extends StorableListStorageHandler<Planet>
 		this.parentSystem = system;
 	}
 	@Override
-	public Planet createPlaceHolder() {
+	public Planet createObject() {
 		return new Planet(parentSystem);
 	}
 	

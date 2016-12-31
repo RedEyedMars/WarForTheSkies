@@ -3,7 +3,6 @@ package com.rem.wfs.environment.resource;
 import java.io.IOException;
 
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
 
 public class ResourceStorageHandler<T extends SpaceResource<T>> implements StorageHandler{
@@ -14,16 +13,9 @@ public class ResourceStorageHandler<T extends SpaceResource<T>> implements Stora
 	}
 
 	@Override
-	public void load(DataPresenter data) throws IOException {
-		resource.setValue(data.nextFloat());
-		resource.setLimit(data.nextInteger());
-		resource.setGrowth(data.nextFloat());
-	}
-
-	@Override
-	public void save(DataCollector toSave) throws IOException {
-		toSave.collect(resource.getValue());
-		toSave.collect(resource.getLimit());
-		toSave.collect(resource.getGrowth());
+	public void collect(DataCollector data) throws IOException {
+		resource.setValue(data.collect(resource.getValue()));
+		resource.setLimit(data.collect(resource.getLimit()));
+		resource.setGrowth(data.collect(resource.getGrowth()));
 	}
 }

@@ -1,4 +1,4 @@
-package com.rem.wfs.menu;
+package com.rem.wfs.environment.resource.material;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,10 +7,12 @@ import java.util.Map;
 import com.rem.core.gui.graphics.GraphicText;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
-import com.rem.wfs.environment.resource.material.Material;
+import com.rem.core.gui.inputs.ClickEvent;
+import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.wfs.graphics.R;
 import com.rem.wfs.graphics.icons.IconListener;
 import com.rem.wfs.graphics.icons.Iconic;
+import com.rem.wfs.menu.OverlayView;
 
 public class MaterialsView extends OverlayView{
 
@@ -128,5 +130,12 @@ public class MaterialsView extends OverlayView{
 	@Override
 	public IconListener getIconListener(Iconic icon) {
 		return null;
+	}
+	@Override
+	public void clickNoIcon(ClickEvent event) {
+		super.clickNoIcon(event);
+	}
+	@Override
+	public void hoverNoIcon(HoverEvent event) {
 	}
 }

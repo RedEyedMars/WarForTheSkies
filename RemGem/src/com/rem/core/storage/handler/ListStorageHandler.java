@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
 
 public abstract class ListStorageHandler <T extends Object> implements StorageHandler{
@@ -17,35 +16,29 @@ public abstract class ListStorageHandler <T extends Object> implements StorageHa
 	}
 
 	@Override
-	public void load(DataPresenter data) throws IOException {
-		if(maxSize==-1){
-			int size = data.nextInteger();
-			for(int loaded = 0;hasNext(loaded,size);++loaded){
-				list.add(loadObject(data));
-			}
+	public void collect(DataCollector data) throws IOException {
+		int size = maxSize;
+		if(maxSize<=-1){
+			size = data.collect(list.size());			
 		}
-		else {
-			for(int loaded = 0;hasNext(loaded,maxSize);++loaded){
-				list.add(loadObject(data));
-			}
+		int loaded = 0;
+		for(;loaded<list.size()&&hasNext(loaded,size);++loaded){
+			list.set(loaded, collectObject(data, list.get(loaded)));
 		}
+		while(hasNext(loaded,size)){
+			T element = createObject();
+			element = collectObject(data,element);
+			list.add(element);
+			++loaded;
+		}
+		
 		
 	}
 	
-	@Override
-	public void save(DataCollector toSave) throws IOException{
-		if(maxSize==-1){
-			toSave.collect(list.size());
-		}
-		for(T element:list){
-			saveObject(toSave, element);
-		}
-	}
-
 	public boolean hasNext(int loaded, int size){
 		return loaded<size;
 	}
-	public abstract T loadObject(DataPresenter data) throws IOException;
+	public abstract T createObject() throws IOException;
 
-	public abstract void saveObject(DataCollector toSave, T element) throws IOException;
+	public abstract T collectObject(DataCollector toSave, T element) throws IOException;
 }

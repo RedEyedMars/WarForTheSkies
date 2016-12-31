@@ -1,4 +1,4 @@
-package com.rem.wfs.menu;
+package com.rem.wfs.environment.resource.ship.menu;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,17 +13,19 @@ import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.wfs.environment.resource.personel.Personel;
 import com.rem.wfs.environment.resource.personel.PersonelTrait;
 import com.rem.wfs.environment.resource.personel.PortraitIcon;
+import com.rem.wfs.environment.resource.personel.menu.PersonelListView;
 import com.rem.wfs.environment.resource.ship.DetailedShipIcon;
 import com.rem.wfs.environment.resource.ship.SpaceShip;
 import com.rem.wfs.graphics.R;
 import com.rem.wfs.graphics.icons.Icon;
 import com.rem.wfs.graphics.icons.IconListener;
 import com.rem.wfs.graphics.icons.Iconic;
+import com.rem.wfs.menu.OverlayView;
 
 public class SpaceShipView extends OverlayView{
 
-	private List<com.rem.wfs.menu.SpaceShipView.TraitCluster.ReleaseEvent> events = 
-			new ArrayList<com.rem.wfs.menu.SpaceShipView.TraitCluster.ReleaseEvent>();
+	private List<com.rem.wfs.environment.resource.ship.menu.SpaceShipView.TraitCluster.ReleaseEvent> events = 
+			new ArrayList<com.rem.wfs.environment.resource.ship.menu.SpaceShipView.TraitCluster.ReleaseEvent>();
 
 	private DetailedShipIcon icon;
 	private GraphicText nameLabel;
@@ -36,6 +38,7 @@ public class SpaceShipView extends OverlayView{
 	private int currentHoverId = -1;
 
 	private Iconic shipFuel;
+	private Iconic shipHp;
 
 	public SpaceShipView(
 			String name,
@@ -55,7 +58,10 @@ public class SpaceShipView extends OverlayView{
 		shipName = new GraphicText(R.impact,ship.getName().getName(),R.MID_LAYER);
 		tree.addChild(shipName);
 		suffix = new GraphicText(R.impact,ship.getName().getSuffix(),R.MID_LAYER);
-		tree.addChild(suffix);
+		tree.addChild(suffix);		
+
+		shipHp = ship.getHp().getMeter();
+		shipHp.addToTree(tree);
 		
 		shipFuel = ship.getFuel().getMeter();
 		shipFuel.addToTree(tree);
@@ -67,17 +73,16 @@ public class SpaceShipView extends OverlayView{
 				super.performOnRelease(id, event);
 			}
 			@Override
-			public void performOnHoverOn(int id, HoverEvent event) {
-				if(currentHoverId!=-1){
-					super.performOnHoverOff(currentHoverId, event);
+			public void performOnHover(int id, HoverEvent event) {
+				if(currentHoverId!=-1){					
 					traitClusters.get(currentHoverId).select(false);
 				}
 				currentHoverId=id;
-				super.performOnHoverOn(id, event);
 				traitClusters.get(id).select(true);
+				super.performOnHover(id, event);
 			}
 			@Override
-			public void performOnHoverOff(int id, HoverEvent event) {
+			public void hoverNoIcon(HoverEvent event) {
 				
 			}
 		};
@@ -149,6 +154,18 @@ public class SpaceShipView extends OverlayView{
 				@Override
 				public float getX(){
 					return background.dim.getWidth()-0.003f-element.dim.getWidth();
+				}
+				@Override
+				public float getY(){
+					return background.dim.getHeight()-icon.dim.getHeight();
+				}
+			};
+		}
+		else if(element==shipHp){
+			return new OffsetHandler(){
+				@Override
+				public float getX(){
+					return background.dim.getWidth()-((GraphicElement)shipFuel).dim.getWidth()-0.003f-element.dim.getWidth();
 				}
 				@Override
 				public float getY(){
@@ -245,11 +262,8 @@ public class SpaceShipView extends OverlayView{
 		}
 
 		@Override
-		public void performOnHoverOn(int id, HoverEvent event) {
-			crew.performOnHoverOn(this.id, event);
-		}
-		@Override
-		public void performOnHoverOff(int id, HoverEvent event) {
+		public void performOnHover(int id, HoverEvent event) {
+			crew.performOnHover(this.id, event);
 		}
 		@Override
 		public void performOnClick(int id, ClickEvent event) {			
@@ -320,6 +334,12 @@ public class SpaceShipView extends OverlayView{
 			}
 		}
 		return null;
+	}
+
+
+	@Override
+	public void hoverNoIcon(HoverEvent event) {
+		crew.hoverNoIcon(event);
 	}
 	
 	

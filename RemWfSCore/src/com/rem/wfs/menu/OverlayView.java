@@ -27,6 +27,9 @@ public abstract class OverlayView extends GraphicIconContainer {
 		close = new GraphicElement(R.faces,0,R.MID_LAYER){
 			@Override
 			public boolean onClick(ClickEvent event){
+				if(!isVisible()){
+					return super.onClick(event);
+				}
 				if(dim.isWithin(event.getX(), event.getY())){
 					if(event.getAction()==ClickEvent.ACTION_UP){
 						((Game)Hub.view).collapseOverlay(self);
@@ -40,6 +43,9 @@ public abstract class OverlayView extends GraphicIconContainer {
 		
 		title = new TextBox(R.background_2,R.impact,name,R.MID_LAYER);
 		tree.addChild(title);
+		
+		close.setVisible(false);
+		background.setVisible(false);
 	}
 	@Override
 	public OffsetHandler createOffsetHandler(final GraphicElement element){
@@ -70,4 +76,19 @@ public abstract class OverlayView extends GraphicIconContainer {
 		else return super.createOffsetHandler(element);
 	}
 	
+
+
+	public Background getBackground() {
+		return background;
+	}
+	
+	public void setPrimary(){
+		close.setVisible(true);
+		background.setVisible(true);
+	}
+	public void clickNoIcon(ClickEvent event){
+		if(close.isWithin(event.getX(), event.getY())){
+			close.onClick(event);
+		}
+	}
 }

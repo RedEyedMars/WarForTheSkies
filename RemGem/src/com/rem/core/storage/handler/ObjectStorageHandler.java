@@ -4,7 +4,6 @@ package com.rem.core.storage.handler;
 import java.io.IOException;
 
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
 
 public class ObjectStorageHandler<T extends StorageHandler> implements StorageHandler{
@@ -16,13 +15,8 @@ public class ObjectStorageHandler<T extends StorageHandler> implements StorageHa
 	}
 
 	@Override
-	public void save(DataCollector toSave) throws IOException {
-		toHandle.save(toSave);
-	}
-
-	@Override
-	public void load(DataPresenter data) throws IOException {
-		toHandle.load(data);
+	public void collect(DataCollector data) throws IOException {
+		toHandle.collect(data);
 	}
 
 

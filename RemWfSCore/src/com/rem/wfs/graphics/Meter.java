@@ -13,11 +13,12 @@ import com.rem.wfs.graphics.icons.Iconic;
 
 public class Meter extends BlankGraphicElement implements Iconic{
 
-	private GraphicElement foreground;
-	private GraphicElement background;
-	private StretchableGraphicElement animater;
+	protected GraphicElement foreground;
+	protected GraphicElement background;
+	protected StretchableGraphicElement animater;
 	protected boolean parentSelected = false;
 	private IconHandler handler;
+	private Statistic toWatch;
 
 	public Meter(Statistic toWatch, String description,
 			int animaterTextureId, int animaterFrame,
@@ -25,20 +26,31 @@ public class Meter extends BlankGraphicElement implements Iconic{
 			int backgroundTextureId, int backgroundFrame,
 			int layer, Animation animation){
 		super();
-		if(foregroundTextureId>-1){
-			foreground = new GraphicElement(foregroundTextureId,foregroundFrame,layer);
-			tree.addChild(foreground);
+
+		if(backgroundTextureId>-1){
+			background = new GraphicElement(backgroundTextureId,backgroundFrame,layer);
+			tree.addChild(background);
 		}
 		animater = new StretchableGraphicElement(animaterTextureId,animaterFrame,layer);
 		tree.addChild(animater);
 		if(foregroundTextureId>-1){
-			background = new GraphicElement(backgroundTextureId,backgroundFrame,layer);
-			tree.addChild(background);
+			foreground = new GraphicElement(foregroundTextureId,foregroundFrame,layer);
+			tree.addChild(foreground);
 		}
-		animation.setup(toWatch);
-		this.animationHandler = animation;
+		if(animation!=null){
+			animation.setup(toWatch);
+			this.animationHandler = animation;
+		}
+		this.toWatch = toWatch;
 	}
 	
+	public void setAnimation(Animation animation){
+		if(animation!=null){
+			animation.setup(toWatch);
+			this.animationHandler = animation;
+		}
+	}
+
 	@Override
 	public DimensionHandler createDimensionHandler(int textureId, float x, float y, float w, float h){
 		return new DimensionHandler(textureId,x,y,w,h){
@@ -52,20 +64,20 @@ public class Meter extends BlankGraphicElement implements Iconic{
 			}
 		};
 	}
-	
+
 	public Meter(Statistic toWatch, String description,
 			int animaterTextureId, int animaterFrame,
 			int layer, Animation animation){
 		this(toWatch,description, animaterTextureId,animaterFrame,-1,-1,-1,-1,layer,animation);
 	}
-	
+
 	@Override
 	public void animate(){
 		if(this.animationHandler!=null){
 			this.animationHandler.animate(animater);
 		}
 	}
-	
+
 
 	@Override
 	public void setParentSelectedStatus(boolean status) {
@@ -97,14 +109,26 @@ public class Meter extends BlankGraphicElement implements Iconic{
 		private void setup(Statistic toWatch){
 			this.toWatch = toWatch;
 		}
-		
+
 		@Override
 		public void animate(GraphicElement element) {
 			animate(element,toWatch.getValue()/toWatch.getLimit());
 		}
-		
+
 		public abstract void animate(GraphicElement element, float percentFull);
-		
+
+	}
+	public GraphicElement getAnimater() {
+		return animater;
+	}
+
+	public GraphicElement getForeground() {
+		return foreground;
+	}
+
+	@Override
+	public IconListener getIconListener() {
+		return handler.getListener();
 	}
 
 }

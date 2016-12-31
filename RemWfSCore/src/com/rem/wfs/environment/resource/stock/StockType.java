@@ -1,8 +1,8 @@
-package com.rem.wfs.environment.resource;
+package com.rem.wfs.environment.resource.stock;
 
-import com.rem.wfs.Creatable;
-
-public abstract class StockType<T extends Creatable> extends ResourceType<StockList<T>>{
+import com.rem.wfs.environment.resource.ResourceContainer;
+import com.rem.wfs.environment.resource.ResourceType;
+public abstract class StockType<T extends StockElement> extends ResourceType<StockList<T>>{
 
 	public StockType(String name, String description,
 			int iconTexture, int iconFrame, 
@@ -13,6 +13,6 @@ public abstract class StockType<T extends Creatable> extends ResourceType<StockL
 	public StockList<T> createPlaceHolder(ResourceContainer container) {
 		return new StockList<T>(container, this);
 	}
-	public abstract T createObjectPlaceHolder();
+	public abstract T createObjectPlaceHolder(StockList<T> parent);
 
 }

@@ -14,14 +14,17 @@ import com.rem.wfs.environment.resource.ResourceContainer;
 import com.rem.wfs.environment.resource.ResourceType;
 import com.rem.wfs.environment.resource.SpaceResource;
 import com.rem.wfs.environment.resource.material.Material;
+import com.rem.wfs.environment.resource.material.MaterialsView;
 import com.rem.wfs.environment.resource.personel.Personel;
+import com.rem.wfs.environment.resource.personel.menu.PersonelListView;
 import com.rem.wfs.environment.resource.ship.SpaceShip;
+import com.rem.wfs.environment.resource.ship.menu.SpaceShipListView;
+import com.rem.wfs.environment.resource.ship.stations.RepairSpaceStation;
+import com.rem.wfs.environment.resource.ship.stations.SpaceStation;
+import com.rem.wfs.environment.resource.ship.stations.SpaceStationListView;
 import com.rem.wfs.graphics.R;
 import com.rem.wfs.graphics.icons.Icon;
 import com.rem.wfs.graphics.icons.Iconic;
-import com.rem.wfs.menu.MaterialsView;
-import com.rem.wfs.menu.PersonelListView;
-import com.rem.wfs.menu.SpaceShipListView;
 
 @SuppressWarnings("rawtypes")
 public class ResourceCluster implements Storable, ResourceContainer{
@@ -35,9 +38,6 @@ public class ResourceCluster implements Storable, ResourceContainer{
 	private static final int MATERIAL_FRAME = 0;
 	private static final int PERSONEL_FRAME = 1;
 	private static final int SPACESHIP_FRAME = 2;
-	private static final int MATERIAL_ID = 0;
-	private static final int PERSONEL_ID = 1;
-	private static final int SPACESHIP_ID = 2;
 	private static void addTexture(int texture, int frame, Range range){
 		textures.add(texture);
 		frames.add(frame);
@@ -50,14 +50,20 @@ public class ResourceCluster implements Storable, ResourceContainer{
 	}
 	public final static int numberOfClusters = 3;
 
+	private List<? extends ResourceContainer> container;
 	private List<SpaceResource> resources = new ArrayList<SpaceResource>();
+	private List<SpaceStation> stations = new ArrayList<SpaceStation>();
 	private Icon icon;
 	private int id;
 
-	public ResourceCluster(final int id){
+	public ResourceCluster(List<? extends ResourceContainer> resourceList, final int id){
+		this.container = resourceList;
 		this.id = id;
 		for(Integer type:ranges.get(id)){
 			resources.add(ResourceType.types.get(type).createPlaceHolder(this));
+		}
+		if(id==ResourceContainer.SPACESHIP_ID){
+			stations.add(new RepairSpaceStation(this));
 		}
 		this.icon = new ResourceClusterIcon(
 				textures.get(id), frames.get(id), R.BOT_LAYER, "Resources", id){
@@ -81,14 +87,21 @@ public class ResourceCluster implements Storable, ResourceContainer{
 									(List<Personel>)resources.get(0)										
 									));							
 						}
-						else if(id == SPACESHIP_ID){						
+						else if(id == SPACESHIP_ID){
+							((Game)Hub.view).buildOverlay(new SpaceStationListView(
+									stations,
+									(List<SpaceShip>)resources.get(0),
+									(List<SpaceShip>)resources.get(1),
+									(List<SpaceShip>)resources.get(2),
+									(List<SpaceShip>)resources.get(3)));
+							/*
 							((Game)Hub.view).buildOverlay(new SpaceShipListView(
 									"Space-Ship Yards",
 									(List<SpaceShip>)resources.get(0),
 									(List<SpaceShip>)resources.get(1),
 									(List<SpaceShip>)resources.get(2),
 									(List<SpaceShip>)resources.get(3)
-									));							
+									));*/
 						}
 					}
 					return true;
@@ -111,6 +124,25 @@ public class ResourceCluster implements Storable, ResourceContainer{
 	public List<SpaceResource> getResources() {
 		return resources;
 	}
+
+	@Override
+	public SpaceResource getResource(int catagory, int id) {
+		List<? extends ResourceContainer> cont = container;
+		if(getId()==catagory){
+			int index = ResourceCluster.ranges.get(getId()).indexOf(id);
+			if(index>-1){
+				return resources.get(index);
+			}
+			else {
+				return null;
+			}
+		}
+		else {
+			return cont.get(catagory).getResource(catagory, id);
+		}
+		
+	}
+	
 	public Iconic getIcon() {
 		return icon;
 	}

@@ -7,7 +7,6 @@ import com.rem.core.Action;
 import com.rem.core.gui.Updatable;
 import com.rem.core.gui.graphics.elements.BlankGraphicElement;
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
 
 public abstract class Environment extends BlankGraphicElement implements StorageHandler, Updatable {
@@ -35,12 +34,8 @@ public abstract class Environment extends BlankGraphicElement implements Storage
 		this.fileName = filename;
 	}
 	@Override
-	public void load(DataPresenter data) throws IOException {
-		getStorageHandler().load(data);
-	}
-	@Override
-	public void save(DataCollector toSave) throws IOException {
-		getStorageHandler().save(toSave);
+	public void collect(DataCollector data) throws IOException {
+		getStorageHandler().collect(data);
 	}
 	
 

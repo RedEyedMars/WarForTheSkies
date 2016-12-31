@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.rem.core.environment.Range;
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
 
 public class PersonelName implements StorageHandler{
@@ -27,34 +26,23 @@ public class PersonelName implements StorageHandler{
 	}
 	
 	@Override
-	public void load(DataPresenter data) throws IOException {
-		this.firstNameId = data.nextInteger();
+	public void collect(DataCollector data) throws IOException {
+		this.firstNameId = data.collect(firstNameId);
 		if(firstNameId>-1){
 			firstName = getFirstName(firstNameId);
 		}
 		else {
-			firstName = data.nextString();
+			firstName = data.collect(firstName);
 		}
-		this.lastNameId = data.nextInteger();
+		this.lastNameId = data.collect(lastNameId);
 		if(lastNameId>-1){
 			lastName = getLastName(lastNameId);
 		}
 		else {
-			lastName = data.nextString();
+			lastName = data.collect(lastName);
 		}
 	}
 
-	@Override
-	public void save(DataCollector toSave) throws IOException {
-		toSave.collect(firstNameId);
-		if(firstNameId==-1){
-			toSave.collect(firstName);
-		}
-		toSave.collect(lastNameId);
-		if(lastNameId==-1){
-			toSave.collect(lastName);
-		}
-	}
 
 	
 	private static String getFirstName(int id){

@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rem.wfs.environment.resource.ResourceContainer;
-import com.rem.wfs.environment.resource.ResourceIcon;
-import com.rem.wfs.environment.resource.StockList;
-import com.rem.wfs.environment.resource.StockType;
 import com.rem.wfs.environment.resource.personel.Personel;
-import com.rem.wfs.graphics.icons.Iconic;
+import com.rem.wfs.environment.resource.stock.StockList;
+import com.rem.wfs.environment.resource.stock.StockType;
 
 public abstract class SpaceShipStock extends StockType<SpaceShip>{
 	public static final List<SpaceShipStock> types = new ArrayList<SpaceShipStock>();
@@ -23,14 +21,8 @@ public abstract class SpaceShipStock extends StockType<SpaceShip>{
 	}
 
 	@Override
-	public SpaceShip createObjectPlaceHolder() {
-		return new SpaceShip(this);
-	}
-	@Override
-	public Iconic createIcon(StockList<SpaceShip> spaceResource) {
-		ResourceIcon<StockList<SpaceShip>> icon =  
-				new ResourceIcon<StockList<SpaceShip>>(spaceResource,this,ResourceIcon.RIGHT_JUSTIFIED);
-		return icon;
+	public SpaceShip createObjectPlaceHolder(StockList<SpaceShip> parent) {
+		return new SpaceShip(parent,this);
 	}
 	@Override
 	public float generateInitialValue(ResourceContainer container) { return 1f; }

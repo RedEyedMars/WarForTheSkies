@@ -3,8 +3,6 @@ package com.rem.wfs.graphics.icons;
 import com.rem.core.gui.graphics.GraphicText;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.tree.TreeHandler;
-import com.rem.core.gui.inputs.ClickEvent;
-import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.wfs.graphics.R;
 
 public class Icon extends GraphicElement implements Iconic{
@@ -50,40 +48,13 @@ public class Icon extends GraphicElement implements Iconic{
 
 	public void setDescription(String name) {
 		this.description.change(name);
-	}
+	}	
 	
 	@Override
-	public boolean onHover(HoverEvent event){
-		if(handler.getListener()!=null){
-			if(dim.isWithin(event.getX(), event.getY())){
-				handler.getListener().performOnHoverOn(id, event);
-				return super.onHover(event);
-			}
-			else {
-				handler.getListener().performOnHoverOff(id, event);
-				return false;
-			}
-		}
-		else {
-			return super.onHover(event);
-		}
+	public IconListener getIconListener(){
+		return this.handler.getListener();
 	}
-	@Override
-	public boolean onClick(ClickEvent event){
 
-		if(dim.isWithin(event.getX(), event.getY())){
-			if(handler.getListener()!=null){
-				if(event.getAction()==ClickEvent.ACTION_DOWN){
-					handler.getListener().performOnClick(id, event);
-				}
-				else if(event.getAction()==ClickEvent.ACTION_UP){
-					handler.getListener().performOnRelease(id, event);
-				}
-			}
-			return super.onClick(event);
-		}
-		else return false;
-	}
 	@Override
 	public void addToTree(TreeHandler addSelfToThisTree) {
 		addSelfToThisTree.addChild(this);		

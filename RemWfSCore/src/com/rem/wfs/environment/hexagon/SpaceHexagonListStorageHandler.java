@@ -10,7 +10,7 @@ public class SpaceHexagonListStorageHandler extends StorableListStorageHandler<S
 	}
 
 	@Override
-	public SpaceHexagon createPlaceHolder() {
+	public SpaceHexagon createObject() {
 		return SpaceHexagon.createPlaceHolder();
 	}
 

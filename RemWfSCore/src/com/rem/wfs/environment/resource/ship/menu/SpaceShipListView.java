@@ -1,4 +1,4 @@
-package com.rem.wfs.menu;
+package com.rem.wfs.environment.resource.ship.menu;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,13 +9,13 @@ import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.gui.inputs.ClickEvent;
 import com.rem.core.gui.inputs.HoverEvent;
-import com.rem.core.gui.inputs.MouseListener;
 import com.rem.wfs.Game;
 import com.rem.wfs.environment.resource.ship.DetailedShipIcon;
 import com.rem.wfs.environment.resource.ship.SpaceShip;
 import com.rem.wfs.graphics.R;
 import com.rem.wfs.graphics.icons.IconListener;
 import com.rem.wfs.graphics.icons.Iconic;
+import com.rem.wfs.menu.OverlayView;
 
 public class SpaceShipListView extends OverlayView {
 
@@ -24,31 +24,57 @@ public class SpaceShipListView extends OverlayView {
 	private static final int MOUSE_DRAG = 2;
 
 	private List<ShipIconClickListener> icons = new ArrayList<ShipIconClickListener>();
+	private boolean isEmpty = false;
 
 	private int clickState = MOUSE_UP;
 	private float clickX;
 	private float clickY;
 	private ShipIconClickListener clickLine = null;
+	private DetailedShipIcon hoverIcon;
 	private int withinId = -1;
 	public SpaceShipListView(
 			String name,
-			List<SpaceShip>... spaceShipList){
-		super(name, 0.8f, 0.05f+0.1f*spaceShipList.length);
+			final List<SpaceShip>... spaceShipList){
+		this(name,spaceShipList.length,new Iterator<List<SpaceShip>>(){
+			int i=0;
+			@Override
+			public boolean hasNext() {
+				return i<spaceShipList.length;
+			}
 
-		for(int j=0;j<spaceShipList.length;++j){
+			@Override
+			public List<SpaceShip> next() {
+				return spaceShipList[i++];
+			}
+
+			@Override
+			public void remove() {
+			}});
+	}
+
+	public SpaceShipListView(
+			String name,
+			List<List<SpaceShip>> spaceShipList){
+		this(name,spaceShipList.size(),spaceShipList.iterator());
+	}
+
+	private SpaceShipListView(
+			String name,
+			int length,
+			Iterator<List<SpaceShip>> ssItr){
+		super(name, 0.8f, 0.05f+0.1f*length);
+		isEmpty = !ssItr.hasNext();
+		while(ssItr.hasNext()){
+			List<SpaceShip> list = ssItr.next();
 			ShipIconClickListener listener = new ShipIconClickListener();
 			icons.add(listener);
-			for(int i=0;i<spaceShipList[j].size();++i){
-				DetailedShipIcon icon = spaceShipList[j].get(i).getDetailedIcon(i);
+			for(int i=0;i<list.size();++i){
+				DetailedShipIcon icon = list.get(i).getDetailedIcon(i);
 				icon.setLayer(R.MID_LAYER);
 				listener.add(icon);
 				tree.addChild(icon);
 			}
 		}
-
-
-		
-		
 		this.reposition(0.1f,(1f-background.dim.getHeight())/2f);
 	}
 	@Override
@@ -81,45 +107,21 @@ public class SpaceShipListView extends OverlayView {
 						x+background.dim.getWidth()+0.005);
 		}
 	}
-	
-	@Override
-	public boolean onClick(ClickEvent event){
-		if(clickLine==null){
-			if(close!=null&&event.isWithin(close)){
-				close.onClick(event);
-				return true;
-			}
-			for(MouseListener listener:icons){
-				listener.onClick(event);
-			}
-		}
-		else {
-			clickLine.onClick(event);
-		}
-		return true;
-	}
 
-	private class ShipIconClickListener extends ArrayList<DetailedShipIcon>  implements IconListener, MouseListener {
+	private class ShipIconClickListener extends ArrayList<DetailedShipIcon>  implements IconListener {
 		private static final long serialVersionUID = -1831917177718362055L;
 		private float scroll = 0f;
 
 		@Override
-		public boolean onClick(ClickEvent event){
-			if(clickState==MOUSE_UP&&event.getAction()==ClickEvent.ACTION_DOWN){
-				for(int i=0;i<size();++i){
-					if(event.isWithin(get(i))){
-						withinId = i;
-						break;
-					}
-				}
-				if(withinId!=-1){
-					clickLine = this;
-					clickState = MOUSE_DOWN;
-					clickX = event.getX();
-					clickY = event.getY();
-				}
+		public void performOnClick(int id, ClickEvent event) {
+			if(clickState==MOUSE_UP){
+				withinId = id;
+				clickLine = this;
+				clickState = MOUSE_DOWN;
+				clickX = event.getX();
+				clickY = event.getY();
 			}
-			else if((clickState==MOUSE_DOWN||clickState==MOUSE_DRAG)&&event.getAction()==ClickEvent.ACTION_DOWN){
+			else if(clickState==MOUSE_DOWN||clickState==MOUSE_DRAG){
 				double distanceFromStart = Math.sqrt(Math.pow(event.getX()-clickX, 2)+Math.pow(event.getY()-clickY, 2));
 				if(distanceFromStart>0.01f){
 					clickState = MOUSE_DRAG;
@@ -134,53 +136,52 @@ public class SpaceShipListView extends OverlayView {
 					clickY = event.getY();
 				}
 			}
-			else if(event.getAction()==ClickEvent.ACTION_UP){
-				if(clickState == MOUSE_DOWN){
-					((Game)Hub.view).buildOverlay(
-							new SpaceShipView(
-									get(withinId).getShip().getResource().getName(),
-									get(withinId).getShip()));
-				}
-				clickState = MOUSE_UP;
-				withinId = -1;
-				clickLine = null;
-			}
-			return true;
-		}
-
-		@Override
-		public void performOnClick(int id, ClickEvent event) {			
 		}
 
 		@Override
 		public void performOnRelease(int id, ClickEvent event) {
-
+			if(clickState == MOUSE_DOWN){
+				((Game)Hub.view).buildOverlay(
+						new SpaceShipView(
+								get(withinId).getShip().getResource().getName(),
+								get(withinId).getShip()));
+			}
+			clickState = MOUSE_UP;
+			withinId = -1;
+			clickLine = null;
 		}
 		@Override
-		public void performOnHoverOn(int id, HoverEvent event) {
-			get(id).setParentSelectedStatus(true);
-		}
-		@Override
-		public void performOnHoverOff(int id, HoverEvent event) {
-			get(id).setParentSelectedStatus(false);
-		}
-
-		@Override
-		public boolean onHover(HoverEvent event) {
-			return false;
-		}
-
-		@Override
-		public void onMouseScroll(int distance) {
-
+		public void performOnHover(int id, HoverEvent event) {
+			if(hoverIcon!=null){
+				hoverIcon.setParentSelectedStatus(false);
+			}
+			hoverIcon = get(id);
+			hoverIcon.setParentSelectedStatus(true);
+			
 		}
 	}
 
 	@Override
 	public Iterator<Iconic> iterator() {
+		if(isEmpty){
+			return new Iterator<Iconic>(){
+				@Override
+				public boolean hasNext() {
+					return false;
+				}
+				@Override
+				public Iconic next() {
+					return null;
+				}
+				@Override
+				public void remove() {				
+				}
+
+			};
+		}
 		final Iterator<ShipIconClickListener> itr = icons.iterator();
 		return new Iterator<Iconic>(){
-			Iterator<DetailedShipIcon> iconItr = itr.next().iterator();
+			private Iterator<DetailedShipIcon> iconItr = itr.next().iterator();
 
 			@Override
 			public boolean hasNext() {
@@ -201,7 +202,7 @@ public class SpaceShipListView extends OverlayView {
 			@Override
 			public void remove() {				
 			}
-			
+
 		};
 	}
 	@Override
@@ -210,5 +211,28 @@ public class SpaceShipListView extends OverlayView {
 			return icons.get(((DetailedShipIcon)icon).getShip().getSpaceShipClassificationId());
 		}
 		else return null;
+	}
+
+	@Override
+	public void clickNoIcon(ClickEvent event) {
+		if(clickLine!=null){
+			if(event.getAction()==ClickEvent.ACTION_DOWN){
+				clickLine.performOnClick(withinId, event);
+			}
+			else if(event.getAction()==ClickEvent.ACTION_UP){
+				clickLine.performOnRelease(withinId, event);
+			}
+		}
+		else {
+			super.clickNoIcon(event);
+		}
+	}
+
+	@Override
+	public void hoverNoIcon(HoverEvent event) {
+		if(hoverIcon!=null){
+			hoverIcon.setParentSelectedStatus(false);
+			hoverIcon = null;
+		}
 	}
 }

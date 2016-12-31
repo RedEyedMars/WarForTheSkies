@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 
 public class LongListStorageHandler extends ListStorageHandler<Long>{
 
@@ -12,13 +11,13 @@ public class LongListStorageHandler extends ListStorageHandler<Long>{
 		super(toHandle, maxSize);
 	}
 	@Override
-	public Long loadObject(DataPresenter data) throws IOException {
-		return data.nextLong();
+	public Long createObject() throws IOException {
+		return 0L;
 	}
 
 	@Override
-	public void saveObject(DataCollector toSave, Long element) throws IOException {
-		toSave.collect(element);
+	public Long collectObject(DataCollector data, Long element) throws IOException {
+		return data.collect(element);
 	}
 
 }

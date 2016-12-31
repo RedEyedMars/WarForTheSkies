@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 
 public class StringListLoader extends ListStorageHandler<String>{
 
@@ -12,11 +11,11 @@ public class StringListLoader extends ListStorageHandler<String>{
 		super(toHandle, maxSize);
 	}
 	@Override
-	public String loadObject(DataPresenter data) throws IOException {
-		return data.nextString();
+	public String createObject() throws IOException {
+		return "";
 	}
 	@Override
-	public void saveObject(DataCollector toSave, String element) throws IOException {
-		toSave.collect(element);
+	public String collectObject(DataCollector data, String element) throws IOException {
+		return data.collect(element);
 	}
 }

@@ -42,6 +42,11 @@ public class IconLineBackground extends LineBackground implements Iconic{
 		}
 		else return false;
 	}
+	
+	@Override
+	public IconListener getIconListener(){
+		return this.listener;
+	}
 
 
 	@Override

@@ -1,4 +1,4 @@
-package com.rem.wfs.menu;
+package com.rem.wfs.environment.resource.personel.menu;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,13 +15,14 @@ import com.rem.wfs.environment.resource.personel.PortraitIcon;
 import com.rem.wfs.graphics.R;
 import com.rem.wfs.graphics.icons.IconListener;
 import com.rem.wfs.graphics.icons.Iconic;
+import com.rem.wfs.menu.OverlayView;
 
 public class PersonelListView extends OverlayView implements IconListener {
 
 	private static final int MOUSE_DOWN = 0;
 	private static final int MOUSE_UP = 1;
 	private static final int MOUSE_DRAG = 2;
-	
+
 	private List<PortraitIcon> icons = new ArrayList<PortraitIcon>();
 
 	private int clickState = MOUSE_UP;
@@ -30,6 +31,7 @@ public class PersonelListView extends OverlayView implements IconListener {
 	private int withinId = -1;
 	private float scroll = 0f;
 	private GraphicElement hostView;
+	private PortraitIcon hoverIcon;
 	public PersonelListView(
 			String name,
 			List<Personel> personelList){
@@ -85,26 +87,37 @@ public class PersonelListView extends OverlayView implements IconListener {
 	}
 
 	@Override
-	public boolean onClick(ClickEvent event) {
-		if(close!=null&&event.isWithin(close)){
-			close.onClick(event);
-			return true;
+	public void performOnHover(int id, HoverEvent event){
+		if(hoverIcon!=null){
+			hoverIcon.setParentSelectedStatus(false);
 		}
-		if(clickState==MOUSE_UP&&event.getAction()==ClickEvent.ACTION_DOWN){
-			for(int i=0;i<icons.size();++i){
-				if(event.isWithin(icons.get(i))){
-					withinId = i;
-					break;
-				}
-			}
-			if(withinId!=-1){
-				clickState = MOUSE_DOWN;
-				clickX = event.getX();
-				clickY = event.getY();
-			}
+		hoverIcon = this.icons.get(id);
+		hoverIcon.setParentSelectedStatus(true);
+	}
+	@Override
+	public void hoverNoIcon(HoverEvent event) {
+		if(hoverIcon!=null){
+			hoverIcon.setParentSelectedStatus(false);
+			hoverIcon = null;
 		}
-		else if((clickState==MOUSE_DOWN||clickState==MOUSE_DRAG)&&
-				event.getAction()==ClickEvent.ACTION_DOWN){
+	}
+
+	public void selectIcon(int id){
+		((Game)Hub.view).buildOverlay(
+				new PersonelView(
+						"Personel",
+						icons.get(id).getPersonel(),
+						hostView!=null?hostView:this));
+	}
+	@Override
+	public void performOnClick(int id, ClickEvent event) {
+		if(clickState==MOUSE_UP){
+			withinId = id;
+			clickState = MOUSE_DOWN;
+			clickX = event.getX();
+			clickY = event.getY();
+		}
+		else if(clickState==MOUSE_DOWN||clickState==MOUSE_DRAG){
 			double distanceFromStart = Math.sqrt(Math.pow(event.getX()-clickX, 2)+Math.pow(event.getY()-clickY, 2));
 			if(distanceFromStart>0.01f){
 				clickState = MOUSE_DRAG;
@@ -119,36 +132,28 @@ public class PersonelListView extends OverlayView implements IconListener {
 				clickY = event.getY();
 			}
 		}
-		else if(event.getAction()==ClickEvent.ACTION_UP){
-			if(clickState == MOUSE_DOWN){
-				selectIcon(withinId);
-			}
-			clickState = MOUSE_UP;
-			withinId = -1;
+	}
+	@Override
+	public void performOnRelease(int id, ClickEvent event) {
+		if(clickState == MOUSE_DOWN){
+			selectIcon(withinId);
 		}
-		return true;
+		clickState = MOUSE_UP;
+		withinId = -1;
 	}
 	@Override
-	public void performOnHoverOn(int id, HoverEvent event){
-		this.icons.get(id).setParentSelectedStatus(true);
-	}
-	@Override
-	public void performOnHoverOff(int id, HoverEvent event) {
-		this.icons.get(id).setParentSelectedStatus(false);		
-	}
-
-	public void selectIcon(int id){
-		((Game)Hub.view).buildOverlay(
-				new PersonelView(
-						"Personel",
-						icons.get(id).getPersonel(),
-						hostView!=null?hostView:this));
-	}
-	@Override
-	public void performOnClick(int id, ClickEvent event) {		
-	}
-	@Override
-	public void performOnRelease(int id, ClickEvent event) {		
+	public void clickNoIcon(ClickEvent event){
+		if(withinId!=-1){
+			if(event.getAction()==ClickEvent.ACTION_DOWN){
+				performOnClick(withinId,event);
+			}
+			else if(event.getAction()==ClickEvent.ACTION_UP){
+				performOnRelease(withinId,event);
+			}
+		}
+		else {
+			super.clickNoIcon(event);
+		}
 	}
 	@Override
 	public Iterator<Iconic> iterator() {

@@ -3,9 +3,9 @@ package com.rem.wfs.environment.hexagon.system;
 
 import java.io.IOException;
 
+import com.rem.core.Hub;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.Storable;
 import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
@@ -51,15 +51,10 @@ public class Planet extends GraphicElement implements Storable, Identifiable {
 				new IdentityStorageHandler(this),
 				new StorageHandler(){
 					@Override
-					public void load(DataPresenter data) throws IOException{
-						distanceFromStar = data.nextInteger();
-						angleToCenter = data.nextFloat();
-					}
-					@Override
-					public void save(DataCollector toSave) throws IOException{
-						toSave.collect(distanceFromStar);
-						toSave.collect((float)angleToCenter);
-					}					
+					public void collect(DataCollector data) throws IOException{
+						distanceFromStar = data.collect(distanceFromStar);
+						angleToCenter = data.collect((float)angleToCenter);
+					}				
 				});
 	}
 
@@ -111,7 +106,10 @@ public class Planet extends GraphicElement implements Storable, Identifiable {
 		case GAS_GIANT:return GAS_GIANT_FRAME;
 		case FROZEN:return FROZEN_FRAME;
 		case SULFUROUS:return SULFUROUS_FRAME;
-		default: throw new RuntimeException("Planet.convertIdToFrame could not convert id:"+id+" to a frame value");
+		default: {
+			Hub.log.debug("", "");
+			throw new RuntimeException("Planet.convertIdToFrame could not convert id:"+id+" to a frame value");
+		}
 		}
 	}
 	public static float convertIdToSpeed(int id){

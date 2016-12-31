@@ -1,5 +1,7 @@
 package com.rem.wfs.environment.resource.cluster;
 
+import java.util.List;
+
 import com.rem.core.storage.handler.StorableListStorageHandler;
 import com.rem.wfs.environment.hexagon.SpaceHexagon;
 
@@ -7,14 +9,15 @@ public class ResourceClusterListStorageHandler extends StorableListStorageHandle
 
 	private SpaceHexagon container;
 
+	@SuppressWarnings("unchecked")
 	public ResourceClusterListStorageHandler(SpaceHexagon container) {
-		super(container.getResources(),ResourceCluster.numberOfClusters);
+		super((List<ResourceCluster>)container.getResources(),ResourceCluster.numberOfClusters);
 		this.container = container;
 	}
 
 	@Override
-	public ResourceCluster createPlaceHolder() {
-		return new ResourceCluster(container.getResources().size());
+	public ResourceCluster createObject() {
+		return new ResourceCluster(container.getResources(),container.getResources().size());
 	}
 
 

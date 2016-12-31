@@ -14,4 +14,8 @@ public interface Iconic {
 
 	public void removeIconListener();
 
+	public IconListener getIconListener();
+
+	public boolean isWithin(float x, float y);
+
 }

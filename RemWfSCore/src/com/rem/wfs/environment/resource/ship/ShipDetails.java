@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.rem.core.environment.Range;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
 import com.rem.wfs.graphics.R;
 
@@ -33,15 +32,9 @@ public class ShipDetails implements StorageHandler {
 		animalId = animalFrames.getRandomIndex();
 	}
 	@Override
-	public void load(DataPresenter data) throws IOException {
-		featuresId = data.nextInteger();
-		animalId = data.nextInteger();
-	}
-
-	@Override
-	public void save(DataCollector toSave) throws IOException {
-		toSave.collect(featuresId);
-		toSave.collect(animalId);
+	public void collect(DataCollector data) throws IOException {
+		featuresId = data.collect(featuresId);
+		animalId = data.collect(animalId);
 	}
 
 	public GraphicElement generateIcon() {

@@ -6,13 +6,11 @@ import com.rem.core.environment.Range;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.gui.graphics.elements.OffsetHandler;
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
-import com.rem.core.storage.Storable;
 import com.rem.core.storage.StorageHandler;
 import com.rem.wfs.graphics.R;
 import com.rem.wfs.graphics.icons.Icon;
 
-public class PersonelTrait implements Storable{
+public class PersonelTrait implements StorageHandler{
 
 	private static final Range colourDownRange = new Range(17,21);
 	private static final Range colourUpRange = new Range(9,13);
@@ -49,22 +47,11 @@ public class PersonelTrait implements Storable{
 	}
 
 	@Override
-	public StorageHandler getStorageHandler(){
-		return new StorageHandler(){
-			@Override
-			public void load(DataPresenter data) throws IOException {
-				colourId = data.nextInteger();
-				typeId = data.nextInteger();
-				
-				updateIcon();
-			}
-
-			@Override
-			public void save(DataCollector toSave) throws IOException {
-				toSave.collect(colourId);
-				toSave.collect(typeId);
-			}
-		};
+	public void collect(DataCollector data) throws IOException {
+		colourId = data.collect(colourId);
+		typeId = data.collect(typeId);
+		
+		updateIcon();
 	}
 
 

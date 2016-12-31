@@ -24,14 +24,16 @@ public class ShipBuilder {
 		ship.getFuel().setCapacity(fuel.getRandomElement());
 	}
 	
-	public void build(SpaceShip ship, ResourceContainer container){
-		Material metal = (Material) container.getResources().get(0);
+	public void build(SpaceShip ship, ResourceContainer container, float seconds){
+		Material metal = (Material) container.getResource(ResourceContainer.MATERIAL_ID, Material.ID_METAL);
+		float mtlIcr = metalIncrementAmount*seconds;
 		if(metal.getValue()>metalIncrementAmount){			
-			metal.setValue(metal.getValue()-(metalIncrementAmount-ship.getHp().add(metalIncrementAmount)));
+			metal.setValue(metal.getValue()-(mtlIcr-ship.getHp().add(mtlIcr)));
 		}
-		Material fuel = (Material) container.getResources().get(1);
-		if(fuel.getValue()>fuelIncrementAmount){
-			fuel.setValue(fuel.getValue()-(fuelIncrementAmount-ship.getFuel().add(fuelIncrementAmount)));
+		Material fuel = (Material) container.getResource(ResourceContainer.MATERIAL_ID, Material.ID_FUEL);
+		float fuelIcr = fuelIncrementAmount*seconds;
+		if(fuel.getValue()>fuelIcr){
+			fuel.setValue(fuel.getValue()-(fuelIcr-ship.getFuel().add(fuelIcr)));
 		}
 	}
 }

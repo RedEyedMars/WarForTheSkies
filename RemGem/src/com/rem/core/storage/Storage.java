@@ -76,12 +76,12 @@ public class Storage {
 	}
 
 	public static void loadMap(String name,String filename, InputStream input){
-		DataPresenter dataLoader = new DataPresenter(input);
+		DataDecoder dataLoader = new DataDecoder(input);
 		
 		Hub.map = Hub.creator.createPlaceHolderEnvironment();
 		Hub.map.setNameAndFileName(name,filename);
 		try {
-			Hub.map.load(dataLoader);
+			Hub.map.collect(dataLoader);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -145,8 +145,8 @@ public class Storage {
 		createFolder("data");
 		OutputStream writer = resource.get();
 		try {
-			DataCollector toSave = new DataCollector(writer);
-			target.save(toSave);
+			DataCollector toSave = new DataEncoder(writer);
+			target.collect(toSave);
 			if(Storage.debug_load)Hub.log.debug("Storage.saveMap","");
 		} catch (IOException e) {
 			e.printStackTrace();

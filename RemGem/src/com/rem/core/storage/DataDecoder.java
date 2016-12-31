@@ -6,37 +6,37 @@ import java.nio.ByteBuffer;
 
 import com.rem.core.Hub;
 
-public class DataPresenter  {
+public class DataDecoder implements DataCollector {
 	
 	private InputStream input;
 
-	public Boolean nextBoolean() throws IOException{
-		Boolean value = decodeInteger()==0;
-		if(Storage.debug_load)Hub.log.bufferDebug("DataPresenter.nextBoolean", value+",");
+	public Boolean collect(Boolean value) throws IOException{
+		value = decodeInteger()==0;
+		if(Storage.debug_load)Hub.log.bufferDebug("DataPresenter.nextBoolean", value+"b,");
 		return value;
 	}
 
-	public Integer nextInteger() throws IOException{
-		Integer value = decodeInteger();
-		if(Storage.debug_load)Hub.log.bufferDebug("DataPresenter.nextInteger", value+",");
+	public Integer collect(Integer value) throws IOException{
+		value = decodeInteger();
+		if(Storage.debug_load)Hub.log.bufferDebug("DataPresenter.nextInteger", value+"i,");
 		return value;
 	}
 
-	public Float nextFloat() throws IOException{
-		Float value = decodeFloat();
-		if(Storage.debug_load)Hub.log.bufferDebug("DataPresenter.nextFloat", value+",");
+	public Float collect(Float value) throws IOException{
+		value = decodeFloat();
+		if(Storage.debug_load)Hub.log.bufferDebug("DataPresenter.nextFloat", value+"f,");
 		return value;
 	}
-	public Long nextLong() throws IOException{
-		Long value = decodeLong();
-		if(Storage.debug_load)Hub.log.bufferDebug("DataPresenter.nextLong", value+",");
+	public Long collect(Long value) throws IOException{
+		value = decodeLong();
+		if(Storage.debug_load)Hub.log.bufferDebug("DataPresenter.nextLong", value+"l,");
 		return value;
 	}
-	public String nextString() throws IOException{
+	public String collect(String string) throws IOException{
 		return decodeString();
 	}
 
-	public DataPresenter(InputStream input){
+	public DataDecoder(InputStream input){
 		this.input = input;
 	}
 

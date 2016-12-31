@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.rem.core.gui.graphics.elements.GraphicElement;
-import com.rem.wfs.graphics.icons.Iconic;
 import com.rem.core.gui.graphics.R;
 
 
@@ -52,8 +51,6 @@ public abstract class ResourceType<ObjectType extends SpaceResource<ObjectType>>
 	public abstract int generateInitialLimit(ResourceContainer container);
 	public abstract float generateInitialGrowth(ResourceContainer container);
 	public abstract SpaceResource<ObjectType> createPlaceHolder(ResourceContainer container);
-
-	public abstract Iconic createIcon(final ObjectType spaceResource);
 
 	public int[] getIconBackground() {
 		return new int[]{iconBackgroundTexture,iconBackgroundFrame,R.MID_LAYER};

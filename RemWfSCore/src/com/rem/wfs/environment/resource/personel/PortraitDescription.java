@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.rem.core.environment.Range;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.StorageHandler;
 import com.rem.wfs.graphics.R;
 
@@ -24,18 +23,12 @@ public class PortraitDescription implements StorageHandler{
 		featuresId = featureFrames.getRandomIndex();
 		hairId = hairFrames.getRandomIndex();
 	}
-	@Override
-	public void load(DataPresenter data) throws IOException {
-		backgroundId = data.nextInteger();
-		featuresId = data.nextInteger();
-		hairId = data.nextInteger();
-	}
 
 	@Override
-	public void save(DataCollector toSave) throws IOException {
-		toSave.collect(backgroundId);
-		toSave.collect(featuresId);
-		toSave.collect(hairId);
+	public void collect(DataCollector data) throws IOException {
+		backgroundId = data.collect(backgroundId);
+		featuresId = data.collect(featuresId);
+		hairId = data.collect(hairId);
 	}
 
 	public GraphicElement generateFace() {

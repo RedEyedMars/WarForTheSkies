@@ -12,7 +12,6 @@ import com.rem.core.IFileManager;
 import com.rem.core.environment.Environment;
 import com.rem.core.gui.inputs.HoverEvent;
 import com.rem.core.storage.DataCollector;
-import com.rem.core.storage.DataPresenter;
 import com.rem.core.storage.Storage;
 import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
@@ -20,7 +19,6 @@ import com.rem.wfs.environment.hexagon.SpaceHexagon;
 import com.rem.wfs.environment.hexagon.SpaceHexagonListStorageHandler;
 import com.rem.wfs.environment.location.Locatable;
 import com.rem.wfs.environment.location.Location;
-import com.rem.wfs.environment.location.LocationStorageHandler;
 import com.rem.wfs.environment.resource.cluster.ResourceCluster;
 import com.rem.wfs.environment.resource.material.Material;
 import com.rem.wfs.environment.resource.personel.Personel;
@@ -31,7 +29,7 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 	public static final int NORMAL_SECTOR = 0;
 	private Long lastUpdatedTime;
 	private Integer id;
-	private Location location ;
+	private Location location = new Location(0,0);
 	private Map<Integer,Map<Integer,SpaceHexagon>> hexMap = new HashMap<Integer,Map<Integer,SpaceHexagon>>();
 
 	private List<SpaceHexagon> spaceHexagons = new ArrayList<SpaceHexagon>(){
@@ -78,7 +76,7 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 		super();
 		new Material(null,null);
 		new Personel();
-		new SpaceShip(null);
+		new SpaceShip(null,null);
 		ResourceCluster.setup();
 		
 	}
@@ -87,19 +85,13 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 	public StorageHandler getStorageHandler() {
 		return new HandlerListStorageHandler(
 				new IdentityStorageHandler(this),
-				new LocationStorageHandler(this),
+				location,
 				new SpaceHexagonListStorageHandler(this),
 				new StorageHandler(){
 					@Override
-					public void load(DataPresenter data) throws IOException {	
-						lastUpdatedTime = data.nextLong();					
-						reposition(dim.getX()-0.3f,dim.getY()-0.4f);
-					}
-
-					@Override
-					public void save(DataCollector toSave) throws IOException {
-						toSave.collect(lastUpdatedTime);
-					}					
+					public void collect(DataCollector data) throws IOException {	
+						lastUpdatedTime = data.collect(lastUpdatedTime);
+					}			
 				});
 	}
 
@@ -125,7 +117,6 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 				createHexagon(x+2-(14-y)/2,y);
 			}
 		}
-		reposition(dim.getX()-0.3f,dim.getY()-0.4f);
 
 		getHexagon(4,6).setId(SpaceHexagon.createId(SpaceHexagon.HOST_PLAYER_ID));
 		getHexagon(5,6).setId(SpaceHexagon.createId(SpaceHexagon.HOST_PLAYER_ID));
@@ -197,6 +188,7 @@ public class SpaceSector extends Environment implements Locatable, Identifiable{
 	
 	public void start(){
 		saveThread.start();
+		reposition(dim.getX()-0.3f,dim.getY()-0.4f);
 	}
 
 	@Override

@@ -8,20 +8,23 @@ import com.rem.core.environment.Range;
 import com.rem.core.gui.graphics.elements.GraphicElement;
 import com.rem.core.storage.StorageHandler;
 import com.rem.core.storage.handler.HandlerListStorageHandler;
-import com.rem.wfs.Creatable;
 import com.rem.wfs.environment.Identifiable;
 import com.rem.wfs.environment.IdentityStorageHandler;
+import com.rem.wfs.environment.hexagon.SpaceHexagon;
 import com.rem.wfs.environment.resource.ResourceContainer;
 import com.rem.wfs.environment.resource.ResourceType;
 import com.rem.wfs.environment.resource.SpaceResource;
-import com.rem.wfs.environment.resource.StockList;
-import com.rem.wfs.environment.resource.StockType;
 import com.rem.wfs.environment.resource.personel.Personel;
 import com.rem.wfs.environment.resource.personel.PersonelStock;
+import com.rem.wfs.environment.resource.ship.stations.SpaceStation;
+import com.rem.wfs.environment.resource.ship.stations.SpaceStationPosition;
+import com.rem.wfs.environment.resource.stock.StockElement;
+import com.rem.wfs.environment.resource.stock.StockList;
+import com.rem.wfs.environment.resource.stock.StockType;
 import com.rem.wfs.graphics.Meter;
 import com.rem.wfs.graphics.R;
 
-public class SpaceShip extends GraphicElement implements Creatable, Identifiable, ResourceContainer{
+public class SpaceShip extends GraphicElement implements StockElement, Identifiable, ResourceContainer{
 
 	private static final int HARBINGER_FRAME = 4;
 	private static final int HARBINGER_BACKGROUND_FRAME = 9;
@@ -33,7 +36,7 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	private static final int MINER_BACKGROUND_FRAME = 13;
 	private static final SpaceShipStock HARBINGER = new SpaceShipStock(
 			"Flag Ship", "Used in defending large areas and is the only unit able of capturing other hexagons.",
-			new ShipBuilder(new Range(1500,2000),new Range(5000,6000)),
+			new ShipBuilder(new Range(100,150),new Range(1000,1500)),
 			R.spaceships,HARBINGER_FRAME,
 			R.resource_backs,HARBINGER_BACKGROUND_FRAME
 			){
@@ -64,7 +67,7 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	};
 	private static final SpaceShipStock LANCER = new SpaceShipStock(
 			"Lancer", "Long ranged bulky ship that can defend flag ships well.",
-			new ShipBuilder(new Range(500,700),new Range(1500,2000)),
+			new ShipBuilder(new Range(50,75),new Range(200,300)),
 			R.spaceships,LANCER_FRAME,
 			R.resource_backs,LANCER_BACKGROUND_FRAME
 			){
@@ -95,7 +98,7 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	};
 	private static final SpaceShipStock FIGHTER = new SpaceShipStock(
 			"Fighter", "Quick sleek ship, designed for quick manuevers.",
-			new ShipBuilder(new Range(100,175),new Range(200,250)),
+			new ShipBuilder(new Range(20,50),new Range(100,200)),
 			R.spaceships,FIGHTER_FRAME,
 			R.resource_backs,FIGHTER_BACKGROUND_FRAME
 			){
@@ -126,7 +129,7 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	};
 	private static final SpaceShipStock MINER = new SpaceShipStock(
 			"Miner", "Ship that cannot fight but does contibute to resource collection.",
-			new ShipBuilder(new Range(10,20),new Range(10000,20000)),
+			new ShipBuilder(new Range(10,20),new Range(200,500)),
 			R.spaceships,MINER_FRAME,
 			R.resource_backs,MINER_BACKGROUND_FRAME
 			){
@@ -213,7 +216,32 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	private ShipStatistic hp = new ShipStatistic(){
 		@Override
 		protected Meter createMeter() {
-			return null;
+			Meter meter = new Meter(fuel,"Fuel",
+					R.solid_colour,R.COLOUR_RED,
+					R.spaceships,details.generateIcon().getFrame()+7,
+					R.spaceships,47,
+					R.MID_LAYER,null);
+			final float height = meter.getForeground().dim.getHeight()/2;
+			meter.getAnimater().resize(meter.getForeground().dim.getWidth(), height);
+			meter.setAnimation(new Meter.Animation(){
+				@Override
+				public void animate(GraphicElement element, float percentFull) {
+					element.resize(element.dim.getWidth(), percentFull*height);
+					if(percentFull<0.25f){
+						element.setFrame(R.COLOUR_RED);
+					}
+					else if(percentFull<0.5f){
+						element.setFrame(R.COLOUR_YELLOW);
+					}
+					else if(percentFull<0.75f){
+						element.setFrame(R.COLOUR_GREEN);
+					}
+					else {
+						element.setFrame(R.COLOUR_BLUE);
+					}
+				}				
+			});
+			return meter;
 		}
 		
 	};
@@ -228,9 +256,12 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 			});
 		}		
 	};
+	private StockList<SpaceShip> parent;
+	private SpaceStationPosition spaceStationPosition;
 
-	public SpaceShip(SpaceShipStock resource) {
+	public SpaceShip(StockList<SpaceShip> parent, SpaceShipStock resource) {
 		super(R.space_objects,0,R.BOT_LAYER);
+		this.parent = parent;
 		this.resource = resource;
 		details = new ShipDetails(this);
 		name = new ShipName();
@@ -248,7 +279,8 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 				name,				
 				crew.getStorageHandler(),
 				hp,
-				fuel);
+				fuel,
+				SpaceStationPosition.getStorageHandler(this));
 	}
 
 	@Override
@@ -292,6 +324,21 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	public List<SpaceResource> getResources() {
 		return crewContainer;
 	}
+
+	@Override
+	public SpaceResource<?> getResource(int catagory, int id) {
+		if(catagory == ResourceContainer.PERSONEL_ID&&id==0){
+			return crew;
+		}
+		else return this.parent.getContainer().getResource(catagory, id);
+	}
+	
+	public List<SpaceStation> getAvailibleStations(){
+		if(this.parent.getContainer() instanceof SpaceHexagon){
+			return ((SpaceHexagon)this.parent.getContainer()).getAvailibleStations();
+		}
+		else return null;
+	}
 	
 	public List<Personel> getCrew(){
 		return crew;
@@ -304,5 +351,19 @@ public class SpaceShip extends GraphicElement implements Creatable, Identifiable
 	public ShipStatistic getFuel(){
 		return fuel;
 	}
+
+	@Override
+	public void grow(ResourceContainer container, float seconds) {
+		this.resource.getBuilder().build(this, container, seconds);
+	}
+
+	public SpaceStationPosition getSpaceStationPosition() {
+		return spaceStationPosition;
+	}
+
+	public void setSpaceStationPosition(SpaceStationPosition spaceStationPosition) {
+		this.spaceStationPosition = spaceStationPosition;
+	}
+
 	
 }
